@@ -1,0 +1,48 @@
+version: '3.3'
+networks:
+  famiphoto_network:
+services:
+  famiphoto:
+    image: famiphoto
+    container_name: famiphoto
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: local
+    #ports:
+    #  - 7000:8080
+    networks:
+      - famiphoto_network
+    tty: true
+    command: air -c ./.air/.air.toml
+    volumes:
+      - ./:/go/src/github.com/hiroyky/famiphoto/
+  mysql:
+    image: mysql:8.0
+    container_name: famiphoto_mysqldb
+    platform: linux/amd64
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./dbschema/:/docker-entrypoint-initdb.d/
+    ports:
+      - 7001:3306
+    networks:
+      - famiphoto_network
+  samba:
+    image: dperson/samba
+    container_name: samba
+    restart: always
+    environment:
+      - PERMISSIONS=1
+      - USER=famiphoto;password
+      - WORKGROUP=famiphoto
+      - SHARE=famiphoto;/mnt/famiphoto;yes;no;no;famiphoto
+    volumes:
+      - ./.samba/:/mnt/famiphoto
+    ports:
+      - 139:139
+      - 445:445
+    networks:
+      - famiphoto_network
