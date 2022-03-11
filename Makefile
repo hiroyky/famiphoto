@@ -31,3 +31,5 @@ dc_gen:
 	docker compose exec $(DOCKER) go generate ./...
 dc_sqlboil:
 	docker compose exec $(DOCKER) sqlboiler mysql
+dc_gengql:
+	docker compose exec $(DOCKER) gqlgen

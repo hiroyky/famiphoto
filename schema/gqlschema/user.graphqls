@@ -1,0 +1,23 @@
+type User implements Node {
+    id: ID!
+    name: String!
+    status: UserStatus!
+    password: UserPassword
+    belongGroups: [Group!]!
+}
+
+enum UserStatus {
+    Active
+    Withdrawal
+}
+
+type UserEdge implements Edge {
+    cursor: Cursor!
+    node: User!
+}
+
+type UserPagination implements Pagination {
+    pageInfo: PaginationInfo!
+    edges: [UserEdge!]!
+    nodes: [User!]!
+}

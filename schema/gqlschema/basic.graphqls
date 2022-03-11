@@ -1,0 +1,41 @@
+# basic.graphqls
+
+scalar Cursor
+scalar Timestamp
+
+interface Node {
+    id: ID!
+}
+
+interface Pagination {
+    pageInfo: PaginationInfo!
+    edges: [Edge!]!
+    nodes: [Node!]!
+}
+
+interface Connection {
+    pageInfo: PageInfo!
+    edges: [Edge!]!
+    nodes: [Node!]!
+}
+
+interface Edge {
+    cursor: Cursor!
+    node: Node!
+}
+
+type PaginationInfo {
+    page: Int!
+    paginationLength: Int!
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    count: Int!
+    totalCount: Int!
+}
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: Cursor
+    endCursor: Cursor
+}

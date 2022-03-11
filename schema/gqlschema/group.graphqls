@@ -1,0 +1,16 @@
+type Group implements Node {
+    id: ID!
+    name: String!
+    userPagination: UserPagination!
+}
+
+type GroupEdge implements Edge {
+    cursor: Cursor!
+    node: Group!
+}
+
+type GroupPagination implements Pagination {
+    pageInfo: PaginationInfo!
+    edges: [GroupEdge!]!
+    nodes: [Group!]!
+}
