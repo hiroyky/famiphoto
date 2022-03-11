@@ -25,6 +25,10 @@ func (r *userRepository) GetUser(ctx context.Context, userID string) (*entities.
 	return nil, nil
 }
 
+func (r *userRepository) ExistUser(ctx context.Context, userID string) (bool, error) {
+	return models.UserExists(ctx, r.db, userID)
+}
+
 func (r *userRepository) CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {

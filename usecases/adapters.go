@@ -8,6 +8,7 @@ import (
 
 type UserAdapter interface {
 	GetUser(ctx context.Context, userID string) (*entities.User, error)
+	ExistUser(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error)
 }
 

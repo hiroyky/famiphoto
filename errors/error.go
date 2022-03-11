@@ -24,6 +24,8 @@ const (
 	Unknown            FamiPhotoErrorCode = "Unknown"
 	UserNotFoundError  FamiPhotoErrorCode = "UserNotFoundError"
 	UserCreateFatal    FamiPhotoErrorCode = "UserCreateFatal"
+	UserAlreadyExists  FamiPhotoErrorCode = "UserAlreadyExists"
+	PasswordWeakError  FamiPhotoErrorCode = "PasswordWeakError"
 	TxnRollbackFatal   FamiPhotoErrorCode = "TxnRollbackFatal"
 	TxnBeginFatal      FamiPhotoErrorCode = "TxnBeginFatal"
 	HashPasswordFatal  FamiPhotoErrorCode = "HashPasswordFatal"
