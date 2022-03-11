@@ -11,6 +11,9 @@ type FamiPhotoError struct {
 }
 
 func (e *FamiPhotoError) Error() string {
+	if e.baseError == nil {
+		return e.ErrorCode().ToString()
+	}
 	return fmt.Sprintf("code: %s, %s", e.errorCode, e.baseError.Error())
 }
 
@@ -19,6 +22,10 @@ func (e *FamiPhotoError) ErrorCode() FamiPhotoErrorCode {
 }
 
 type FamiPhotoErrorCode string
+
+func (c FamiPhotoErrorCode) ToString() string {
+	return string(c)
+}
 
 const (
 	Unknown            FamiPhotoErrorCode = "Unknown"
