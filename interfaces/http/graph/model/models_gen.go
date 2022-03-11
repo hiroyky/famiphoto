@@ -26,6 +26,7 @@ type Pagination interface {
 
 type CreateUserInput struct {
 	UserID   string `json:"userId"`
+	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 

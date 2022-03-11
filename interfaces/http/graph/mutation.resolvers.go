@@ -5,15 +5,18 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
-
-	panic(fmt.Errorf("not implemented"))
+	user, err := r.userUseCase.CreateUser(ctx, input.UserID, input.Name, input.Password, time.Now())
+	if err != nil {
+		return nil, err
+	}
+	return model.NewUser(user), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

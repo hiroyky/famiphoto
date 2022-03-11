@@ -4,5 +4,6 @@ type Mutation {
 
 input CreateUserInput {
     userId: String!
+    name: String!
     password: String!
 }
