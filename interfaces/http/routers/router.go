@@ -16,7 +16,8 @@ func New() *echo.Echo {
 		return ctx.String(http.StatusOK, "ok")
 	})
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	resolver := graph.NewResolver()
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 	e.GET("/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql/query")))
 	e.POST("/graphql/query", echo.WrapHandler(srv))
 

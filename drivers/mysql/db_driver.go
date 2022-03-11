@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 )
 
 var db *sql.DB = nil
 
-func NewDatabaseDriver() (*sql.DB, error) {
+func NewDatabaseDriver() repositories.SQLExecutor {
 	if db != nil {
-		return db, nil
+		return db
 	}
 
 	source := fmt.Sprintf(
@@ -23,8 +24,8 @@ func NewDatabaseDriver() (*sql.DB, error) {
 	)
 	newDB, err := sql.Open("mysql", source)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	db = newDB
-	return db, nil
+	return db
 }

@@ -11,8 +11,10 @@ import (
 	"time"
 )
 
-func NewUserRepository() usecases.UserAdapter {
-	return &userRepository{}
+func NewUserRepository(db SQLExecutor) usecases.UserAdapter {
+	return &userRepository{
+		db: db,
+	}
 }
 
 type userRepository struct {

@@ -24,6 +24,11 @@ type Pagination interface {
 	IsPagination()
 }
 
+type CreateUserInput struct {
+	UserID   string `json:"userId"`
+	Password string `json:"password"`
+}
+
 type GroupEdge struct {
 	Cursor string `json:"cursor"`
 	Node   *Group `json:"node"`
