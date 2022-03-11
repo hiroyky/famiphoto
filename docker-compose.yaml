@@ -25,7 +25,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
     volumes:
-      - ./dbschema/:/docker-entrypoint-initdb.d/
+      - ./schema/dbschema/generator/:/docker-entrypoint-initdb.d/
     ports:
       - 7001:3306
     networks:
@@ -41,8 +41,5 @@ services:
       - SHARE=famiphoto;/mnt/famiphoto;yes;no;no;famiphoto
     volumes:
       - ./.samba/:/mnt/famiphoto
-    ports:
-      - 139:139
-      - 445:445
     networks:
       - famiphoto_network
