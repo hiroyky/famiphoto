@@ -36,7 +36,10 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Group() GroupResolver
+	Photo() PhotoResolver
 	Query() QueryResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -118,9 +121,21 @@ type ComplexityRoot struct {
 	}
 }
 
+type GroupResolver interface {
+	UserPagination(ctx context.Context, obj *model.Group) (*model.UserPagination, error)
+}
+type PhotoResolver interface {
+	Group(ctx context.Context, obj *model.Photo) (*model.Group, error)
+
+	Owner(ctx context.Context, obj *model.Photo) (*model.User, error)
+}
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
 	Users(ctx context.Context, id *string, limit *int, offset *int) (*model.UserPagination, error)
+}
+type UserResolver interface {
+	Password(ctx context.Context, obj *model.User) (*model.UserPassword, error)
+	BelongGroups(ctx context.Context, obj *model.User) ([]*model.Group, error)
 }
 
 type executableSchema struct {
@@ -780,14 +795,14 @@ func (ec *executionContext) _Group_userPagination(ctx context.Context, field gra
 		Object:     "Group",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserPagination, nil
+		return ec.resolvers.Group().UserPagination(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1509,14 +1524,14 @@ func (ec *executionContext) _Photo_group(ctx context.Context, field graphql.Coll
 		Object:     "Photo",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Group, nil
+		return ec.resolvers.Photo().Group(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1579,14 +1594,14 @@ func (ec *executionContext) _Photo_owner(ctx context.Context, field graphql.Coll
 		Object:     "Photo",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Owner, nil
+		return ec.resolvers.Photo().Owner(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1871,14 +1886,14 @@ func (ec *executionContext) _User_password(ctx context.Context, field graphql.Co
 		Object:     "User",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Password, nil
+		return ec.resolvers.User().Password(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1903,14 +1918,14 @@ func (ec *executionContext) _User_belongGroups(ctx context.Context, field graphq
 		Object:     "User",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.BelongGroups, nil
+		return ec.resolvers.User().BelongGroups(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3511,7 +3526,7 @@ func (ec *executionContext) _Group(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3521,18 +3536,28 @@ func (ec *executionContext) _Group(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "userPagination":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Group_userPagination(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Group_userPagination(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3790,7 +3815,7 @@ func (ec *executionContext) _Photo(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3800,7 +3825,7 @@ func (ec *executionContext) _Photo(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "filePath":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3810,7 +3835,7 @@ func (ec *executionContext) _Photo(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "importedAt":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3820,7 +3845,7 @@ func (ec *executionContext) _Photo(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "groupId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3830,18 +3855,28 @@ func (ec *executionContext) _Photo(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "group":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Photo_group(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Photo_group(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			})
 		case "ownerId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Photo_ownerId(ctx, field, obj)
@@ -3850,18 +3885,28 @@ func (ec *executionContext) _Photo(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "owner":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Photo_owner(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Photo_owner(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3978,7 +4023,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3988,7 +4033,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "status":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3998,25 +4043,45 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "password":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._User_password(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_password(ctx, field, obj)
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
+			})
 		case "belongGroups":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._User_belongGroups(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_belongGroups(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4624,6 +4689,10 @@ func (ec *executionContext) marshalNCursor2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) marshalNGroup2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v model.Group) graphql.Marshaler {
+	return ec._Group(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNGroup2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGroupᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Group) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -4800,6 +4869,10 @@ func (ec *executionContext) marshalNTimestamp2string(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNUser2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {

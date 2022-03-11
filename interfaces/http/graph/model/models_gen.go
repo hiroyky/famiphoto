@@ -24,14 +24,6 @@ type Pagination interface {
 	IsPagination()
 }
 
-type Group struct {
-	ID             string          `json:"id"`
-	Name           string          `json:"name"`
-	UserPagination *UserPagination `json:"userPagination"`
-}
-
-func (Group) IsNode() {}
-
 type GroupEdge struct {
 	Cursor string `json:"cursor"`
 	Node   *Group `json:"node"`
@@ -62,29 +54,6 @@ type PaginationInfo struct {
 	Count            int  `json:"count"`
 	TotalCount       int  `json:"totalCount"`
 }
-
-type Photo struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	FilePath   string `json:"filePath"`
-	ImportedAt string `json:"importedAt"`
-	GroupID    string `json:"groupId"`
-	Group      *Group `json:"group"`
-	OwnerID    string `json:"ownerId"`
-	Owner      *User  `json:"owner"`
-}
-
-func (Photo) IsNode() {}
-
-type User struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Status       UserStatus    `json:"status"`
-	Password     *UserPassword `json:"password"`
-	BelongGroups []*Group      `json:"belongGroups"`
-}
-
-func (User) IsNode() {}
 
 type UserEdge struct {
 	Cursor string `json:"cursor"`
