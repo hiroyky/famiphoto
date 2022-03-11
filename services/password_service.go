@@ -2,7 +2,7 @@ package services
 
 import (
 	"crypto/hmac"
-	"crypto/sha512"
+	"crypto/sha256"
 	"encoding/base64"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/errors"
@@ -20,7 +20,7 @@ type passwordService struct {
 }
 
 func (s *passwordService) HashPassword(password string) (string, error) {
-	dst, err := bcrypt.GenerateFromPassword(s.hmacHash(password), 30)
+	dst, err := bcrypt.GenerateFromPassword(s.hmacHash(password), 10)
 	if err != nil {
 		return "", errors.New(errors.HashPasswordFatal, err)
 	}
@@ -48,7 +48,7 @@ func (s *passwordService) GeneratePassword() (string, error) {
 }
 
 func (s *passwordService) hmacHash(src string) []byte {
-	h := hmac.New(sha512.New, s.hmacKey)
+	h := hmac.New(sha256.New, s.hmacKey)
 	h.Write([]byte(src))
 	return h.Sum(nil)
 }

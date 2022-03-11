@@ -16,10 +16,12 @@ func New() *echo.Echo {
 		return ctx.String(http.StatusOK, "ok")
 	})
 
-	resolver := graph.NewResolver()
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
-	e.GET("/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql/query")))
-	e.POST("/graphql/query", echo.WrapHandler(srv))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver()}))
+	e.GET("/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql")))
+	e.POST("/graphql", func(ctx echo.Context) error {
+		srv.ServeHTTP(ctx.Response(), ctx.Request())
+		return nil
+	})
 
 	return e
 }

@@ -33,7 +33,6 @@ func (u *userUseCase) CreateUser(ctx context.Context, userID, name string, passw
 	if err != nil {
 		return nil, err
 	}
-
 	createdUser, err := u.userAdapter.CreateUser(ctx, user, encPassword, true, now)
 	if err != nil {
 		return nil, err
