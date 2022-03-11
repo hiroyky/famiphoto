@@ -9,6 +9,7 @@ package di
 import (
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
+	"github.com/hiroyky/famiphoto/services"
 	"github.com/hiroyky/famiphoto/usecases"
 )
 
@@ -17,6 +18,7 @@ import (
 func InitUserUseCase() usecases.UserUseCase {
 	sqlExecutor := mysql.NewDatabaseDriver()
 	userAdapter := repositories.NewUserRepository(sqlExecutor)
-	userUseCase := usecases.NewUserUseCase(userAdapter)
+	passwordService := services.NewPasswordService()
+	userUseCase := usecases.NewUserUseCase(userAdapter, passwordService)
 	return userUseCase
 }

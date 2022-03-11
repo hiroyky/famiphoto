@@ -10,12 +10,16 @@ type UserUseCase interface {
 	CreateUser(ctx context.Context, userID, name string, password string, now time.Time) (*entities.User, error)
 }
 
-func NewUserUseCase(userAdapter UserAdapter) UserUseCase {
-	return &userUseCase{userAdapter: userAdapter}
+func NewUserUseCase(userAdapter UserAdapter, passwordService PasswordService) UserUseCase {
+	return &userUseCase{
+		userAdapter:     userAdapter,
+		passwordService: passwordService,
+	}
 }
 
 type userUseCase struct {
-	userAdapter UserAdapter
+	userAdapter     UserAdapter
+	passwordService PasswordService
 }
 
 func (u *userUseCase) CreateUser(ctx context.Context, userID, name string, password string, now time.Time) (*entities.User, error) {
@@ -25,7 +29,12 @@ func (u *userUseCase) CreateUser(ctx context.Context, userID, name string, passw
 		Status: entities.UserStatusActive,
 	}
 
-	createdUser, err := u.userAdapter.CreateUser(ctx, user, password, true, now)
+	encPassword, err := u.passwordService.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+
+	createdUser, err := u.userAdapter.CreateUser(ctx, user, encPassword, true, now)
 	if err != nil {
 		return nil, err
 	}

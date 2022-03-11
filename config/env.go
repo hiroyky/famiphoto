@@ -9,6 +9,7 @@ type FamiPhotoEnv struct {
 	MySQLHostName string `envconfig:"MYSQL_HOST_NAME"`
 	MySQLPort     string `envconfig:"MYSQL_PORT"`
 	MySQLDatabase string `envconfig:"MYSQL_DATABASE"`
+	HMacKey       string `envconfig:"HMAC_KEY"`
 }
 
 var Env FamiPhotoEnv

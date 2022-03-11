@@ -21,11 +21,13 @@ func (e *FamiPhotoError) ErrorCode() FamiPhotoErrorCode {
 type FamiPhotoErrorCode string
 
 const (
-	Unknown           FamiPhotoErrorCode = "Unknown"
-	UserNotFoundError FamiPhotoErrorCode = "UserNotFoundError"
-	UserCreateFatal   FamiPhotoErrorCode = "UserCreateFatal"
-	TxnRollbackFatal  FamiPhotoErrorCode = "TxnRollbackFatal"
-	TxnBeginFatal     FamiPhotoErrorCode = "TxnBeginFatal"
+	Unknown            FamiPhotoErrorCode = "Unknown"
+	UserNotFoundError  FamiPhotoErrorCode = "UserNotFoundError"
+	UserCreateFatal    FamiPhotoErrorCode = "UserCreateFatal"
+	TxnRollbackFatal   FamiPhotoErrorCode = "TxnRollbackFatal"
+	TxnBeginFatal      FamiPhotoErrorCode = "TxnBeginFatal"
+	HashPasswordFatal  FamiPhotoErrorCode = "HashPasswordFatal"
+	MatchPasswordFatal FamiPhotoErrorCode = "MatchPasswordFatal"
 )
 
 func New(errCode FamiPhotoErrorCode, baseError error) error {

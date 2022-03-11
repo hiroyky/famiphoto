@@ -10,3 +10,9 @@ type UserAdapter interface {
 	GetUser(ctx context.Context, userID string) (*entities.User, error)
 	CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error)
 }
+
+type PasswordService interface {
+	HashPassword(password string) (string, error)
+	MatchPassword(password string, hash string) (bool, error)
+	GeneratePassword() (string, error)
+}
