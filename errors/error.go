@@ -23,6 +23,9 @@ type FamiPhotoErrorCode string
 const (
 	Unknown           FamiPhotoErrorCode = "Unknown"
 	UserNotFoundError FamiPhotoErrorCode = "UserNotFoundError"
+	UserCreateFatal   FamiPhotoErrorCode = "UserCreateFatal"
+	TxnRollbackFatal  FamiPhotoErrorCode = "TxnRollbackFatal"
+	TxnBeginFatal     FamiPhotoErrorCode = "TxnBeginFatal"
 )
 
 func New(errCode FamiPhotoErrorCode, baseError error) error {

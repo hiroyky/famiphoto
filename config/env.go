@@ -3,7 +3,12 @@ package config
 import "github.com/kelseyhightower/envconfig"
 
 type FamiPhotoEnv struct {
-	Port int64 `envconfig:"PORT"`
+	Port          int64  `envconfig:"PORT"`
+	MySQLUserName string `envconfig:"MYSQL_USER_NAME"`
+	MySQLPassword string `envconfig:"MYSQL_PASSWORD"`
+	MySQLHostName string `envconfig:"MYSQL_HOST_NAME"`
+	MySQLPort     string `envconfig:"MYSQL_PORT"`
+	MySQLDatabase string `envconfig:"MYSQL_DATABASE"`
 }
 
 var Env FamiPhotoEnv
