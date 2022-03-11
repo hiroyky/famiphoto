@@ -1,6 +1,6 @@
 package cast
 
-func BoolToInt[T int](b bool) T {
+func BoolToInt8(b bool) int8 {
 	if b {
 		return 1
 	}

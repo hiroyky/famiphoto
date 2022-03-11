@@ -7,7 +7,7 @@ import (
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/hiroyky/famiphoto/utils/cast"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"time"
 )
 
@@ -40,7 +40,7 @@ func (r *userRepository) CreateUser(ctx context.Context, user *entities.User, pa
 		UserID:         user.UserID,
 		Password:       password,
 		LastModifiedAt: now,
-		IsInitialized:  cast.BoolToInt(isInitializedPassword),
+		IsInitialized:  cast.BoolToInt8(isInitializedPassword),
 	}
 	if err := dbUser.Insert(ctx, tx, boil.Infer()); err != nil {
 		return nil, err
