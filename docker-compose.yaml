@@ -9,12 +9,14 @@ services:
       context: .
       dockerfile: Dockerfile
       target: local
-    #ports:
-    #  - 7000:8080
+    ports:
+      - 8080:8080
     networks:
       - famiphoto_network
     tty: true
     command: air -c ./.air/.air.toml
+    env_file:
+      - .env.local
     volumes:
       - ./:/go/src/github.com/hiroyky/famiphoto/
   mysql:
