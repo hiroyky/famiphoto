@@ -6,15 +6,19 @@ package models
 var TableNames = struct {
 	GroupUsers    string
 	Groups        string
+	OauthClients  string
 	PhotoExif     string
 	Photos        string
+	UserAuth      string
 	UserPasswords string
 	Users         string
 }{
 	GroupUsers:    "group_users",
 	Groups:        "groups",
+	OauthClients:  "oauth_clients",
 	PhotoExif:     "photo_exif",
 	Photos:        "photos",
+	UserAuth:      "user_auth",
 	UserPasswords: "user_passwords",
 	Users:         "users",
 }
