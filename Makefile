@@ -23,6 +23,8 @@ test:
 
 dc_exec:
 	docker compose exec $(DOCKER) bash
+dc_fmt:
+	docker compose exec $(DOCKER) make fmt
 dc_build:
 	docker compose exec $(DOCKER) make build
 dc_test:

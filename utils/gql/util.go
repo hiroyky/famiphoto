@@ -52,3 +52,14 @@ func DecodeStrID(graphID string) (string, error) {
 
 	return parts[1], nil
 }
+
+func DecodeStrIDPtr(graphID *string) (*string, error) {
+	if graphID == nil {
+		return nil, nil
+	}
+	dst, err := DecodeStrID(*graphID)
+	if err != nil {
+		return nil, err
+	}
+	return &dst, nil
+}

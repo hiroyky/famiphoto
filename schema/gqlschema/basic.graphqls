@@ -9,7 +9,6 @@ interface Node {
 
 interface Pagination {
     pageInfo: PaginationInfo!
-    edges: [Edge!]!
     nodes: [Node!]!
 }
 

@@ -6,6 +6,8 @@ type User struct {
 	Status UserStatus
 }
 
+type UserList []*User
+
 type UserStatus int
 
 const (

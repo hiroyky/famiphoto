@@ -11,6 +11,5 @@ type GroupEdge implements Edge {
 
 type GroupPagination implements Pagination {
     pageInfo: PaginationInfo!
-    edges: [GroupEdge!]!
     nodes: [Group!]!
 }

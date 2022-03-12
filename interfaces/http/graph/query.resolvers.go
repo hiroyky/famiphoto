@@ -5,18 +5,34 @@ package graph
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/gql"
+	"github.com/hiroyky/famiphoto/utils/pagination"
 )
 
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	userID, err := gql.DecodeStrID(id)
+	if err != nil {
+		return nil, err
+	}
+	user, err := r.userUseCase.GetUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewUser(user), nil
 }
 
 func (r *queryResolver) Users(ctx context.Context, id *string, limit *int, offset *int) (*model.UserPagination, error) {
-	panic(fmt.Errorf("not implemented"))
+	userID, err := gql.DecodeStrIDPtr(id)
+	if err != nil {
+		return nil, err
+	}
+
+	dstLimit := pagination.GetLimitOrDefault(limit, 20, 100)
+	dstOffset := pagination.GetOffsetOrDefault(offset)
+	users, total, err := r.userUseCase.GetUsers(ctx, userID, dstLimit, dstOffset)
+	return model.NewUserPagination(users, total, dstLimit, dstOffset), nil
 }
 
 // Query returns generated.QueryResolver implementation.

@@ -47,9 +47,9 @@ func New(errCode FamiPhotoErrorCode, baseError error) error {
 }
 
 func UnwrapFPError(err error) *FamiPhotoError {
-	var dst FamiPhotoError
+	var dst *FamiPhotoError
 	if ok := native.As(err, &dst); ok {
-		return &dst
+		return dst
 	}
 	return nil
 }

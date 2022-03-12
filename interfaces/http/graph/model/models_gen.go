@@ -39,7 +39,6 @@ func (GroupEdge) IsEdge() {}
 
 type GroupPagination struct {
 	PageInfo *PaginationInfo `json:"pageInfo"`
-	Edges    []*GroupEdge    `json:"edges"`
 	Nodes    []*Group        `json:"nodes"`
 }
 
@@ -70,7 +69,6 @@ func (UserEdge) IsEdge() {}
 
 type UserPagination struct {
 	PageInfo *PaginationInfo `json:"pageInfo"`
-	Edges    []*UserEdge     `json:"edges"`
 	Nodes    []*User         `json:"nodes"`
 }
 

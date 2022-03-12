@@ -2,12 +2,15 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/hiroyky/famiphoto/utils/cast"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"time"
 )
 
@@ -17,12 +20,53 @@ func NewUserRepository(db SQLExecutor) usecases.UserAdapter {
 	}
 }
 
+type userFilter struct {
+	*usecases.UserFilter
+}
+
+func (f *userFilter) WhereMods() []qm.QueryMod {
+	var filter []qm.QueryMod
+	if f == nil {
+		return filter
+	}
+	if f.UserID != nil {
+		filter = append(filter, qm.Where(fmt.Sprintf("%s = ?", models.UserColumns.UserID), f.UserID))
+	}
+	return filter
+}
+
 type userRepository struct {
 	db SQLExecutor
 }
 
 func (r *userRepository) GetUser(ctx context.Context, userID string) (*entities.User, error) {
-	return nil, nil
+	user, err := models.FindUser(ctx, r.db, userID)
+	if err != sql.ErrNoRows {
+		return nil, errors.New(errors.UserNotFoundError, err)
+	}
+	return r.toUserEntity(user), nil
+}
+
+func (r *userRepository) GetUsers(ctx context.Context, filter *usecases.UserFilter, limit, offset int) (entities.UserList, error) {
+	f := &userFilter{UserFilter: filter}
+	mods := f.WhereMods()
+	mods = append(mods, qm.Limit(limit), qm.Offset(offset))
+
+	users, err := models.Users(mods...).All(ctx, r.db)
+	if err != nil {
+		return nil, err
+	}
+	return cast.Array(users, r.toUserEntity), err
+}
+
+func (r *userRepository) CountUsers(ctx context.Context, filter *usecases.UserFilter) (int, error) {
+	f := &userFilter{UserFilter: filter}
+	mods := f.WhereMods()
+	total, err := models.Users(mods...).Count(ctx, r.db)
+	if err != nil {
+		return 0, err
+	}
+	return int(total), nil
 }
 
 func (r *userRepository) ExistUser(ctx context.Context, userID string) (bool, error) {
@@ -59,11 +103,7 @@ func (r *userRepository) CreateUser(ctx context.Context, user *entities.User, pa
 		}
 		return nil, errors.New(errors.UserCreateFatal, err)
 	}
-	return &entities.User{
-		UserID: dbUser.UserID,
-		Name:   dbUser.Name,
-		Status: r.toEntityUserStatus(dbUser.Status),
-	}, nil
+	return r.toUserEntity(dbUser), nil
 }
 
 func (r *userRepository) toDBUserStatus(s entities.UserStatus) int {
@@ -72,4 +112,12 @@ func (r *userRepository) toDBUserStatus(s entities.UserStatus) int {
 
 func (r *userRepository) toEntityUserStatus(s int) entities.UserStatus {
 	return entities.UserStatus(s)
+}
+
+func (r *userRepository) toUserEntity(user *models.User) *entities.User {
+	return &entities.User{
+		UserID: user.UserID,
+		Name:   user.Name,
+		Status: r.toEntityUserStatus(user.Status),
+	}
 }

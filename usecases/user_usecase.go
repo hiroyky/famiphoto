@@ -10,6 +10,8 @@ import (
 type UserUseCase interface {
 	ValidateToCreateUser(ctx context.Context, userID, name string, password string) error
 	CreateUser(ctx context.Context, userID, name string, password string, now time.Time) (*entities.User, error)
+	GetUser(ctx context.Context, userID string) (*entities.User, error)
+	GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error)
 }
 
 func NewUserUseCase(userAdapter UserAdapter, passwordService PasswordService) UserUseCase {
@@ -55,4 +57,21 @@ func (u *userUseCase) CreateUser(ctx context.Context, userID, name string, passw
 	}
 
 	return createdUser, nil
+}
+
+func (u *userUseCase) GetUser(ctx context.Context, userID string) (*entities.User, error) {
+	return u.userAdapter.GetUser(ctx, userID)
+}
+
+func (u *userUseCase) GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error) {
+	filter := &UserFilter{UserID: userID}
+	users, err := u.userAdapter.GetUsers(ctx, filter, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	total, err := u.userAdapter.CountUsers(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+	return users, total, nil
 }

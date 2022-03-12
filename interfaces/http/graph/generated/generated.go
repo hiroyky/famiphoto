@@ -59,7 +59,6 @@ type ComplexityRoot struct {
 	}
 
 	GroupPagination struct {
-		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -114,7 +113,6 @@ type ComplexityRoot struct {
 	}
 
 	UserPagination struct {
-		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -195,13 +193,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GroupEdge.Node(childComplexity), true
-
-	case "GroupPagination.edges":
-		if e.complexity.GroupPagination.Edges == nil {
-			break
-		}
-
-		return e.complexity.GroupPagination.Edges(childComplexity), true
 
 	case "GroupPagination.nodes":
 		if e.complexity.GroupPagination.Nodes == nil {
@@ -428,13 +419,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserEdge.Node(childComplexity), true
 
-	case "UserPagination.edges":
-		if e.complexity.UserPagination.Edges == nil {
-			break
-		}
-
-		return e.complexity.UserPagination.Edges(childComplexity), true
-
 	case "UserPagination.nodes":
 		if e.complexity.UserPagination.Nodes == nil {
 			break
@@ -545,7 +529,6 @@ interface Node {
 
 interface Pagination {
     pageInfo: PaginationInfo!
-    edges: [Edge!]!
     nodes: [Node!]!
 }
 
@@ -589,7 +572,6 @@ type GroupEdge implements Edge {
 
 type GroupPagination implements Pagination {
     pageInfo: PaginationInfo!
-    edges: [GroupEdge!]!
     nodes: [Group!]!
 }`, BuiltIn: false},
 	{Name: "schema/gqlschema/mutation.graphqls", Input: `type Mutation {
@@ -639,7 +621,6 @@ type UserEdge implements Edge {
 
 type UserPagination implements Pagination {
     pageInfo: PaginationInfo!
-    edges: [UserEdge!]!
     nodes: [User!]!
 }
 `, BuiltIn: false},
@@ -980,41 +961,6 @@ func (ec *executionContext) _GroupPagination_pageInfo(ctx context.Context, field
 	res := resTmp.(*model.PaginationInfo)
 	fc.Result = res
 	return ec.marshalNPaginationInfo2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐPaginationInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _GroupPagination_edges(ctx context.Context, field graphql.CollectedField, obj *model.GroupPagination) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "GroupPagination",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Edges, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.GroupEdge)
-	fc.Result = res
-	return ec.marshalNGroupEdge2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGroupEdgeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GroupPagination_nodes(ctx context.Context, field graphql.CollectedField, obj *model.GroupPagination) (ret graphql.Marshaler) {
@@ -2145,41 +2091,6 @@ func (ec *executionContext) _UserPagination_pageInfo(ctx context.Context, field 
 	res := resTmp.(*model.PaginationInfo)
 	fc.Result = res
 	return ec.marshalNPaginationInfo2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐPaginationInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _UserPagination_edges(ctx context.Context, field graphql.CollectedField, obj *model.UserPagination) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "UserPagination",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Edges, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.UserEdge)
-	fc.Result = res
-	return ec.marshalNUserEdge2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUserEdgeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserPagination_nodes(ctx context.Context, field graphql.CollectedField, obj *model.UserPagination) (ret graphql.Marshaler) {
@@ -3769,16 +3680,6 @@ func (ec *executionContext) _GroupPagination(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "edges":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._GroupPagination_edges(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "nodes":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._GroupPagination_nodes(ctx, field, obj)
@@ -4326,16 +4227,6 @@ func (ec *executionContext) _UserPagination(ctx context.Context, sel ast.Selecti
 		case "pageInfo":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._UserPagination_pageInfo(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "edges":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._UserPagination_edges(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -4931,60 +4822,6 @@ func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋhiroykyᚋfamiphoto�
 	return ec._Group(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNGroupEdge2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGroupEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.GroupEdge) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNGroupEdge2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGroupEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNGroupEdge2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGroupEdge(ctx context.Context, sel ast.SelectionSet, v *model.GroupEdge) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._GroupEdge(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5111,60 +4948,6 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋhiroykyᚋfamiphoto�
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNUserEdge2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUserEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserEdge) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNUserEdge2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUserEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNUserEdge2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUserEdge(ctx context.Context, sel ast.SelectionSet, v *model.UserEdge) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._UserEdge(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUserPagination2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUserPagination(ctx context.Context, sel ast.SelectionSet, v model.UserPagination) graphql.Marshaler {

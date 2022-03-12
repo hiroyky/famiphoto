@@ -1,24 +1,23 @@
 package model
 
-import (
-	"github.com/hiroyky/famiphoto/entities"
-	"github.com/hiroyky/famiphoto/utils/gql"
-)
-
-const UserName = "User"
-
-func NewUser(u *entities.User) *User {
-	var st UserStatus
-	switch u.Status {
-	case entities.UserStatusActive:
-		st = UserStatusActive
-	case entities.UserStatusWithdrawal:
-		st = UserStatusWithdrawal
+func newPaginationInfo(total, count, limit, offset int) *PaginationInfo {
+	page := 1
+	pageLength := 1
+	if limit > 0 {
+		page = (offset / limit) + 1
+		pageLength = (total / limit) + 1
 	}
 
-	return &User{
-		ID:     gql.EncodeStrID(UserName, u.UserID),
-		Name:   u.Name,
-		Status: st,
+	return &PaginationInfo{
+		Page:             page,
+		PaginationLength: pageLength,
+		HasNextPage:      offset+limit < total,
+		HasPreviousPage:  offset > 0,
+		Count:            count,
+		TotalCount:       total,
 	}
+}
+
+func newEdge() {
+
 }
