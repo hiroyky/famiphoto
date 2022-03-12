@@ -23,7 +23,7 @@ import (
 
 // GroupUser is an object representing the database table.
 type GroupUser struct {
-	GroupID   int       `boil:"group_id" json:"group_id" toml:"group_id" yaml:"group_id"`
+	GroupID   string    `boil:"group_id" json:"group_id" toml:"group_id" yaml:"group_id"`
 	UserID    string    `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
 	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
@@ -57,29 +57,6 @@ var GroupUserTableColumns = struct {
 }
 
 // Generated where
-
-type whereHelperint struct{ field string }
-
-func (w whereHelperint) EQ(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperint) NEQ(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperint) LT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperint) LTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperint) GT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperint) GTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperint) IN(slice []int) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperint) NIN(slice []int) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
 
 type whereHelperstring struct{ field string }
 
@@ -126,12 +103,12 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 }
 
 var GroupUserWhere = struct {
-	GroupID   whereHelperint
+	GroupID   whereHelperstring
 	UserID    whereHelperstring
 	CreatedAt whereHelpertime_Time
 	UpdatedAt whereHelpertime_Time
 }{
-	GroupID:   whereHelperint{field: "`group_users`.`group_id`"},
+	GroupID:   whereHelperstring{field: "`group_users`.`group_id`"},
 	UserID:    whereHelperstring{field: "`group_users`.`user_id`"},
 	CreatedAt: whereHelpertime_Time{field: "`group_users`.`created_at`"},
 	UpdatedAt: whereHelpertime_Time{field: "`group_users`.`updated_at`"},
@@ -784,7 +761,7 @@ func GroupUsers(mods ...qm.QueryMod) groupUserQuery {
 
 // FindGroupUser retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindGroupUser(ctx context.Context, exec boil.ContextExecutor, groupID int, userID string, selectCols ...string) (*GroupUser, error) {
+func FindGroupUser(ctx context.Context, exec boil.ContextExecutor, groupID string, userID string, selectCols ...string) (*GroupUser, error) {
 	groupUserObj := &GroupUser{}
 
 	sel := "*"
@@ -1344,7 +1321,7 @@ func (o *GroupUserSlice) ReloadAll(ctx context.Context, exec boil.ContextExecuto
 }
 
 // GroupUserExists checks if the GroupUser row exists.
-func GroupUserExists(ctx context.Context, exec boil.ContextExecutor, groupID int, userID string) (bool, error) {
+func GroupUserExists(ctx context.Context, exec boil.ContextExecutor, groupID string, userID string) (bool, error) {
 	var exists bool
 	sql := "select exists(select 1 from `group_users` where `group_id`=? AND `user_id`=? limit 1)"
 

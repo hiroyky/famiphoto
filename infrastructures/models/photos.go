@@ -29,7 +29,7 @@ type Photo struct {
 	ImportedAt time.Time `boil:"imported_at" json:"imported_at" toml:"imported_at" yaml:"imported_at"`
 	CreatedAt  time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdatedAt  time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	GroupID    int       `boil:"group_id" json:"group_id" toml:"group_id" yaml:"group_id"`
+	GroupID    string    `boil:"group_id" json:"group_id" toml:"group_id" yaml:"group_id"`
 	OwnerID    string    `boil:"owner_id" json:"owner_id" toml:"owner_id" yaml:"owner_id"`
 
 	R *photoR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -85,7 +85,7 @@ var PhotoWhere = struct {
 	ImportedAt whereHelpertime_Time
 	CreatedAt  whereHelpertime_Time
 	UpdatedAt  whereHelpertime_Time
-	GroupID    whereHelperint
+	GroupID    whereHelperstring
 	OwnerID    whereHelperstring
 }{
 	PhotoID:    whereHelperint{field: "`photos`.`photo_id`"},
@@ -94,7 +94,7 @@ var PhotoWhere = struct {
 	ImportedAt: whereHelpertime_Time{field: "`photos`.`imported_at`"},
 	CreatedAt:  whereHelpertime_Time{field: "`photos`.`created_at`"},
 	UpdatedAt:  whereHelpertime_Time{field: "`photos`.`updated_at`"},
-	GroupID:    whereHelperint{field: "`photos`.`group_id`"},
+	GroupID:    whereHelperstring{field: "`photos`.`group_id`"},
 	OwnerID:    whereHelperstring{field: "`photos`.`owner_id`"},
 }
 

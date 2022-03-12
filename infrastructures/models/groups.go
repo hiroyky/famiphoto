@@ -23,7 +23,7 @@ import (
 
 // Group is an object representing the database table.
 type Group struct {
-	GroupID int    `boil:"group_id" json:"group_id" toml:"group_id" yaml:"group_id"`
+	GroupID string `boil:"group_id" json:"group_id" toml:"group_id" yaml:"group_id"`
 	Name    string `boil:"name" json:"name" toml:"name" yaml:"name"`
 
 	R *groupR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -49,10 +49,10 @@ var GroupTableColumns = struct {
 // Generated where
 
 var GroupWhere = struct {
-	GroupID whereHelperint
+	GroupID whereHelperstring
 	Name    whereHelperstring
 }{
-	GroupID: whereHelperint{field: "`groups`.`group_id`"},
+	GroupID: whereHelperstring{field: "`groups`.`group_id`"},
 	Name:    whereHelperstring{field: "`groups`.`name`"},
 }
 
@@ -81,8 +81,8 @@ type groupL struct{}
 
 var (
 	groupAllColumns            = []string{"group_id", "name"}
-	groupColumnsWithoutDefault = []string{"name"}
-	groupColumnsWithDefault    = []string{"group_id"}
+	groupColumnsWithoutDefault = []string{"group_id", "name"}
+	groupColumnsWithDefault    = []string{}
 	groupPrimaryKeyColumns     = []string{"group_id"}
 	groupGeneratedColumns      = []string{}
 )
@@ -717,7 +717,7 @@ func Groups(mods ...qm.QueryMod) groupQuery {
 
 // FindGroup retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindGroup(ctx context.Context, exec boil.ContextExecutor, groupID int, selectCols ...string) (*Group, error) {
+func FindGroup(ctx context.Context, exec boil.ContextExecutor, groupID string, selectCols ...string) (*Group, error) {
 	groupObj := &Group{}
 
 	sel := "*"
@@ -804,26 +804,15 @@ func (o *Group) Insert(ctx context.Context, exec boil.ContextExecutor, columns b
 		fmt.Fprintln(writer, cache.query)
 		fmt.Fprintln(writer, vals)
 	}
-	result, err := exec.ExecContext(ctx, cache.query, vals...)
+	_, err = exec.ExecContext(ctx, cache.query, vals...)
 
 	if err != nil {
 		return errors.Wrap(err, "models: unable to insert into groups")
 	}
 
-	var lastID int64
 	var identifierCols []interface{}
 
 	if len(cache.retMapping) == 0 {
-		goto CacheNoHooks
-	}
-
-	lastID, err = result.LastInsertId()
-	if err != nil {
-		return ErrSyncFail
-	}
-
-	o.GroupID = int(lastID)
-	if lastID != 0 && len(cache.retMapping) == 1 && cache.retMapping[0] == groupMapping["group_id"] {
 		goto CacheNoHooks
 	}
 
@@ -1078,27 +1067,16 @@ func (o *Group) Upsert(ctx context.Context, exec boil.ContextExecutor, updateCol
 		fmt.Fprintln(writer, cache.query)
 		fmt.Fprintln(writer, vals)
 	}
-	result, err := exec.ExecContext(ctx, cache.query, vals...)
+	_, err = exec.ExecContext(ctx, cache.query, vals...)
 
 	if err != nil {
 		return errors.Wrap(err, "models: unable to upsert for groups")
 	}
 
-	var lastID int64
 	var uniqueMap []uint64
 	var nzUniqueCols []interface{}
 
 	if len(cache.retMapping) == 0 {
-		goto CacheNoHooks
-	}
-
-	lastID, err = result.LastInsertId()
-	if err != nil {
-		return ErrSyncFail
-	}
-
-	o.GroupID = int(lastID)
-	if lastID != 0 && len(cache.retMapping) == 1 && cache.retMapping[0] == groupMapping["group_id"] {
 		goto CacheNoHooks
 	}
 
@@ -1276,7 +1254,7 @@ func (o *GroupSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) e
 }
 
 // GroupExists checks if the Group row exists.
-func GroupExists(ctx context.Context, exec boil.ContextExecutor, groupID int) (bool, error) {
+func GroupExists(ctx context.Context, exec boil.ContextExecutor, groupID string) (bool, error) {
 	var exists bool
 	sql := "select exists(select 1 from `groups` where `group_id`=? limit 1)"
 
