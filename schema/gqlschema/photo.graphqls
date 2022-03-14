@@ -1,0 +1,10 @@
+type Photo implements Node {
+    id: ID!
+    name: String!
+    filePath: String!
+    importedAt: Timestamp!
+    groupId: ID!
+    group: Group!
+    ownerId: ID!
+    owner: User!
+}
