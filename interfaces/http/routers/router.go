@@ -3,7 +3,7 @@ package routers
 import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/hiroyky/famiphoto/interfaces/http/graph"
+	"github.com/hiroyky/famiphoto/di"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -16,7 +16,7 @@ func New() *echo.Echo {
 		return ctx.String(http.StatusOK, "ok")
 	})
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver()}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: di.InitResolver()}))
 	e.GET("/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql")))
 	e.POST("/graphql", func(ctx echo.Context) error {
 		srv.ServeHTTP(ctx.Response(), ctx.Request())

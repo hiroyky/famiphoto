@@ -9,16 +9,20 @@ package di
 import (
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
+	"github.com/hiroyky/famiphoto/interfaces/http/graph"
 	"github.com/hiroyky/famiphoto/services"
 	"github.com/hiroyky/famiphoto/usecases"
 )
 
 // Injectors from wire.go:
 
-func InitUserUseCase() usecases.UserUseCase {
+func InitResolver() *graph.Resolver {
 	sqlExecutor := mysql.NewDatabaseDriver()
 	userAdapter := repositories.NewUserRepository(sqlExecutor)
 	passwordService := services.NewPasswordService()
 	userUseCase := usecases.NewUserUseCase(userAdapter, passwordService)
-	return userUseCase
+	oauthClientAdapter := repositories.NewOauthClientRepository(sqlExecutor)
+	oauthUseClientCase := usecases.NewOauthUseCase(oauthClientAdapter, passwordService)
+	resolver := graph.NewResolver(userUseCase, oauthUseClientCase)
+	return resolver
 }

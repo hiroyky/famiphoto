@@ -1,7 +1,6 @@
 package graph
 
 import (
-	"github.com/hiroyky/famiphoto/di"
 	"github.com/hiroyky/famiphoto/usecases"
 )
 
@@ -10,9 +9,16 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	userUseCase usecases.UserUseCase
+	userUseCase        usecases.UserUseCase
+	oauthClientUseCase usecases.OauthUseClientCase
 }
 
-func NewResolver() *Resolver {
-	return &Resolver{userUseCase: di.InitUserUseCase()}
+func NewResolver(
+	userUseCase usecases.UserUseCase,
+	oauthClientUseCase usecases.OauthUseClientCase,
+) *Resolver {
+	return &Resolver{
+		userUseCase:        userUseCase,
+		oauthClientUseCase: oauthClientUseCase,
+	}
 }

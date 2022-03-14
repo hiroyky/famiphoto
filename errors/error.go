@@ -28,15 +28,17 @@ func (c FamiPhotoErrorCode) ToString() string {
 }
 
 const (
-	Unknown            FamiPhotoErrorCode = "Unknown"
-	UserNotFoundError  FamiPhotoErrorCode = "UserNotFoundError"
-	UserCreateFatal    FamiPhotoErrorCode = "UserCreateFatal"
-	UserAlreadyExists  FamiPhotoErrorCode = "UserAlreadyExists"
-	PasswordWeakError  FamiPhotoErrorCode = "PasswordWeakError"
-	TxnRollbackFatal   FamiPhotoErrorCode = "TxnRollbackFatal"
-	TxnBeginFatal      FamiPhotoErrorCode = "TxnBeginFatal"
-	HashPasswordFatal  FamiPhotoErrorCode = "HashPasswordFatal"
-	MatchPasswordFatal FamiPhotoErrorCode = "MatchPasswordFatal"
+	Unknown                  FamiPhotoErrorCode = "Unknown"
+	UserNotFoundError        FamiPhotoErrorCode = "UserNotFoundError"
+	UserCreateFatal          FamiPhotoErrorCode = "UserCreateFatal"
+	UserAlreadyExists        FamiPhotoErrorCode = "UserAlreadyExists"
+	PasswordWeakError        FamiPhotoErrorCode = "PasswordWeakError"
+	OAuthClientNotFoundError FamiPhotoErrorCode = "OAuthClientNotFoundError"
+	OAuthClientAlreadyExist  FamiPhotoErrorCode = "OAuthClientAlreadyExist"
+	TxnRollbackFatal         FamiPhotoErrorCode = "TxnRollbackFatal"
+	TxnBeginFatal            FamiPhotoErrorCode = "TxnBeginFatal"
+	HashPasswordFatal        FamiPhotoErrorCode = "HashPasswordFatal"
+	MatchPasswordFatal       FamiPhotoErrorCode = "MatchPasswordFatal"
 )
 
 func New(errCode FamiPhotoErrorCode, baseError error) error {

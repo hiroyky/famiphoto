@@ -23,3 +23,9 @@ type PasswordService interface {
 	MatchPassword(password string, hash string) (bool, error)
 	GeneratePassword() (string, error)
 }
+
+type OauthClientAdapter interface {
+	GetByOauthClientID(ctx context.Context, id string) (*entities.OauthClient, error)
+	CreateOAuthClient(ctx context.Context, client *entities.OauthClient, clientSecret string) (*entities.OauthClient, error)
+	ExistOauthClient(ctx context.Context, id string) (bool, error)
+}
