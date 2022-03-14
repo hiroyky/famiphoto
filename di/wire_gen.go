@@ -9,6 +9,7 @@ package di
 import (
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
+	"github.com/hiroyky/famiphoto/interfaces/http/controllers"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph"
 	"github.com/hiroyky/famiphoto/services"
 	"github.com/hiroyky/famiphoto/usecases"
@@ -22,7 +23,16 @@ func InitResolver() *graph.Resolver {
 	passwordService := services.NewPasswordService()
 	userUseCase := usecases.NewUserUseCase(userAdapter, passwordService)
 	oauthClientAdapter := repositories.NewOauthClientRepository(sqlExecutor)
-	oauthUseClientCase := usecases.NewOauthUseCase(oauthClientAdapter, passwordService)
-	resolver := graph.NewResolver(userUseCase, oauthUseClientCase)
+	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, passwordService)
+	resolver := graph.NewResolver(userUseCase, oauthUseCase)
 	return resolver
+}
+
+func InitOauthController() controllers.OauthController {
+	sqlExecutor := mysql.NewDatabaseDriver()
+	oauthClientAdapter := repositories.NewOauthClientRepository(sqlExecutor)
+	passwordService := services.NewPasswordService()
+	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, passwordService)
+	oauthController := controllers.NewOauthController(oauthUseCase)
+	return oauthController
 }

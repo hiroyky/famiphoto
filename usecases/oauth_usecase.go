@@ -6,14 +6,14 @@ import (
 	"github.com/hiroyky/famiphoto/errors"
 )
 
-type OauthUseClientCase interface {
+type OauthUseCase interface {
 	CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
 }
 
 func NewOauthUseCase(
 	oauthClientAdapter OauthClientAdapter,
 	passwordService PasswordService,
-) OauthUseClientCase {
+) OauthUseCase {
 	return &oauthUseCase{
 		oauthClientAdapter: oauthClientAdapter,
 		passwordService:    passwordService,

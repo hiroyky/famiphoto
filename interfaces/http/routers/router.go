@@ -23,5 +23,8 @@ func New() *echo.Echo {
 		return nil
 	})
 
+	oauthController := di.InitOauthController()
+	e.POST("/oauth/v2/token", oauthController.PostToken)
+
 	return e
 }

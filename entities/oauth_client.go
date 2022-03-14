@@ -5,6 +5,7 @@ type OauthClient struct {
 	Name          string
 	Scope         OauthScope
 	ClientType    OauthClientType
+	RedirectURLs  []string
 }
 
 type OauthScope string

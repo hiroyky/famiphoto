@@ -35,6 +35,7 @@ const (
 	PasswordWeakError        FamiPhotoErrorCode = "PasswordWeakError"
 	OAuthClientNotFoundError FamiPhotoErrorCode = "OAuthClientNotFoundError"
 	OAuthClientAlreadyExist  FamiPhotoErrorCode = "OAuthClientAlreadyExist"
+	OAuthClientCreateFatal   FamiPhotoErrorCode = "OAuthClientCreateFatal"
 	TxnRollbackFatal         FamiPhotoErrorCode = "TxnRollbackFatal"
 	TxnBeginFatal            FamiPhotoErrorCode = "TxnBeginFatal"
 	HashPasswordFatal        FamiPhotoErrorCode = "HashPasswordFatal"
