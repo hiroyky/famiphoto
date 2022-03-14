@@ -30,10 +30,11 @@ type CreateGroupInput struct {
 }
 
 type CreateOauthClientInput struct {
-	OauthClientID string           `json:"oauthClientId"`
-	Name          string           `json:"name"`
-	Scope         OauthClientScope `json:"scope"`
-	ClientType    OauthClientType  `json:"clientType"`
+	ClientID     string           `json:"clientId"`
+	Name         string           `json:"name"`
+	Scope        OauthClientScope `json:"scope"`
+	ClientType   OauthClientType  `json:"clientType"`
+	RedirectUrls []string         `json:"redirectUrls"`
 }
 
 type CreateUserInput struct {
@@ -61,6 +62,7 @@ type OauthClient struct {
 	Name          string           `json:"name"`
 	Scope         OauthClientScope `json:"scope"`
 	ClientType    OauthClientType  `json:"clientType"`
+	ClientSecret  *string          `json:"clientSecret"`
 }
 
 type PageInfo struct {

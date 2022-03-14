@@ -3,6 +3,7 @@ type OauthClient {
     name: String!
     scope: OauthClientScope!
     clientType: OauthClientType!
+    clientSecret: String
 }
 
 enum OauthClientType {
