@@ -24,6 +24,18 @@ type Pagination interface {
 	IsPagination()
 }
 
+type CreateGroupInput struct {
+	GroupID string `json:"groupId"`
+	Name    string `json:"name"`
+}
+
+type CreateOauthClientInput struct {
+	OauthClientID string           `json:"oauthClientId"`
+	Name          string           `json:"name"`
+	Scope         OauthClientScope `json:"scope"`
+	ClientType    OauthClientType  `json:"clientType"`
+}
+
 type CreateUserInput struct {
 	UserID   string `json:"userId"`
 	Name     string `json:"name"`
@@ -43,6 +55,13 @@ type GroupPagination struct {
 }
 
 func (GroupPagination) IsPagination() {}
+
+type OauthClient struct {
+	OauthClientID string           `json:"oauthClientId"`
+	Name          string           `json:"name"`
+	Scope         OauthClientScope `json:"scope"`
+	ClientType    OauthClientType  `json:"clientType"`
+}
 
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`
@@ -81,6 +100,88 @@ type UserPassword struct {
 }
 
 func (UserPassword) IsNode() {}
+
+type OauthClientScope string
+
+const (
+	OauthClientScopeGeneral OauthClientScope = "general"
+	OauthClientScopeAdmin   OauthClientScope = "admin"
+)
+
+var AllOauthClientScope = []OauthClientScope{
+	OauthClientScopeGeneral,
+	OauthClientScopeAdmin,
+}
+
+func (e OauthClientScope) IsValid() bool {
+	switch e {
+	case OauthClientScopeGeneral, OauthClientScopeAdmin:
+		return true
+	}
+	return false
+}
+
+func (e OauthClientScope) String() string {
+	return string(e)
+}
+
+func (e *OauthClientScope) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OauthClientScope(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OauthClientScope", str)
+	}
+	return nil
+}
+
+func (e OauthClientScope) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type OauthClientType string
+
+const (
+	OauthClientTypeUserClient       OauthClientType = "UserClient"
+	OauthClientTypeClientCredential OauthClientType = "ClientCredential"
+)
+
+var AllOauthClientType = []OauthClientType{
+	OauthClientTypeUserClient,
+	OauthClientTypeClientCredential,
+}
+
+func (e OauthClientType) IsValid() bool {
+	switch e {
+	case OauthClientTypeUserClient, OauthClientTypeClientCredential:
+		return true
+	}
+	return false
+}
+
+func (e OauthClientType) String() string {
+	return string(e)
+}
+
+func (e *OauthClientType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OauthClientType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OauthClientType", str)
+	}
+	return nil
+}
+
+func (e OauthClientType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
 
 type UserStatus string
 

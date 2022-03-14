@@ -1,0 +1,16 @@
+type OauthClient {
+    oauthClientId: ID!
+    name: String!
+    scope: OauthClientScope!
+    clientType: OauthClientType!
+}
+
+enum OauthClientType {
+    UserClient
+    ClientCredential
+}
+
+enum OauthClientScope {
+    general
+    admin
+}

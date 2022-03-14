@@ -1,9 +1,23 @@
 type Mutation {
     createUser(input: CreateUserInput!): User!
+    createGroup(input: CreateGroupInput!): Group!
+    createOauthClient(input: CreateOauthClientInput!): OauthClient!
 }
 
 input CreateUserInput {
     userId: String!
     name: String!
     password: String!
+}
+
+input CreateGroupInput {
+    groupId: String!
+    name: String!
+}
+
+input CreateOauthClientInput {
+    oauthClientId: String!
+    name: String!
+    scope: OauthClientScope!
+    clientType: OauthClientType!
 }
