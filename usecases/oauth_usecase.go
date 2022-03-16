@@ -8,6 +8,7 @@ import (
 
 type OauthUseCase interface {
 	CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
+	GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
 }
 
 func NewOauthUseCase(
@@ -21,8 +22,9 @@ func NewOauthUseCase(
 }
 
 type oauthUseCase struct {
-	oauthClientAdapter OauthClientAdapter
-	passwordService    PasswordService
+	oauthClientAdapter    OauthClientAdapter
+	oauthClientURLAdapter OauthClientRedirectURLAdapter
+	passwordService       PasswordService
 }
 
 func (u *oauthUseCase) CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error) {
@@ -47,4 +49,8 @@ func (u *oauthUseCase) CreateOauthClient(ctx context.Context, client *entities.O
 	}
 
 	return dst, clientSecret, nil
+}
+
+func (u *oauthUseCase) GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error) {
+	return u.oauthClientURLAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, oauthClientID)
 }

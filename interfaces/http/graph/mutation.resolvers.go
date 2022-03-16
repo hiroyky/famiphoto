@@ -6,6 +6,8 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/utils/gql"
 	"time"
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
@@ -29,6 +31,18 @@ func (r *mutationResolver) CreateGroup(ctx context.Context, input model.CreateGr
 }
 
 func (r *mutationResolver) CreateOauthClient(ctx context.Context, input model.CreateOauthClientInput) (*model.OauthClient, error) {
+	clientID, err := gql.DecodeStrID(input.ClientID)
+	if err != nil {
+		return nil, err
+	}
+
+	r.oauthClientUseCase.CreateOauthClient(ctx, &entities.OauthClient{
+		OauthClientID: clientID,
+		Name:          input.Name,
+		Scope:         input.Scope.ToEntity(),
+		ClientType:    input.ClientType.ToEntity(),
+		RedirectURLs:  input.RedirectUrls,
+	})
 	panic(fmt.Errorf("not implemented"))
 }
 

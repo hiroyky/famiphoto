@@ -1,9 +1,10 @@
-type OauthClient {
-    oauthClientId: ID!
+type OauthClient implements Node{
+    id: ID!
     name: String!
     scope: OauthClientScope!
     clientType: OauthClientType!
     clientSecret: String
+    redirectUrls: [String!]!
 }
 
 enum OauthClientType {

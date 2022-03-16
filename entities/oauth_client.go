@@ -11,6 +11,7 @@ type OauthClient struct {
 type OauthScope string
 
 const (
+	OauthScopeUnknown OauthScope = "Unknown"
 	OauthScopeGeneral OauthScope = "General"
 	OauthScopeAdmin   OauthScope = "Admin"
 )
@@ -18,6 +19,7 @@ const (
 type OauthClientType int
 
 const (
-	OauthClientTypeUserClient OauthClientType = 1
-	OauthClientTypeAdmin      OauthClientType = 2
+	OauthClientTypeUnknown          OauthClientType = 0
+	OauthClientTypeUserClient       OauthClientType = 1
+	OauthClientTypeClientCredential OauthClientType = 2
 )

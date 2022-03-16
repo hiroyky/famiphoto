@@ -57,14 +57,6 @@ type GroupPagination struct {
 
 func (GroupPagination) IsPagination() {}
 
-type OauthClient struct {
-	OauthClientID string           `json:"oauthClientId"`
-	Name          string           `json:"name"`
-	Scope         OauthClientScope `json:"scope"`
-	ClientType    OauthClientType  `json:"clientType"`
-	ClientSecret  *string          `json:"clientSecret"`
-}
-
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`
 	HasPreviousPage bool    `json:"hasPreviousPage"`

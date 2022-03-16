@@ -29,3 +29,8 @@ type OauthClientAdapter interface {
 	CreateOAuthClient(ctx context.Context, client *entities.OauthClient, clientSecret string) (*entities.OauthClient, error)
 	ExistOauthClient(ctx context.Context, id string) (bool, error)
 }
+
+type OauthClientRedirectURLAdapter interface {
+	GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
+	CreateOAuthClientRedirectURL(ctx context.Context, url *entities.OAuthClientRedirectURL) (*entities.OAuthClientRedirectURL, error)
+}
