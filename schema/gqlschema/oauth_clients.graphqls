@@ -1,5 +1,6 @@
 type OauthClient implements Node{
     id: ID!
+    clientId: String!
     name: String!
     scope: OauthClientScope!
     clientType: OauthClientType!

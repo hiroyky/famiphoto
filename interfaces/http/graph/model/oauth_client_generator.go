@@ -26,6 +26,7 @@ func NewOauthClientWithSecret(oauth *entities.OauthClient, secret string) *Oauth
 
 	return &OauthClient{
 		ID:           gql.EncodeStrID(OauthClientName, oauth.OauthClientID),
+		ClientID:     oauth.OauthClientID,
 		Name:         oauth.Name,
 		Scope:        scope,
 		ClientType:   clientType,

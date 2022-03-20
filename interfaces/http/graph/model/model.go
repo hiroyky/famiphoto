@@ -30,6 +30,7 @@ func (Group) IsNode() {}
 
 type OauthClient struct {
 	ID           string           `json:"id"`
+	ClientID     string           `json:"clientId"`
 	Name         string           `json:"name"`
 	Scope        OauthClientScope `json:"scope"`
 	ClientType   OauthClientType  `json:"clientType"`

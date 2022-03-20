@@ -5,12 +5,12 @@ package graph
 
 import (
 	"context"
-	"github.com/hiroyky/famiphoto/entities"
-	"github.com/hiroyky/famiphoto/utils/cast"
-	"github.com/hiroyky/famiphoto/utils/gql"
 
+	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/cast"
+	"github.com/hiroyky/famiphoto/utils/gql"
 )
 
 func (r *oauthClientResolver) RedirectUrls(ctx context.Context, obj *model.OauthClient) ([]string, error) {
