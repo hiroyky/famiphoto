@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
-	"github.com/hiroyky/famiphoto/infrastructures/models"
+	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/hiroyky/famiphoto/utils/cast"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -24,15 +24,15 @@ type oauthClientRepository struct {
 }
 
 func (r *oauthClientRepository) GetByOauthClientID(ctx context.Context, id string) (*entities.OauthClient, error) {
-	oa, err := models.FindOauthClient(ctx, r.db, id)
+	oa, err := dbmodels.FindOauthClient(ctx, r.db, id)
 	if err == sql.ErrNoRows {
 		return nil, errors.New(errors.OAuthClientNotFoundError, err)
 	}
 	if err != nil {
 		return nil, err
 	}
-	urls, err := models.OauthClientRedirectUrls(
-		qm.Where(fmt.Sprintf("%s = ?", models.OauthClientRedirectURLColumns.OauthClientID), oa.OauthClientID),
+	urls, err := dbmodels.OauthClientRedirectUrls(
+		qm.Where(fmt.Sprintf("%s = ?", dbmodels.OauthClientRedirectURLColumns.OauthClientID), oa.OauthClientID),
 	).All(ctx, r.db)
 	if err != nil {
 		return nil, err
@@ -41,20 +41,21 @@ func (r *oauthClientRepository) GetByOauthClientID(ctx context.Context, id strin
 	return r.toEntityOauthClient(oa, urls), nil
 }
 
-func (r *oauthClientRepository) toEntityOauthClient(m *models.OauthClient, urls []*models.OauthClientRedirectURL) *entities.OauthClient {
+func (r *oauthClientRepository) toEntityOauthClient(m *dbmodels.OauthClient, urls []*dbmodels.OauthClientRedirectURL) *entities.OauthClient {
 	return &entities.OauthClient{
-		OauthClientID: m.OauthClientID,
-		Name:          m.Name,
-		Scope:         entities.OauthScope(m.Scope),
-		ClientType:    entities.OauthClientType(m.ClientType),
-		RedirectURLs: cast.ArrayValues(urls, func(t *models.OauthClientRedirectURL) string {
+		OauthClientID:      m.OauthClientID,
+		ClientSecretHashed: m.ClientSecret,
+		Name:               m.Name,
+		Scope:              entities.OauthScope(m.Scope),
+		ClientType:         entities.OauthClientType(m.ClientType),
+		RedirectURLs: cast.ArrayValues(urls, func(t *dbmodels.OauthClientRedirectURL) string {
 			return t.RedirectURL
 		}),
 	}
 }
 
 func (r *oauthClientRepository) ExistOauthClient(ctx context.Context, id string) (bool, error) {
-	return models.OauthClientExists(ctx, r.db, id)
+	return dbmodels.OauthClientExists(ctx, r.db, id)
 }
 
 func (r *oauthClientRepository) CreateOAuthClient(ctx context.Context, client *entities.OauthClient, secret string) (*entities.OauthClient, error) {
@@ -63,7 +64,7 @@ func (r *oauthClientRepository) CreateOAuthClient(ctx context.Context, client *e
 		return nil, errors.New(errors.TxnBeginFatal, err)
 	}
 
-	c := &models.OauthClient{
+	c := &dbmodels.OauthClient{
 		OauthClientID: client.OauthClientID,
 		Name:          client.Name,
 		ClientSecret:  secret,
@@ -74,9 +75,9 @@ func (r *oauthClientRepository) CreateOAuthClient(ctx context.Context, client *e
 		return nil, err
 	}
 
-	urls := make([]*models.OauthClientRedirectURL, len(client.RedirectURLs))
+	urls := make([]*dbmodels.OauthClientRedirectURL, len(client.RedirectURLs))
 	for i, url := range client.RedirectURLs {
-		u := &models.OauthClientRedirectURL{
+		u := &dbmodels.OauthClientRedirectURL{
 			OauthClientID: client.OauthClientID,
 			RedirectURL:   url,
 		}
