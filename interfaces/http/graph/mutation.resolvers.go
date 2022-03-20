@@ -36,14 +36,18 @@ func (r *mutationResolver) CreateOauthClient(ctx context.Context, input model.Cr
 		return nil, err
 	}
 
-	r.oauthClientUseCase.CreateOauthClient(ctx, &entities.OauthClient{
+	oauthClient, secret, err := r.oauthClientUseCase.CreateOauthClient(ctx, &entities.OauthClient{
 		OauthClientID: clientID,
 		Name:          input.Name,
 		Scope:         input.Scope.ToEntity(),
 		ClientType:    input.ClientType.ToEntity(),
 		RedirectURLs:  input.RedirectUrls,
 	})
-	panic(fmt.Errorf("not implemented"))
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewOauthClientWithSecret(oauthClient, secret), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
