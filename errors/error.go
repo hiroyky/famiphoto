@@ -29,6 +29,7 @@ func (c FamiPhotoErrorCode) ToString() string {
 
 const (
 	Unknown                  FamiPhotoErrorCode = "Unknown"
+	InvalidRequestError      FamiPhotoErrorCode = "InvalidRequestError"
 	UserNotFoundError        FamiPhotoErrorCode = "UserNotFoundError"
 	UserCreateFatal          FamiPhotoErrorCode = "UserCreateFatal"
 	UserAlreadyExists        FamiPhotoErrorCode = "UserAlreadyExists"

@@ -34,3 +34,7 @@ type OauthClientRedirectURLAdapter interface {
 	GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
 	CreateOAuthClientRedirectURL(ctx context.Context, url *entities.OAuthClientRedirectURL) (*entities.OAuthClientRedirectURL, error)
 }
+
+type OauthAccessTokenAdapter interface {
+	SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireAt int64) error
+}
