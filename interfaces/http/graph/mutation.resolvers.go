@@ -11,7 +11,6 @@ import (
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
-	"github.com/hiroyky/famiphoto/utils/gql"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
@@ -31,13 +30,8 @@ func (r *mutationResolver) CreateGroup(ctx context.Context, input model.CreateGr
 }
 
 func (r *mutationResolver) CreateOauthClient(ctx context.Context, input model.CreateOauthClientInput) (*model.OauthClient, error) {
-	clientID, err := gql.DecodeStrID(input.ClientID)
-	if err != nil {
-		return nil, err
-	}
-
 	oauthClient, secret, err := r.oauthClientUseCase.CreateOauthClient(ctx, &entities.OauthClient{
-		OauthClientID: clientID,
+		OauthClientID: input.ClientID,
 		Name:          input.Name,
 		Scope:         input.Scope.ToEntity(),
 		ClientType:    input.ClientType.ToEntity(),
