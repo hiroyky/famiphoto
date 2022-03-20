@@ -32,8 +32,7 @@ func (s *passwordService) MatchPassword(password string, correctPassword string)
 	if err != nil {
 		return false, err
 	}
-
-	err = bcrypt.CompareHashAndPassword(s.hmacHash(password), decodedCorrect)
+	err = bcrypt.CompareHashAndPassword(decodedCorrect, s.hmacHash(password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
 		return false, nil
 	}
@@ -43,8 +42,8 @@ func (s *passwordService) MatchPassword(password string, correctPassword string)
 	return false, errors.New(errors.MatchPasswordFatal, err)
 }
 
-func (s *passwordService) GeneratePassword() (string, error) {
-	return password.Generate(20, 10, 0, false, false)
+func (s *passwordService) GeneratePassword(length int) (string, error) {
+	return password.Generate(length, 10, 0, false, false)
 }
 
 func (s *passwordService) hmacHash(src string) []byte {

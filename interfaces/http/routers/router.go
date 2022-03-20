@@ -5,6 +5,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/hiroyky/famiphoto/di"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
+	"github.com/hiroyky/famiphoto/interfaces/http/middlewares"
 	"github.com/hiroyky/famiphoto/interfaces/http/validators"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 
 func New() *echo.Echo {
 	e := echo.New()
+	e.HTTPErrorHandler = middlewares.HandlerError
 	e.Validator = validators.NewValidator()
 
 	e.GET("/status.html", func(ctx echo.Context) error {

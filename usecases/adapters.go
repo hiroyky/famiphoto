@@ -21,7 +21,7 @@ type UserFilter struct {
 type PasswordService interface {
 	HashPassword(password string) (string, error)
 	MatchPassword(password string, hash string) (bool, error)
-	GeneratePassword() (string, error)
+	GeneratePassword(length int) (string, error)
 }
 
 type OauthClientAdapter interface {

@@ -21,8 +21,10 @@ func NewOauthUseCase(
 	passwordService PasswordService,
 ) OauthUseCase {
 	return &oauthUseCase{
-		oauthClientAdapter: oauthClientAdapter,
-		passwordService:    passwordService,
+		oauthClientAdapter:       oauthClientAdapter,
+		oauthClientURLAdapter:    oauthClientURLAdapter,
+		oOauthAccessTokenAdapter: oOauthAccessTokenAdapter,
+		passwordService:          passwordService,
 	}
 }
 
@@ -40,7 +42,7 @@ func (u *oauthUseCase) CreateOauthClient(ctx context.Context, client *entities.O
 		return nil, "", errors.New(errors.OAuthClientAlreadyExist, nil)
 	}
 
-	clientSecret, err := u.passwordService.GeneratePassword()
+	clientSecret, err := u.passwordService.GeneratePassword(50)
 	if err != nil {
 		return nil, "", err
 	}
@@ -73,7 +75,7 @@ func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, clientID, cli
 		return nil, errors.New(errors.OAuthClientNotFoundError, nil)
 	}
 
-	accessToken, err := u.passwordService.GeneratePassword()
+	accessToken, err := u.passwordService.GeneratePassword(50)
 	if err != nil {
 		return nil, err
 	}
