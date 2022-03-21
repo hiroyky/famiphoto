@@ -14,3 +14,11 @@ func Array[T any, V any](list []*T, castFunc func(*T) *V) []*V {
 	}
 	return dst
 }
+
+func ArrayValues[T any, V any](list []*T, castFunc func(*T) V) []V {
+	dst := make([]V, len(list))
+	for i, v := range list {
+		dst[i] = castFunc(v)
+	}
+	return dst
+}

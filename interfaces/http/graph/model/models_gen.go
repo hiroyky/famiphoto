@@ -30,10 +30,11 @@ type CreateGroupInput struct {
 }
 
 type CreateOauthClientInput struct {
-	OauthClientID string           `json:"oauthClientId"`
-	Name          string           `json:"name"`
-	Scope         OauthClientScope `json:"scope"`
-	ClientType    OauthClientType  `json:"clientType"`
+	ClientID     string           `json:"clientId"`
+	Name         string           `json:"name"`
+	Scope        OauthClientScope `json:"scope"`
+	ClientType   OauthClientType  `json:"clientType"`
+	RedirectUrls []string         `json:"redirectUrls"`
 }
 
 type CreateUserInput struct {
@@ -55,13 +56,6 @@ type GroupPagination struct {
 }
 
 func (GroupPagination) IsPagination() {}
-
-type OauthClient struct {
-	OauthClientID string           `json:"oauthClientId"`
-	Name          string           `json:"name"`
-	Scope         OauthClientScope `json:"scope"`
-	ClientType    OauthClientType  `json:"clientType"`
-}
 
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`

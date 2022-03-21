@@ -16,8 +16,9 @@ input CreateGroupInput {
 }
 
 input CreateOauthClientInput {
-    oauthClientId: String!
+    clientId: String!
     name: String!
     scope: OauthClientScope!
     clientType: OauthClientType!
+    redirectUrls: [String!]!
 }

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
@@ -29,7 +30,18 @@ func (r *mutationResolver) CreateGroup(ctx context.Context, input model.CreateGr
 }
 
 func (r *mutationResolver) CreateOauthClient(ctx context.Context, input model.CreateOauthClientInput) (*model.OauthClient, error) {
-	panic(fmt.Errorf("not implemented"))
+	oauthClient, secret, err := r.oauthClientUseCase.CreateOauthClient(ctx, &entities.OauthClient{
+		OauthClientID: input.ClientID,
+		Name:          input.Name,
+		Scope:         input.Scope.ToEntity(),
+		ClientType:    input.ClientType.ToEntity(),
+		RedirectURLs:  input.RedirectUrls,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewOauthClientWithSecret(oauthClient, secret), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

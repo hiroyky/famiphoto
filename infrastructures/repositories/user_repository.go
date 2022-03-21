@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
-	"github.com/hiroyky/famiphoto/infrastructures/models"
+	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/hiroyky/famiphoto/utils/cast"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -30,7 +30,7 @@ func (f *userFilter) WhereMods() []qm.QueryMod {
 		return filter
 	}
 	if f.UserID != nil {
-		filter = append(filter, qm.Where(fmt.Sprintf("%s = ?", models.UserColumns.UserID), f.UserID))
+		filter = append(filter, qm.Where(fmt.Sprintf("%s = ?", dbmodels.UserColumns.UserID), f.UserID))
 	}
 	return filter
 }
@@ -40,7 +40,7 @@ type userRepository struct {
 }
 
 func (r *userRepository) GetUser(ctx context.Context, userID string) (*entities.User, error) {
-	user, err := models.FindUser(ctx, r.db, userID)
+	user, err := dbmodels.FindUser(ctx, r.db, userID)
 	if err != sql.ErrNoRows {
 		return nil, errors.New(errors.UserNotFoundError, err)
 	}
@@ -52,7 +52,7 @@ func (r *userRepository) GetUsers(ctx context.Context, filter *usecases.UserFilt
 	mods := f.WhereMods()
 	mods = append(mods, qm.Limit(limit), qm.Offset(offset))
 
-	users, err := models.Users(mods...).All(ctx, r.db)
+	users, err := dbmodels.Users(mods...).All(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (r *userRepository) GetUsers(ctx context.Context, filter *usecases.UserFilt
 func (r *userRepository) CountUsers(ctx context.Context, filter *usecases.UserFilter) (int, error) {
 	f := &userFilter{UserFilter: filter}
 	mods := f.WhereMods()
-	total, err := models.Users(mods...).Count(ctx, r.db)
+	total, err := dbmodels.Users(mods...).Count(ctx, r.db)
 	if err != nil {
 		return 0, err
 	}
@@ -70,7 +70,7 @@ func (r *userRepository) CountUsers(ctx context.Context, filter *usecases.UserFi
 }
 
 func (r *userRepository) ExistUser(ctx context.Context, userID string) (bool, error) {
-	return models.UserExists(ctx, r.db, userID)
+	return dbmodels.UserExists(ctx, r.db, userID)
 }
 
 func (r *userRepository) CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error) {
@@ -79,12 +79,12 @@ func (r *userRepository) CreateUser(ctx context.Context, user *entities.User, pa
 		return nil, errors.New(errors.TxnBeginFatal, err)
 	}
 
-	dbUser := &models.User{
+	dbUser := &dbmodels.User{
 		UserID: user.UserID,
 		Name:   user.Name,
 		Status: r.toDBUserStatus(user.Status),
 	}
-	dbPassword := &models.UserPassword{
+	dbPassword := &dbmodels.UserPassword{
 		UserID:         user.UserID,
 		Password:       password,
 		LastModifiedAt: now,
@@ -114,7 +114,7 @@ func (r *userRepository) toEntityUserStatus(s int) entities.UserStatus {
 	return entities.UserStatus(s)
 }
 
-func (r *userRepository) toUserEntity(user *models.User) *entities.User {
+func (r *userRepository) toUserEntity(user *dbmodels.User) *entities.User {
 	return &entities.User{
 		UserID: user.UserID,
 		Name:   user.Name,

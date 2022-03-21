@@ -17,7 +17,3 @@ func newPaginationInfo(total, count, limit, offset int) *PaginationInfo {
 		TotalCount:       total,
 	}
 }
-
-func newEdge() {
-
-}

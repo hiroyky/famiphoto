@@ -21,11 +21,20 @@ type UserFilter struct {
 type PasswordService interface {
 	HashPassword(password string) (string, error)
 	MatchPassword(password string, hash string) (bool, error)
-	GeneratePassword() (string, error)
+	GeneratePassword(length int) (string, error)
 }
 
 type OauthClientAdapter interface {
 	GetByOauthClientID(ctx context.Context, id string) (*entities.OauthClient, error)
 	CreateOAuthClient(ctx context.Context, client *entities.OauthClient, clientSecret string) (*entities.OauthClient, error)
 	ExistOauthClient(ctx context.Context, id string) (bool, error)
+}
+
+type OauthClientRedirectURLAdapter interface {
+	GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
+	CreateOAuthClientRedirectURL(ctx context.Context, url *entities.OAuthClientRedirectURL) (*entities.OAuthClientRedirectURL, error)
+}
+
+type OauthAccessTokenAdapter interface {
+	SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireAt int64) error
 }

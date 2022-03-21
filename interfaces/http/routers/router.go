@@ -5,12 +5,16 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/hiroyky/famiphoto/di"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
+	"github.com/hiroyky/famiphoto/interfaces/http/middlewares"
+	"github.com/hiroyky/famiphoto/interfaces/http/validators"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
 func New() *echo.Echo {
 	e := echo.New()
+	e.HTTPErrorHandler = middlewares.HandlerError
+	e.Validator = validators.NewValidator()
 
 	e.GET("/status.html", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "ok")
@@ -22,6 +26,9 @@ func New() *echo.Echo {
 		srv.ServeHTTP(ctx.Response(), ctx.Request())
 		return nil
 	})
+
+	oauthController := di.InitOauthController()
+	e.POST("/oauth/v2/token", oauthController.PostToken)
 
 	return e
 }

@@ -1,15 +1,18 @@
 package entities
 
 type OauthClient struct {
-	OauthClientID string
-	Name          string
-	Scope         OauthScope
-	ClientType    OauthClientType
+	OauthClientID      string
+	ClientSecretHashed string
+	Name               string
+	Scope              OauthScope
+	ClientType         OauthClientType
+	RedirectURLs       []string
 }
 
 type OauthScope string
 
 const (
+	OauthScopeUnknown OauthScope = "Unknown"
 	OauthScopeGeneral OauthScope = "General"
 	OauthScopeAdmin   OauthScope = "Admin"
 )
@@ -17,6 +20,21 @@ const (
 type OauthClientType int
 
 const (
-	OauthClientTypeUserClient OauthClientType = 1
-	OauthClientTypeAdmin      OauthClientType = 2
+	OauthClientTypeUnknown          OauthClientType = 0
+	OauthClientTypeUserClient       OauthClientType = 1
+	OauthClientTypeClientCredential OauthClientType = 2
 )
+
+func (t OauthClientType) String() string {
+	switch t {
+	case OauthClientTypeClientCredential:
+		return "client_credentials"
+	}
+	return ""
+}
+
+type Oauth2ClientCredential struct {
+	AccessToken string
+	TokenType   OauthClientType
+	ExpireIn    int
+}

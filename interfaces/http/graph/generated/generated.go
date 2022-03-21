@@ -38,6 +38,7 @@ type Config struct {
 type ResolverRoot interface {
 	Group() GroupResolver
 	Mutation() MutationResolver
+	OauthClient() OauthClientResolver
 	Photo() PhotoResolver
 	Query() QueryResolver
 	User() UserResolver
@@ -70,10 +71,13 @@ type ComplexityRoot struct {
 	}
 
 	OauthClient struct {
-		ClientType    func(childComplexity int) int
-		Name          func(childComplexity int) int
-		OauthClientID func(childComplexity int) int
-		Scope         func(childComplexity int) int
+		ClientID     func(childComplexity int) int
+		ClientSecret func(childComplexity int) int
+		ClientType   func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Name         func(childComplexity int) int
+		RedirectUrls func(childComplexity int) int
+		Scope        func(childComplexity int) int
 	}
 
 	PageInfo struct {
@@ -140,6 +144,9 @@ type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error)
 	CreateGroup(ctx context.Context, input model.CreateGroupInput) (*model.Group, error)
 	CreateOauthClient(ctx context.Context, input model.CreateOauthClientInput) (*model.OauthClient, error)
+}
+type OauthClientResolver interface {
+	RedirectUrls(ctx context.Context, obj *model.OauthClient) ([]string, error)
 }
 type PhotoResolver interface {
 	Group(ctx context.Context, obj *model.Photo) (*model.Group, error)
@@ -255,12 +262,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.CreateUserInput)), true
 
+	case "OauthClient.clientId":
+		if e.complexity.OauthClient.ClientID == nil {
+			break
+		}
+
+		return e.complexity.OauthClient.ClientID(childComplexity), true
+
+	case "OauthClient.clientSecret":
+		if e.complexity.OauthClient.ClientSecret == nil {
+			break
+		}
+
+		return e.complexity.OauthClient.ClientSecret(childComplexity), true
+
 	case "OauthClient.clientType":
 		if e.complexity.OauthClient.ClientType == nil {
 			break
 		}
 
 		return e.complexity.OauthClient.ClientType(childComplexity), true
+
+	case "OauthClient.id":
+		if e.complexity.OauthClient.ID == nil {
+			break
+		}
+
+		return e.complexity.OauthClient.ID(childComplexity), true
 
 	case "OauthClient.name":
 		if e.complexity.OauthClient.Name == nil {
@@ -269,12 +297,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OauthClient.Name(childComplexity), true
 
-	case "OauthClient.oauthClientId":
-		if e.complexity.OauthClient.OauthClientID == nil {
+	case "OauthClient.redirectUrls":
+		if e.complexity.OauthClient.RedirectUrls == nil {
 			break
 		}
 
-		return e.complexity.OauthClient.OauthClientID(childComplexity), true
+		return e.complexity.OauthClient.RedirectUrls(childComplexity), true
 
 	case "OauthClient.scope":
 		if e.complexity.OauthClient.Scope == nil {
@@ -656,17 +684,21 @@ input CreateGroupInput {
 }
 
 input CreateOauthClientInput {
-    oauthClientId: String!
+    clientId: String!
     name: String!
     scope: OauthClientScope!
     clientType: OauthClientType!
+    redirectUrls: [String!]!
 }
 `, BuiltIn: false},
-	{Name: "schema/gqlschema/oauth_clients.graphqls", Input: `type OauthClient {
-    oauthClientId: ID!
+	{Name: "schema/gqlschema/oauth_clients.graphqls", Input: `type OauthClient implements Node{
+    id: ID!
+    clientId: String!
     name: String!
     scope: OauthClientScope!
     clientType: OauthClientType!
+    clientSecret: String
+    redirectUrls: [String!]!
 }
 
 enum OauthClientType {
@@ -1248,7 +1280,7 @@ func (ec *executionContext) _Mutation_createOauthClient(ctx context.Context, fie
 	return ec.marshalNOauthClient2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐOauthClient(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _OauthClient_oauthClientId(ctx context.Context, field graphql.CollectedField, obj *model.OauthClient) (ret graphql.Marshaler) {
+func (ec *executionContext) _OauthClient_id(ctx context.Context, field graphql.CollectedField, obj *model.OauthClient) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1266,7 +1298,7 @@ func (ec *executionContext) _OauthClient_oauthClientId(ctx context.Context, fiel
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.OauthClientID, nil
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1281,6 +1313,41 @@ func (ec *executionContext) _OauthClient_oauthClientId(ctx context.Context, fiel
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OauthClient_clientId(ctx context.Context, field graphql.CollectedField, obj *model.OauthClient) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OauthClient",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ClientID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _OauthClient_name(ctx context.Context, field graphql.CollectedField, obj *model.OauthClient) (ret graphql.Marshaler) {
@@ -1386,6 +1453,73 @@ func (ec *executionContext) _OauthClient_clientType(ctx context.Context, field g
 	res := resTmp.(model.OauthClientType)
 	fc.Result = res
 	return ec.marshalNOauthClientType2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐOauthClientType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OauthClient_clientSecret(ctx context.Context, field graphql.CollectedField, obj *model.OauthClient) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OauthClient",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ClientSecret, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _OauthClient_redirectUrls(ctx context.Context, field graphql.CollectedField, obj *model.OauthClient) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "OauthClient",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.OauthClient().RedirectUrls(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField, obj *model.PageInfo) (ret graphql.Marshaler) {
@@ -3807,11 +3941,11 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 
 	for k, v := range asMap {
 		switch k {
-		case "oauthClientId":
+		case "clientId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("oauthClientId"))
-			it.OauthClientID, err = ec.unmarshalNString2string(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientId"))
+			it.ClientID, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3836,6 +3970,14 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientType"))
 			it.ClientType, err = ec.unmarshalNOauthClientType2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐOauthClientType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "redirectUrls":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("redirectUrls"))
+			it.RedirectUrls, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3931,6 +4073,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Group(ctx, sel, obj)
+	case model.OauthClient:
+		return ec._OauthClient(ctx, sel, &obj)
+	case *model.OauthClient:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OauthClient(ctx, sel, obj)
 	case model.Photo:
 		return ec._Photo(ctx, sel, &obj)
 	case *model.Photo:
@@ -4187,7 +4336,7 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
-var oauthClientImplementors = []string{"OauthClient"}
+var oauthClientImplementors = []string{"OauthClient", "Node"}
 
 func (ec *executionContext) _OauthClient(ctx context.Context, sel ast.SelectionSet, obj *model.OauthClient) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, oauthClientImplementors)
@@ -4197,15 +4346,25 @@ func (ec *executionContext) _OauthClient(ctx context.Context, sel ast.SelectionS
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("OauthClient")
-		case "oauthClientId":
+		case "id":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._OauthClient_oauthClientId(ctx, field, obj)
+				return ec._OauthClient_id(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "clientId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._OauthClient_clientId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -4215,7 +4374,7 @@ func (ec *executionContext) _OauthClient(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "scope":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -4225,7 +4384,7 @@ func (ec *executionContext) _OauthClient(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "clientType":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -4235,8 +4394,35 @@ func (ec *executionContext) _OauthClient(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "clientSecret":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._OauthClient_clientSecret(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "redirectUrls":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OauthClient_redirectUrls(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5426,6 +5612,38 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNTimestamp2string(ctx context.Context, v interface{}) (string, error) {
