@@ -12,6 +12,7 @@ import (
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"github.com/hiroyky/famiphoto/interfaces/http/controllers"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph"
+	"github.com/hiroyky/famiphoto/interfaces/http/middlewares"
 	"github.com/hiroyky/famiphoto/services"
 	"github.com/hiroyky/famiphoto/usecases"
 )
@@ -25,8 +26,8 @@ func InitResolver() *graph.Resolver {
 	userUseCase := usecases.NewUserUseCase(userAdapter, passwordService)
 	oauthClientAdapter := repositories.NewOauthClientRepository(sqlExecutor)
 	oauthClientRedirectURLAdapter := repositories.NewOauthClientRedirectURLRepository(sqlExecutor)
-	redisRedis := redis.NewOAuthRedis()
-	oauthAccessTokenAdapter := repositories.NewOauthAccessTokenRepository(redisRedis)
+	redisAdapter := redis.NewOauthRedis()
+	oauthAccessTokenAdapter := repositories.NewOauthAccessTokenRepository(redisAdapter)
 	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, oauthClientRedirectURLAdapter, oauthAccessTokenAdapter, passwordService)
 	resolver := graph.NewResolver(userUseCase, oauthUseCase)
 	return resolver
@@ -36,10 +37,22 @@ func InitOauthController() controllers.OauthController {
 	sqlExecutor := mysql.NewDatabaseDriver()
 	oauthClientAdapter := repositories.NewOauthClientRepository(sqlExecutor)
 	oauthClientRedirectURLAdapter := repositories.NewOauthClientRedirectURLRepository(sqlExecutor)
-	redisRedis := redis.NewOAuthRedis()
-	oauthAccessTokenAdapter := repositories.NewOauthAccessTokenRepository(redisRedis)
+	redisAdapter := redis.NewOauthRedis()
+	oauthAccessTokenAdapter := repositories.NewOauthAccessTokenRepository(redisAdapter)
 	passwordService := services.NewPasswordService()
 	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, oauthClientRedirectURLAdapter, oauthAccessTokenAdapter, passwordService)
 	oauthController := controllers.NewOauthController(oauthUseCase)
 	return oauthController
+}
+
+func InitAuthMiddleware() middlewares.AuthMiddleware {
+	sqlExecutor := mysql.NewDatabaseDriver()
+	oauthClientAdapter := repositories.NewOauthClientRepository(sqlExecutor)
+	oauthClientRedirectURLAdapter := repositories.NewOauthClientRedirectURLRepository(sqlExecutor)
+	redisAdapter := redis.NewOauthRedis()
+	oauthAccessTokenAdapter := repositories.NewOauthAccessTokenRepository(redisAdapter)
+	passwordService := services.NewPasswordService()
+	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, oauthClientRedirectURLAdapter, oauthAccessTokenAdapter, passwordService)
+	authMiddleware := middlewares.NewAuthMiddleware(oauthUseCase)
+	return authMiddleware
 }

@@ -10,7 +10,7 @@ const OauthClientName = "OauthClient"
 func NewOauthClientWithSecret(oauth *entities.OauthClient, secret string) *OauthClient {
 	var scope OauthClientScope
 	switch oauth.Scope {
-	case entities.OauthScopeGeneral:
+	case entities.OauthScopeUser:
 		scope = OauthClientScopeGeneral
 	case entities.OauthScopeAdmin:
 		scope = OauthClientScopeAdmin

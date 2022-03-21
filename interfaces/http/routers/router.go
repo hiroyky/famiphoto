@@ -16,6 +16,8 @@ func New() *echo.Echo {
 	e.HTTPErrorHandler = middlewares.HandlerError
 	e.Validator = validators.NewValidator()
 
+	authMiddleware := di.InitAuthMiddleware()
+
 	e.GET("/status.html", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "ok")
 	})
@@ -25,7 +27,7 @@ func New() *echo.Echo {
 	e.POST("/graphql", func(ctx echo.Context) error {
 		srv.ServeHTTP(ctx.Response(), ctx.Request())
 		return nil
-	})
+	}, echo.WrapMiddleware(authMiddleware.AuthClientCredential()))
 
 	oauthController := di.InitOauthController()
 	e.POST("/oauth/v2/token", oauthController.PostToken)

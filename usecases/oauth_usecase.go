@@ -12,6 +12,7 @@ type OauthUseCase interface {
 	CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
 	GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
 	Oauth2ClientCredential(ctx context.Context, clientID, clientSecret string, now time.Time) (*entities.Oauth2ClientCredential, error)
+	AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
 
 func NewOauthUseCase(
@@ -96,4 +97,8 @@ func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, clientID, cli
 		TokenType:   entities.OauthClientTypeClientCredential,
 		ExpireIn:    int(expireIn),
 	}, nil
+}
+
+func (u *oauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
+	return u.oOauthAccessTokenAdapter.GetSession(ctx, accessToken)
 }

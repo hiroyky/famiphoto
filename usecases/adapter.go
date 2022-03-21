@@ -37,4 +37,5 @@ type OauthClientRedirectURLAdapter interface {
 
 type OauthAccessTokenAdapter interface {
 	SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireAt int64) error
+	GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
