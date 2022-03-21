@@ -13,9 +13,13 @@ type OauthScope string
 
 const (
 	OauthScopeUnknown OauthScope = "Unknown"
-	OauthScopeGeneral OauthScope = "General"
+	OauthScopeUser    OauthScope = "General"
 	OauthScopeAdmin   OauthScope = "Admin"
 )
+
+func (s OauthScope) String() string {
+	return string(s)
+}
 
 type OauthClientType int
 
@@ -37,4 +41,11 @@ type Oauth2ClientCredential struct {
 	AccessToken string
 	TokenType   OauthClientType
 	ExpireIn    int
+}
+
+type OauthSession struct {
+	ClientType OauthClientType
+	Scope      OauthScope
+	ClientID   string
+	UserID     string
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	native "github.com/go-redis/redis/v8"
 	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"time"
 )
@@ -13,16 +14,27 @@ type redisDB struct {
 }
 
 func (r *redisDB) Get(ctx context.Context, key string) (string, error) {
-	return r.client.Get(ctx, key).Result()
+	val, err := r.client.Get(ctx, key).Result()
+	if err == nil {
+		return val, nil
+	}
+	if err == native.Nil {
+		return "", errors.New(errors.RedisKeyNotFound, err)
+	}
+	return "", errors.New(errors.RedisFatal, err)
 }
 
 func (r *redisDB) SetEx(ctx context.Context, key string, val interface{}, expiration time.Duration) error {
-	return r.client.SetEX(ctx, key, val, expiration).Err()
+	err := r.client.SetEX(ctx, key, val, expiration).Err()
+	if err != nil {
+		return errors.New(errors.RedisFatal, err)
+	}
+	return nil
 }
 
 var oauthDB *redisDB = nil
 
-func NewOAuthRedis() repositories.RedisAdapter {
+func NewOauthRedis() repositories.RedisAdapter {
 	if oauthDB != nil {
 		return oauthDB
 	}

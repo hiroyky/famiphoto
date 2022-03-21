@@ -20,6 +20,7 @@ func TestOauthAccessTokenRepository_SetClientCredentialAccessToken(t *testing.T)
 	content, _ := (&models.OauthAccessToken{
 		ClientID:   clientID,
 		ClientType: models.OauthClientTypeClientCredential,
+		Scope:      models.OauthScopeAdmin,
 	}).String()
 
 	redisAdapter := mock_repositories.NewMockRedisAdapter(ctrl)
