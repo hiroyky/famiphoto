@@ -2,6 +2,7 @@
 
 DST_DIR=./dst
 DOCKER=famiphoto
+MOCK_TARGETS= infrastructures/repositories/adapter.go usecases/adapter.go
 
 init:
 	docker compose build --no-cache
@@ -35,3 +36,10 @@ dc_sqlboil:
 	docker compose exec $(DOCKER) sqlboiler mysql
 dc_gengql:
 	docker compose exec $(DOCKER) gqlgen
+dc_genmock:
+	docker compose exec $(DOCKER) make mockgen -B -j3
+
+mockgen: $(MOCK_TARGETS)
+
+$(MOCK_TARGETS):
+	mockgen -source $@ -destination testing/mocks/$@
