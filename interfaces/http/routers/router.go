@@ -27,10 +27,10 @@ func New() *echo.Echo {
 	e.POST("/graphql", func(ctx echo.Context) error {
 		srv.ServeHTTP(ctx.Response(), ctx.Request())
 		return nil
-	}, echo.WrapMiddleware(authMiddleware.AuthClientCredential()))
+	}, echo.WrapMiddleware(authMiddleware.AuthAccessToken()))
 
 	oauthController := di.InitOauthController()
-	e.POST("/oauth/v2/token", oauthController.PostToken)
+	e.POST("/oauth/v2/token", oauthController.PostToken, echo.WrapMiddleware(authMiddleware.AuthClientSecret()))
 
 	return e
 }

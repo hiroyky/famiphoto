@@ -7,8 +7,6 @@ import (
 
 type OauthGrantTokenRequest struct {
 	GrantType    string `form:"grant_type" validators:"required,oneof=client_credentials authorization_code refresh_token"`
-	ClientID     string `form:"client_id" validators:"required"`
-	ClientSecret string `form:"client_secret" validators:"required"`
 	Scope        string `form:"scope" validators:"required"`
 	Code         string `form:"code"`
 	RedirectURL  string `form:"redirect_url"`

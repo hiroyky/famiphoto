@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/interfaces/http/requests"
 	"github.com/hiroyky/famiphoto/interfaces/http/responses"
 	"github.com/hiroyky/famiphoto/usecases"
@@ -24,6 +26,11 @@ type oauthController struct {
 }
 
 func (c *oauthController) PostToken(ctx echo.Context) error {
+	client, ok := ctx.Request().Context().Value(config.OauthClientKey).(*entities.OauthClient)
+	if !ok {
+		return ctx.String(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+	}
+
 	var req requests.OauthGrantTokenRequest
 	if err := req.Bind(ctx); err != nil {
 		return err
@@ -31,7 +38,7 @@ func (c *oauthController) PostToken(ctx echo.Context) error {
 
 	switch req.GrantType {
 	case "client_credentials":
-		credential, err := c.oauthUseCase.Oauth2ClientCredential(context.Background(), req.ClientID, req.ClientSecret)
+		credential, err := c.oauthUseCase.Oauth2ClientCredential(context.Background(), client)
 		if err != nil {
 			return err
 		}

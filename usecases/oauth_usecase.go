@@ -10,7 +10,8 @@ import (
 type OauthUseCase interface {
 	CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
 	GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
-	Oauth2ClientCredential(ctx context.Context, clientID, clientSecret string) (*entities.Oauth2ClientCredential, error)
+	AuthClientSecret(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error)
+	Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error)
 	AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
 
@@ -63,18 +64,25 @@ func (u *oauthUseCase) GetOauthClientRedirectURLs(ctx context.Context, oauthClie
 	return u.oauthClientURLAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, oauthClientID)
 }
 
-func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, clientID, clientSecret string) (*entities.Oauth2ClientCredential, error) {
+func (u *oauthUseCase) AuthClientSecret(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error) {
 	client, err := u.oauthClientAdapter.GetByOauthClientID(ctx, clientID)
 	if err != nil {
+		code := errors.GetFPErrorCode(err)
+		if code == errors.OAuthClientNotFoundError {
+			return nil, errors.New(errors.OAuthClientUnauthorizedError, nil)
+		}
 		return nil, err
 	}
 
 	if match, err := u.passwordService.MatchPassword(clientSecret, client.ClientSecretHashed); err != nil {
 		return nil, err
 	} else if !match {
-		return nil, errors.New(errors.OAuthClientNotFoundError, nil)
+		return nil, errors.New(errors.OAuthClientUnauthorizedError, nil)
 	}
+	return client, nil
+}
 
+func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error) {
 	accessToken, err := u.passwordService.GeneratePassword(50)
 	if err != nil {
 		return nil, err
@@ -99,5 +107,13 @@ func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, clientID, cli
 }
 
 func (u *oauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
-	return u.oOauthAccessTokenAdapter.GetSession(ctx, accessToken)
+	sess, err := u.oOauthAccessTokenAdapter.GetSession(ctx, accessToken)
+	if err != nil {
+		code := errors.GetFPErrorCode(err)
+		if code == errors.OAuthAccessTokenNotFoundError {
+			return nil, errors.New(errors.UnauthorizedError, err)
+		}
+		return nil, err
+	}
+	return sess, nil
 }
