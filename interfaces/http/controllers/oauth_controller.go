@@ -7,7 +7,6 @@ import (
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"time"
 )
 
 type OauthController interface {
@@ -32,7 +31,7 @@ func (c *oauthController) PostToken(ctx echo.Context) error {
 
 	switch req.GrantType {
 	case "client_credentials":
-		credential, err := c.oauthUseCase.Oauth2ClientCredential(context.Background(), req.ClientID, req.ClientSecret, time.Now())
+		credential, err := c.oauthUseCase.Oauth2ClientCredential(context.Background(), req.ClientID, req.ClientSecret)
 		if err != nil {
 			return err
 		}

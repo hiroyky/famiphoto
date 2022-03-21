@@ -5,13 +5,12 @@ import (
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
-	"time"
 )
 
 type OauthUseCase interface {
 	CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
 	GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
-	Oauth2ClientCredential(ctx context.Context, clientID, clientSecret string, now time.Time) (*entities.Oauth2ClientCredential, error)
+	Oauth2ClientCredential(ctx context.Context, clientID, clientSecret string) (*entities.Oauth2ClientCredential, error)
 	AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
 
@@ -64,7 +63,7 @@ func (u *oauthUseCase) GetOauthClientRedirectURLs(ctx context.Context, oauthClie
 	return u.oauthClientURLAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, oauthClientID)
 }
 
-func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, clientID, clientSecret string, now time.Time) (*entities.Oauth2ClientCredential, error) {
+func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, clientID, clientSecret string) (*entities.Oauth2ClientCredential, error) {
 	client, err := u.oauthClientAdapter.GetByOauthClientID(ctx, clientID)
 	if err != nil {
 		return nil, err
