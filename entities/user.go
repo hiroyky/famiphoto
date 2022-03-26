@@ -1,5 +1,7 @@
 package entities
 
+import "time"
+
 type User struct {
 	UserID string
 	Name   string
@@ -14,3 +16,10 @@ const (
 	UserStatusActive     UserStatus = 1
 	UserStatusWithdrawal UserStatus = 2
 )
+
+type UserPassword struct {
+	UserId         string
+	Password       string
+	LastModifiedAt time.Time
+	IsInitialized  bool
+}

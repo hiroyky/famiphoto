@@ -11,6 +11,8 @@ type OauthUseCase interface {
 	CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
 	GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
 	AuthClientSecret(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error)
+	ValidateToAuthorizeUser(ctx context.Context, clientID, redirectURL, scope string) (*entities.OauthClient, error)
+	Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope, state string) (string, error)
 	Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error)
 	AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
@@ -104,6 +106,39 @@ func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, client *entit
 		TokenType:   entities.OauthClientTypeClientCredential,
 		ExpireIn:    int(expireIn),
 	}, nil
+}
+
+func (u *oauthUseCase) ValidateToAuthorizeUser(ctx context.Context, clientID, redirectURL, scope string) (*entities.OauthClient, error) {
+	client, err := u.oauthClientAdapter.GetByOauthClientID(ctx, clientID)
+	if err != nil {
+		return nil, err
+	}
+	if client.ClientType != entities.OauthClientTypeUserClient {
+		return nil, errors.New(errors.OAuthClientNotFoundError, nil)
+	}
+	urls, err := u.oauthClientURLAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, clientID)
+	if err != nil {
+		return nil, err
+	}
+	if !urls.IsMatchURL(redirectURL) {
+		return nil, errors.New(errors.OAuthClientInvalidRedirectURLError, nil)
+	}
+	// TODO: scopeの確認
+	return client, nil
+}
+
+func (u *oauthUseCase) Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope, state string) (string, error) {
+	// クライアントＩＤの認証の有無
+
+	// 一時コードの発行
+
+	// リダイレクトURL作成
+	return "", nil
+}
+
+func (u *oauthUseCase) Oauth2AuthorizationCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string) (interface{}, error) {
+
+	return nil, nil
 }
 
 func (u *oauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error) {

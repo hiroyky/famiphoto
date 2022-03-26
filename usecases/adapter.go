@@ -18,6 +18,10 @@ type UserFilter struct {
 	UserID *string
 }
 
+type UserPasswordAdapter interface {
+	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
+}
+
 type PasswordService interface {
 	HashPassword(password string) (string, error)
 	MatchPassword(password string, hash string) (bool, error)
@@ -31,7 +35,7 @@ type OauthClientAdapter interface {
 }
 
 type OauthClientRedirectURLAdapter interface {
-	GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
+	GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) (entities.OAuthClientRedirectURLList, error)
 	CreateOAuthClientRedirectURL(ctx context.Context, url *entities.OAuthClientRedirectURL) (*entities.OAuthClientRedirectURL, error)
 }
 

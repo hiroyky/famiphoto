@@ -14,3 +14,8 @@ func GetStatusCode(err error) int {
 	}
 	return http.StatusInternalServerError
 }
+
+func IsFatalError(err error) bool {
+	code := GetStatusCode(err)
+	return code >= http.StatusInternalServerError
+}
