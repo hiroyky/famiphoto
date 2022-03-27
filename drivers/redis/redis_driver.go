@@ -21,7 +21,18 @@ func (r *redisDB) Get(ctx context.Context, key string) (string, error) {
 	if err == native.Nil {
 		return "", errors.New(errors.RedisKeyNotFound, err)
 	}
-	return "", errors.New(errors.RedisFatal, err)
+	return val, errors.New(errors.RedisFatal, err)
+}
+
+func (r *redisDB) GetDel(ctx context.Context, key string) (string, error) {
+	val, err := r.client.GetDel(ctx, key).Result()
+	if err == nil {
+		return val, nil
+	}
+	if err == native.Nil {
+		return "", errors.New(errors.RedisKeyNotFound, err)
+	}
+	return val, nil
 }
 
 func (r *redisDB) SetEx(ctx context.Context, key string, val interface{}, expiration time.Duration) error {

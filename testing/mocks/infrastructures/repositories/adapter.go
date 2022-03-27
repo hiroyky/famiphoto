@@ -207,6 +207,21 @@ func (mr *MockRedisAdapterMockRecorder) Get(ctx, key interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRedisAdapter)(nil).Get), ctx, key)
 }
 
+// GetDel mocks base method.
+func (m *MockRedisAdapter) GetDel(ctx context.Context, key string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDel", ctx, key)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDel indicates an expected call of GetDel.
+func (mr *MockRedisAdapterMockRecorder) GetDel(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDel", reflect.TypeOf((*MockRedisAdapter)(nil).GetDel), ctx, key)
+}
+
 // SetEx mocks base method.
 func (m *MockRedisAdapter) SetEx(ctx context.Context, key string, val interface{}, expiration time.Duration) error {
 	m.ctrl.T.Helper()
