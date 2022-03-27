@@ -12,7 +12,7 @@ type OauthUseCase interface {
 	GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
 	AuthClientSecret(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error)
 	ValidateToAuthorizeUser(ctx context.Context, clientID, redirectURL, scope string) (*entities.OauthClient, error)
-	Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope, state string) (string, error)
+	Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope string) (string, error)
 	Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error)
 	AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
@@ -24,18 +24,21 @@ func NewOauthUseCase(
 	passwordService PasswordService,
 ) OauthUseCase {
 	return &oauthUseCase{
-		oauthClientAdapter:       oauthClientAdapter,
-		oauthClientURLAdapter:    oauthClientURLAdapter,
-		oOauthAccessTokenAdapter: oOauthAccessTokenAdapter,
-		passwordService:          passwordService,
+		oauthClientAdapter:      oauthClientAdapter,
+		oauthClientURLAdapter:   oauthClientURLAdapter,
+		oauthAccessTokenAdapter: oOauthAccessTokenAdapter,
+		passwordService:         passwordService,
 	}
 }
 
 type oauthUseCase struct {
-	oauthClientAdapter       OauthClientAdapter
-	oauthClientURLAdapter    OauthClientRedirectURLAdapter
-	oOauthAccessTokenAdapter OauthAccessTokenAdapter
-	passwordService          PasswordService
+	oauthClientAdapter      OauthClientAdapter
+	oauthClientURLAdapter   OauthClientRedirectURLAdapter
+	oauthAccessTokenAdapter OauthAccessTokenAdapter
+	oauthCodeAdapter        OauthCodeAdapter
+	userService             UserService
+	passwordService         PasswordService
+	randomService           RandomService
 }
 
 func (u *oauthUseCase) CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error) {
@@ -92,7 +95,7 @@ func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, client *entit
 
 	expireIn := config.Env.CCAccessTokenExpireInSec
 
-	if err := u.oOauthAccessTokenAdapter.SetClientCredentialAccessToken(
+	if err := u.oauthAccessTokenAdapter.SetClientCredentialAccessToken(
 		ctx,
 		client.OauthClientID,
 		accessToken,
@@ -127,13 +130,38 @@ func (u *oauthUseCase) ValidateToAuthorizeUser(ctx context.Context, clientID, re
 	return client, nil
 }
 
-func (u *oauthUseCase) Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope, state string) (string, error) {
+func (u *oauthUseCase) Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope string) (string, error) {
+	if err := u.userService.AuthUserPassword(ctx, userID, password); err != nil {
+		return "", err
+	}
 	// クライアントＩＤの認証の有無
+	_, err := u.oauthClientAdapter.GetByOauthClientID(ctx, clientID)
+	if err != nil {
+		return "", err
+	}
+	redirectURLs, err := u.oauthClientURLAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, clientID)
+	if err != nil {
+		return "", err
+	}
+	if !redirectURLs.IsMatchURL(redirectURL) {
+		return "", errors.New(errors.OAuthClientInvalidRedirectURLError, nil)
+	}
+
+	// TODO: scopeの確認
 
 	// 一時コードの発行
+	code := u.randomService.GenerateRandomString(30)
+	if err := u.oauthCodeAdapter.SetCode(ctx, &entities.OAuthCode{
+		Code:        code,
+		ClientID:    clientID,
+		UserID:      userID,
+		Scope:       entities.OauthScope(scope),
+		RedirectURL: redirectURL,
+	}); err != nil {
+		return "", err
+	}
 
-	// リダイレクトURL作成
-	return "", nil
+	return code, nil
 }
 
 func (u *oauthUseCase) Oauth2AuthorizationCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string) (interface{}, error) {
@@ -142,7 +170,7 @@ func (u *oauthUseCase) Oauth2AuthorizationCode(ctx context.Context, client *enti
 }
 
 func (u *oauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
-	sess, err := u.oOauthAccessTokenAdapter.GetSession(ctx, accessToken)
+	sess, err := u.oauthAccessTokenAdapter.GetSession(ctx, accessToken)
 	if err != nil {
 		code := errors.GetFPErrorCode(err)
 		if code == errors.OAuthAccessTokenNotFoundError {

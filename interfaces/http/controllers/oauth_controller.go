@@ -70,5 +70,18 @@ func (c *oauthController) GetAuthorize(ctx echo.Context) error {
 }
 
 func (c *oauthController) PostAuthorize(ctx echo.Context) error {
-	return ctx.String(200, "hoge")
+	var req requests.OauthAuthorizePostRequest
+	if err := req.Bind(ctx); err != nil {
+		return err
+	}
+	code, err := c.oauthUseCase.Authorize(ctx.Request().Context(), req.UserID, req.Password, req.ClientID, req.RedirectURI, req.Scope)
+	if err != nil {
+		return err
+	}
+	u, err := responses.NewOAuthCodeRedirectURL(req.RedirectURI, code, req.State)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Redirect(http.StatusFound, u)
 }

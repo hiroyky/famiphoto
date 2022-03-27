@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type RandomService interface {
+	GenerateRandomString(length int) string
+}
+
 type UserAdapter interface {
 	GetUser(ctx context.Context, userID string) (*entities.User, error)
 	GetUsers(ctx context.Context, filter *UserFilter, limit, offset int) (entities.UserList, error)
@@ -16,6 +20,10 @@ type UserAdapter interface {
 
 type UserFilter struct {
 	UserID *string
+}
+
+type UserService interface {
+	AuthUserPassword(ctx context.Context, userID, password string) error
 }
 
 type UserPasswordAdapter interface {
@@ -42,4 +50,9 @@ type OauthClientRedirectURLAdapter interface {
 type OauthAccessTokenAdapter interface {
 	SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireAt int64) error
 	GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error)
+}
+
+type OauthCodeAdapter interface {
+	SetCode(ctx context.Context, code *entities.OAuthCode) error
+	GetCode(ctx context.Context, code string) (*entities.OAuthCode, error)
 }

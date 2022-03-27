@@ -16,3 +16,11 @@ func (l OAuthClientRedirectURLList) IsMatchURL(u string) bool {
 	}
 	return false
 }
+
+type OAuthCode struct {
+	Code        string
+	ClientID    string
+	UserID      string
+	Scope       OauthScope
+	RedirectURL string
+}

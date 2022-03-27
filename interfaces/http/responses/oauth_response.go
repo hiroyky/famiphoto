@@ -2,6 +2,8 @@ package responses
 
 import (
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
+	"net/url"
 )
 
 type OauthAccessTokenResponse struct {
@@ -28,4 +30,16 @@ func NewAuthorizePage(csrf, redirectURL, state, scope string, client *entities.O
 		"state":        state,
 		"scope":        scope,
 	}
+}
+
+func NewOAuthCodeRedirectURL(redirectURL, code, state string) (string, error) {
+	u, err := url.Parse(redirectURL)
+	if err != nil {
+		return "", errors.New(errors.InvalidRequestError, err)
+	}
+	q := u.Query()
+	q.Set("code", code)
+	q.Set("state", state)
+	u.RawQuery = q.Encode()
+	return u.String(), nil
 }

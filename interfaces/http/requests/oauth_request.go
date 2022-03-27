@@ -44,3 +44,10 @@ type OauthAuthorizePostRequest struct {
 	UserID      string `form:"user_id" validate:"required"`
 	Password    string `form:"password" validate:"required"`
 }
+
+func (r *OauthAuthorizePostRequest) Bind(ctx echo.Context) error {
+	if err := ctx.Bind(r); err != nil {
+		return errors.New(errors.InvalidRequestError, err)
+	}
+	return ctx.Validate(r)
+}
