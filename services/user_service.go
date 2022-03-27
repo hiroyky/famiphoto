@@ -6,6 +6,18 @@ import (
 	"github.com/hiroyky/famiphoto/usecases"
 )
 
+func NewUserService(
+	userAdapter usecases.UserAdapter,
+	userPasswordAdapter usecases.UserPasswordAdapter,
+	passwordService usecases.PasswordService,
+) usecases.UserService {
+	return &userService{
+		userAdapter:         userAdapter,
+		userPasswordAdapter: userPasswordAdapter,
+		passwordService:     passwordService,
+	}
+}
+
 type userService struct {
 	userAdapter         usecases.UserAdapter
 	userPasswordAdapter usecases.UserPasswordAdapter

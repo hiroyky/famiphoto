@@ -22,7 +22,6 @@ func NewAuthMiddleware(oauthUseCase usecases.OauthUseCase) AuthMiddleware {
 
 type authMiddleware struct {
 	oauthUseCase usecases.OauthUseCase
-	userUseCase  usecases.UserUseCase
 }
 
 func (m *authMiddleware) AuthClientSecret() func(handler http.Handler) http.Handler {

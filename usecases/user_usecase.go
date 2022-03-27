@@ -14,10 +14,15 @@ type UserUseCase interface {
 	GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error)
 }
 
-func NewUserUseCase(userAdapter UserAdapter, passwordService PasswordService) UserUseCase {
+func NewUserUseCase(
+	userAdapter UserAdapter,
+	userPasswordAdapter UserPasswordAdapter,
+	passwordService PasswordService,
+) UserUseCase {
 	return &userUseCase{
-		userAdapter:     userAdapter,
-		passwordService: passwordService,
+		userAdapter:         userAdapter,
+		userPasswordAdapter: userPasswordAdapter,
+		passwordService:     passwordService,
 	}
 }
 

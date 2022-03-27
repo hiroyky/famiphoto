@@ -6,8 +6,13 @@ import (
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
+	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/hiroyky/famiphoto/utils/cast"
 )
+
+func NewUserPasswordRepository(db SQLExecutor) usecases.UserPasswordAdapter {
+	return &userPasswordRepository{db: db}
+}
 
 type userPasswordRepository struct {
 	db SQLExecutor

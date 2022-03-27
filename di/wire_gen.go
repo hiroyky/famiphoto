@@ -22,13 +22,17 @@ import (
 func InitResolver() *graph.Resolver {
 	sqlExecutor := mysql.NewDatabaseDriver()
 	userAdapter := repositories.NewUserRepository(sqlExecutor)
+	userPasswordAdapter := repositories.NewUserPasswordRepository(sqlExecutor)
 	passwordService := services.NewPasswordService()
-	userUseCase := usecases.NewUserUseCase(userAdapter, passwordService)
+	userUseCase := usecases.NewUserUseCase(userAdapter, userPasswordAdapter, passwordService)
 	oauthClientAdapter := repositories.NewOauthClientRepository(sqlExecutor)
 	oauthClientRedirectURLAdapter := repositories.NewOauthClientRedirectURLRepository(sqlExecutor)
 	redisAdapter := redis.NewOauthRedis()
 	oauthAccessTokenAdapter := repositories.NewOauthAccessTokenRepository(redisAdapter)
-	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, oauthClientRedirectURLAdapter, oauthAccessTokenAdapter, passwordService)
+	oauthCodeAdapter := repositories.NewOauthCodeAdapter(redisAdapter)
+	userService := services.NewUserService(userAdapter, userPasswordAdapter, passwordService)
+	randomService := services.NewRandomService()
+	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, oauthClientRedirectURLAdapter, oauthAccessTokenAdapter, oauthCodeAdapter, userService, passwordService, randomService)
 	resolver := graph.NewResolver(userUseCase, oauthUseCase)
 	return resolver
 }
@@ -39,8 +43,13 @@ func InitOauthController() controllers.OauthController {
 	oauthClientRedirectURLAdapter := repositories.NewOauthClientRedirectURLRepository(sqlExecutor)
 	redisAdapter := redis.NewOauthRedis()
 	oauthAccessTokenAdapter := repositories.NewOauthAccessTokenRepository(redisAdapter)
+	oauthCodeAdapter := repositories.NewOauthCodeAdapter(redisAdapter)
+	userAdapter := repositories.NewUserRepository(sqlExecutor)
+	userPasswordAdapter := repositories.NewUserPasswordRepository(sqlExecutor)
 	passwordService := services.NewPasswordService()
-	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, oauthClientRedirectURLAdapter, oauthAccessTokenAdapter, passwordService)
+	userService := services.NewUserService(userAdapter, userPasswordAdapter, passwordService)
+	randomService := services.NewRandomService()
+	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, oauthClientRedirectURLAdapter, oauthAccessTokenAdapter, oauthCodeAdapter, userService, passwordService, randomService)
 	oauthController := controllers.NewOauthController(oauthUseCase)
 	return oauthController
 }
@@ -51,8 +60,13 @@ func InitAuthMiddleware() middlewares.AuthMiddleware {
 	oauthClientRedirectURLAdapter := repositories.NewOauthClientRedirectURLRepository(sqlExecutor)
 	redisAdapter := redis.NewOauthRedis()
 	oauthAccessTokenAdapter := repositories.NewOauthAccessTokenRepository(redisAdapter)
+	oauthCodeAdapter := repositories.NewOauthCodeAdapter(redisAdapter)
+	userAdapter := repositories.NewUserRepository(sqlExecutor)
+	userPasswordAdapter := repositories.NewUserPasswordRepository(sqlExecutor)
 	passwordService := services.NewPasswordService()
-	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, oauthClientRedirectURLAdapter, oauthAccessTokenAdapter, passwordService)
+	userService := services.NewUserService(userAdapter, userPasswordAdapter, passwordService)
+	randomService := services.NewRandomService()
+	oauthUseCase := usecases.NewOauthUseCase(oauthClientAdapter, oauthClientRedirectURLAdapter, oauthAccessTokenAdapter, oauthCodeAdapter, userService, passwordService, randomService)
 	authMiddleware := middlewares.NewAuthMiddleware(oauthUseCase)
 	return authMiddleware
 }

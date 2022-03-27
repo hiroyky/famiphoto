@@ -20,14 +20,20 @@ type OauthUseCase interface {
 func NewOauthUseCase(
 	oauthClientAdapter OauthClientAdapter,
 	oauthClientURLAdapter OauthClientRedirectURLAdapter,
-	oOauthAccessTokenAdapter OauthAccessTokenAdapter,
+	oauthAccessTokenAdapter OauthAccessTokenAdapter,
+	oauthCodeAdapter OauthCodeAdapter,
+	userService UserService,
 	passwordService PasswordService,
+	randomService RandomService,
 ) OauthUseCase {
 	return &oauthUseCase{
 		oauthClientAdapter:      oauthClientAdapter,
 		oauthClientURLAdapter:   oauthClientURLAdapter,
-		oauthAccessTokenAdapter: oOauthAccessTokenAdapter,
+		oauthAccessTokenAdapter: oauthAccessTokenAdapter,
+		oauthCodeAdapter:        oauthCodeAdapter,
+		userService:             userService,
 		passwordService:         passwordService,
+		randomService:           randomService,
 	}
 }
 
