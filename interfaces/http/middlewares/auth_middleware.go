@@ -6,12 +6,10 @@ import (
 	"github.com/hiroyky/famiphoto/interfaces/http/responses"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/hiroyky/famiphoto/utils"
-	"github.com/labstack/gommon/log"
 	"net/http"
 )
 
 type AuthMiddleware interface {
-	AuthUserPassword() func(handler http.Handler) http.Handler
 	AuthClientSecret() func(handler http.Handler) http.Handler
 	AuthAccessToken() func(handler http.Handler) http.Handler
 }
@@ -25,31 +23,6 @@ func NewAuthMiddleware(oauthUseCase usecases.OauthUseCase) AuthMiddleware {
 type authMiddleware struct {
 	oauthUseCase usecases.OauthUseCase
 	userUseCase  usecases.UserUseCase
-}
-
-func (m *authMiddleware) AuthUserPassword() func(handler http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-			ctx := req.Context()
-			userID, password, ok := req.BasicAuth()
-			if !ok {
-				http.Error(writer, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-				return
-			}
-			if err := m.userUseCase.AuthUserPassword(ctx, userID, password); err != nil {
-				if responses.IsFatalError(err) {
-					log.Error(err.Error())
-					return
-				}
-				http.Error(writer, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-				return
-			}
-
-			ctx = context.WithValue(ctx, config.UserIDKey, userID)
-			req = req.WithContext(ctx)
-			next.ServeHTTP(writer, req)
-		})
-	}
 }
 
 func (m *authMiddleware) AuthClientSecret() func(handler http.Handler) http.Handler {

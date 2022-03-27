@@ -9,7 +9,6 @@ import (
 
 type UserUseCase interface {
 	ValidateToCreateUser(ctx context.Context, userID, name string, password string) error
-	AuthUserPassword(ctx context.Context, userID, password string) error
 	CreateUser(ctx context.Context, userID, name string, password string, now time.Time) (*entities.User, error)
 	GetUser(ctx context.Context, userID string) (*entities.User, error)
 	GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error)
@@ -26,25 +25,6 @@ type userUseCase struct {
 	userAdapter         UserAdapter
 	userPasswordAdapter UserPasswordAdapter
 	passwordService     PasswordService
-}
-
-func (u *userUseCase) AuthUserPassword(ctx context.Context, userID, password string) error {
-	if exist, err := u.userAdapter.ExistUser(ctx, userID); err != nil {
-		return err
-	} else if !exist {
-		return errors.New(errors.UserNotFoundError, nil)
-	}
-	pass, err := u.userPasswordAdapter.GetUserPassword(ctx, userID)
-	if err != nil {
-		return err
-	}
-
-	if correct, err := u.passwordService.MatchPassword(password, pass.Password); err != nil {
-		return err
-	} else if !correct {
-		return errors.New(errors.PasswordNotMatchError, nil)
-	}
-	return nil
 }
 
 func (u *userUseCase) ValidateToCreateUser(ctx context.Context, userID, name string, password string) error {
