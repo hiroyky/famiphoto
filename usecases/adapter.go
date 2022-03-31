@@ -30,6 +30,21 @@ type UserPasswordAdapter interface {
 	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
 }
 
+type AuthService interface {
+	PublishUserAccessToken(ctx context.Context, client *entities.OauthClient, userID string) (string, int64, error)
+	PublishCCAccessToken(ctx context.Context, client *entities.OauthClient) (string, int64, error)
+	GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error)
+	AuthByRefreshToken(ctx context.Context, clientID, refreshToken string) (*entities.UserAuth, error)
+	UpsertUserAuth(ctx context.Context, clientID, userID string, now time.Time) (string, error)
+	AuthCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string) (*entities.OAuthCode, error)
+	PublishAuthCode(ctx context.Context, clientID, userID, redirectURL string, scope entities.OauthScope) (string, error)
+	AuthClient(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error)
+	CreateClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
+	ValidateToCreateClient(ctx context.Context, client *entities.OauthClient) error
+	GetUserClient(ctx context.Context, clientID string) (*entities.OauthClient, error)
+	ValidateRedirectURL(ctx context.Context, clientID, redirectURL string) error
+}
+
 type PasswordService interface {
 	HashPassword(password string) (string, error)
 	MatchPassword(password string, hash string) (bool, error)

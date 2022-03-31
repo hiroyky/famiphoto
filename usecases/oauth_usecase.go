@@ -2,9 +2,7 @@ package usecases
 
 import (
 	"context"
-	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
-	"github.com/hiroyky/famiphoto/errors"
 	"time"
 )
 
@@ -21,53 +19,29 @@ type OauthUseCase interface {
 }
 
 func NewOauthUseCase(
-	oauthClientAdapter OauthClientAdapter,
+	authService AuthService,
 	oauthClientURLAdapter OauthClientRedirectURLAdapter,
-	oauthAccessTokenAdapter OauthAccessTokenAdapter,
-	oauthCodeAdapter OauthCodeAdapter,
 	userService UserService,
-	passwordService PasswordService,
-	randomService RandomService,
 ) OauthUseCase {
 	return &oauthUseCase{
-		oauthClientAdapter:      oauthClientAdapter,
-		oauthClientURLAdapter:   oauthClientURLAdapter,
-		oauthAccessTokenAdapter: oauthAccessTokenAdapter,
-		oauthCodeAdapter:        oauthCodeAdapter,
-		userService:             userService,
-		passwordService:         passwordService,
-		randomService:           randomService,
+		authService:           authService,
+		oauthClientURLAdapter: oauthClientURLAdapter,
+		userService:           userService,
 	}
 }
 
 type oauthUseCase struct {
-	oauthClientAdapter      OauthClientAdapter
-	oauthClientURLAdapter   OauthClientRedirectURLAdapter
-	oauthAccessTokenAdapter OauthAccessTokenAdapter
-	oauthCodeAdapter        OauthCodeAdapter
-	userAuthAdapter         UserAuthAdapter
-	userService             UserService
-	passwordService         PasswordService
-	randomService           RandomService
+	authService           AuthService
+	oauthClientURLAdapter OauthClientRedirectURLAdapter
+	userService           UserService
 }
 
 func (u *oauthUseCase) CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error) {
-	if exist, err := u.oauthClientAdapter.ExistOauthClient(ctx, client.OauthClientID); err != nil {
-		return nil, "", err
-	} else if exist {
-		return nil, "", errors.New(errors.OAuthClientAlreadyExist, nil)
+	if err := u.authService.ValidateToCreateClient(ctx, client); err != nil {
+		return nil, "", nil
 	}
 
-	clientSecret, err := u.passwordService.GeneratePassword(50)
-	if err != nil {
-		return nil, "", err
-	}
-	hashedClientSecret, err := u.passwordService.HashPassword(clientSecret)
-	if err != nil {
-		return nil, "", err
-	}
-
-	dst, err := u.oauthClientAdapter.CreateOAuthClient(ctx, client, hashedClientSecret)
+	dst, clientSecret, err := u.authService.CreateClient(ctx, client)
 	if err != nil {
 		return nil, "", err
 	}
@@ -80,37 +54,12 @@ func (u *oauthUseCase) GetOauthClientRedirectURLs(ctx context.Context, oauthClie
 }
 
 func (u *oauthUseCase) AuthClientSecret(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error) {
-	client, err := u.oauthClientAdapter.GetByOauthClientID(ctx, clientID)
-	if err != nil {
-		code := errors.GetFPErrorCode(err)
-		if code == errors.OAuthClientNotFoundError {
-			return nil, errors.New(errors.OAuthClientUnauthorizedError, nil)
-		}
-		return nil, err
-	}
-
-	if match, err := u.passwordService.MatchPassword(clientSecret, client.ClientSecretHashed); err != nil {
-		return nil, err
-	} else if !match {
-		return nil, errors.New(errors.OAuthClientUnauthorizedError, nil)
-	}
-	return client, nil
+	return u.authService.AuthClient(ctx, clientID, clientSecret)
 }
 
 func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error) {
-	accessToken, err := u.passwordService.GeneratePassword(config.AccessTokenLength)
+	accessToken, expireIn, err := u.authService.PublishCCAccessToken(ctx, client)
 	if err != nil {
-		return nil, err
-	}
-
-	expireIn := config.Env.CCAccessTokenExpireInSec
-
-	if err := u.oauthAccessTokenAdapter.SetClientCredentialAccessToken(
-		ctx,
-		client.OauthClientID,
-		accessToken,
-		expireIn,
-	); err != nil {
 		return nil, err
 	}
 
@@ -122,20 +71,15 @@ func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, client *entit
 }
 
 func (u *oauthUseCase) ValidateToAuthorizeUser(ctx context.Context, clientID, redirectURL, scope string) (*entities.OauthClient, error) {
-	client, err := u.oauthClientAdapter.GetByOauthClientID(ctx, clientID)
+	client, err := u.authService.GetUserClient(ctx, clientID)
 	if err != nil {
 		return nil, err
 	}
-	if client.ClientType != entities.OauthClientTypeUserClient {
-		return nil, errors.New(errors.OAuthClientNotFoundError, nil)
-	}
-	urls, err := u.oauthClientURLAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, clientID)
-	if err != nil {
+
+	if err := u.authService.ValidateRedirectURL(ctx, clientID, redirectURL); err != nil {
 		return nil, err
 	}
-	if !urls.IsMatchURL(redirectURL) {
-		return nil, errors.New(errors.OAuthClientInvalidRedirectURLError, nil)
-	}
+
 	// TODO: scopeの確認
 	return client, nil
 }
@@ -145,29 +89,18 @@ func (u *oauthUseCase) Authorize(ctx context.Context, userID, password, clientID
 		return "", err
 	}
 	// クライアントＩＤの認証の有無
-	_, err := u.oauthClientAdapter.GetByOauthClientID(ctx, clientID)
-	if err != nil {
+	if _, err := u.authService.GetUserClient(ctx, clientID); err != nil {
 		return "", err
 	}
-	redirectURLs, err := u.oauthClientURLAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, clientID)
-	if err != nil {
+
+	if err := u.authService.ValidateRedirectURL(ctx, clientID, redirectURL); err != nil {
 		return "", err
-	}
-	if !redirectURLs.IsMatchURL(redirectURL) {
-		return "", errors.New(errors.OAuthClientInvalidRedirectURLError, nil)
 	}
 
 	// TODO: scopeの確認
 
-	// 一時コードの発行
-	code := u.randomService.GenerateRandomString(30)
-	if err := u.oauthCodeAdapter.SetCode(ctx, &entities.OAuthCode{
-		Code:        code,
-		ClientID:    clientID,
-		UserID:      userID,
-		Scope:       entities.OauthScope(scope),
-		RedirectURL: redirectURL,
-	}); err != nil {
+	code, err := u.authService.PublishAuthCode(ctx, clientID, userID, redirectURL, entities.OauthScope(scope))
+	if err != nil {
 		return "", err
 	}
 
@@ -175,95 +108,46 @@ func (u *oauthUseCase) Authorize(ctx context.Context, userID, password, clientID
 }
 
 func (u *oauthUseCase) Oauth2AuthorizationCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string, now time.Time) (*entities.Oauth2AuthorizationCode, error) {
-	oauthCode, err := u.oauthCodeAdapter.GetCode(ctx, code)
-	if err != nil {
-		return nil, err
-	}
-	if client.OauthClientID != oauthCode.ClientID {
-		return nil, errors.New(errors.OAuthClientUnauthorizedError, nil)
-	}
-	if oauthCode.RedirectURL != redirectURL {
-		return nil, errors.New(errors.OAuthClientUnauthorizedError, nil)
-	}
-
-	accessToken, err := u.passwordService.GeneratePassword(config.AccessTokenLength)
-	if err != nil {
-		return nil, err
-	}
-	if err := u.oauthAccessTokenAdapter.SetUserAccessToken(
-		ctx,
-		oauthCode.ClientID,
-		oauthCode.UserID,
-		accessToken,
-		oauthCode.Scope,
-		config.Env.UserAccessTokenExpireInSec,
-	); err != nil {
-		return nil, err
-	}
-
-	refreshToken, err := u.passwordService.GeneratePassword(config.RefreshTokenLength)
+	oauthCode, err := u.authService.AuthCode(ctx, client, code, redirectURL)
 	if err != nil {
 		return nil, err
 	}
 
-	ua := &entities.UserAuth{
-		UserID:                  oauthCode.UserID,
-		OAuthClientID:           oauthCode.ClientID,
-		RefreshToken:            refreshToken,
-		RefreshTokenPublishedAt: now.Unix(),
+	accessToken, expireIn, err := u.authService.PublishUserAccessToken(ctx, client, oauthCode.UserID)
+	if err != nil {
+		return nil, err
 	}
 
-	if _, err := u.userAuthAdapter.UpsertUserAuth(ctx, ua); err != nil {
+	refreshToken, err := u.authService.UpsertUserAuth(ctx, client.OauthClientID, oauthCode.UserID, now)
+	if err != nil {
 		return nil, err
 	}
 
 	return &entities.Oauth2AuthorizationCode{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpireIn:     config.Env.UserAccessTokenExpireInSec,
+		ExpireIn:     expireIn,
 	}, nil
 }
 
 func (u *oauthUseCase) Oauth2RefreshToken(ctx context.Context, client *entities.OauthClient, refreshToken string) (*entities.Oauth2AuthorizationCode, error) {
-	ua, err := u.userAuthAdapter.GetUserAuthByRefreshToken(ctx, refreshToken)
+	ua, err := u.authService.AuthByRefreshToken(ctx, client.OauthClientID, refreshToken)
 	if err != nil {
 		return nil, err
 	}
 
-	if ua.OAuthClientID != client.OauthClientID {
-		return nil, errors.New(errors.UserUnauthorizedError, nil)
-	}
-
-	accessToken, err := u.passwordService.GeneratePassword(config.AccessTokenLength)
+	accessToken, expireIn, err := u.authService.PublishUserAccessToken(ctx, client, ua.UserID)
 	if err != nil {
-		return nil, err
-	}
-	if err := u.oauthAccessTokenAdapter.SetUserAccessToken(
-		ctx,
-		ua.OAuthClientID,
-		ua.UserID,
-		accessToken,
-		client.Scope,
-		config.Env.UserAccessTokenExpireInSec,
-	); err != nil {
 		return nil, err
 	}
 
 	return &entities.Oauth2AuthorizationCode{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpireIn:     config.Env.UserAccessTokenExpireInSec,
+		ExpireIn:     expireIn,
 	}, nil
 }
 
 func (u *oauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
-	sess, err := u.oauthAccessTokenAdapter.GetSession(ctx, accessToken)
-	if err != nil {
-		code := errors.GetFPErrorCode(err)
-		if code == errors.OAuthAccessTokenNotFoundError {
-			return nil, errors.New(errors.UnauthorizedError, err)
-		}
-		return nil, err
-	}
-	return sess, nil
+	return u.authService.GetSession(ctx, accessToken)
 }

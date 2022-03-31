@@ -18,18 +18,11 @@ func InitResolver() *graph.Resolver {
 	wire.Build(
 		graph.NewResolver,
 		usecases.NewUserUseCase,
-		usecases.NewOauthUseCase,
+		initOauthUseCase,
 		services.NewPasswordService,
-		services.NewUserService,
-		services.NewRandomService,
 		repositories.NewUserRepository,
-		repositories.NewOauthCodeAdapter,
 		repositories.NewUserPasswordRepository,
-		repositories.NewOauthClientRepository,
-		repositories.NewOauthAccessTokenRepository,
-		repositories.NewOauthClientRedirectURLRepository,
 		mysql.NewDatabaseDriver,
-		redis.NewOauthRedis,
 	)
 	return nil
 }
@@ -37,11 +30,20 @@ func InitResolver() *graph.Resolver {
 func InitOauthController() controllers.OauthController {
 	wire.Build(
 		controllers.NewOauthController,
+		initOauthUseCase,
+	)
+	return nil
+}
+
+func initOauthUseCase() usecases.OauthUseCase {
+	wire.Build(
 		usecases.NewOauthUseCase,
+		services.NewAuthService,
 		services.NewPasswordService,
 		services.NewRandomService,
 		services.NewUserService,
 		repositories.NewUserRepository,
+		repositories.NewUserAuthAdapter,
 		repositories.NewOauthClientRepository,
 		repositories.NewOauthAccessTokenRepository,
 		repositories.NewUserPasswordRepository,
@@ -56,18 +58,7 @@ func InitOauthController() controllers.OauthController {
 func InitAuthMiddleware() middlewares.AuthMiddleware {
 	wire.Build(
 		middlewares.NewAuthMiddleware,
-		usecases.NewOauthUseCase,
-		services.NewPasswordService,
-		services.NewRandomService,
-		services.NewUserService,
-		repositories.NewUserRepository,
-		repositories.NewOauthClientRepository,
-		repositories.NewOauthAccessTokenRepository,
-		repositories.NewUserPasswordRepository,
-		repositories.NewOauthClientRedirectURLRepository,
-		repositories.NewOauthCodeAdapter,
-		mysql.NewDatabaseDriver,
-		redis.NewOauthRedis,
+		initOauthUseCase,
 	)
 	return nil
 }

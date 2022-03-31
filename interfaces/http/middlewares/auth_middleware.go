@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/responses"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/hiroyky/famiphoto/utils"
@@ -35,7 +36,7 @@ func (m *authMiddleware) AuthClientSecret() func(handler http.Handler) http.Hand
 			}
 			oauthClient, err := m.oauthUseCase.AuthClientSecret(ctx, clientID, clientSecret)
 			if err != nil {
-				code := responses.GetStatusCode(err)
+				code := responses.GetStatusCode(responses.ConvertIfNotFatal(err, errors.OAuthClientUnauthorizedError))
 				http.Error(writer, http.StatusText(code), code)
 				return
 			}
@@ -58,7 +59,7 @@ func (m *authMiddleware) AuthAccessToken() func(handler http.Handler) http.Handl
 
 			sess, err := m.oauthUseCase.AuthAccessToken(ctx, token)
 			if err != nil {
-				code := responses.GetStatusCode(err)
+				code := responses.GetStatusCode(responses.ConvertIfNotFatal(err, errors.UnauthorizedError))
 				http.Error(writer, http.StatusText(code), code)
 				return
 			}
