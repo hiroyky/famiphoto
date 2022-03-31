@@ -49,3 +49,9 @@ type OauthSession struct {
 	ClientID   string
 	UserID     string
 }
+
+type Oauth2AuthorizationCode struct {
+	AccessToken  string
+	RefreshToken string
+	ExpireIn     int64
+}

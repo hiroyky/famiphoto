@@ -49,10 +49,18 @@ type OauthClientRedirectURLAdapter interface {
 
 type OauthAccessTokenAdapter interface {
 	SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireAt int64) error
+	SetUserAccessToken(ctx context.Context, clientID, userID, accessToken string, scope entities.OauthScope, expireIn int64) error
 	GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
 
 type OauthCodeAdapter interface {
 	SetCode(ctx context.Context, code *entities.OAuthCode) error
 	GetCode(ctx context.Context, code string) (*entities.OAuthCode, error)
+}
+
+type UserAuthAdapter interface {
+	UpsertUserAuth(ctx context.Context, m *entities.UserAuth) (*entities.UserAuth, error)
+	GetUserAuth(ctx context.Context, userID, clientID string) (*entities.UserAuth, error)
+	DeleteUserAuth(ctx context.Context, userID, clientID string) error
+	DeleteClientAllAuth(ctx context.Context, clientID string) error
 }

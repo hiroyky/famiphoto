@@ -21,6 +21,20 @@ func NewOauthAccessTokenFromClientCredential(cc *entities.Oauth2ClientCredential
 	}
 }
 
+type OAuthAuthorizationCodeResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int64  `json:"expires_in"`
+}
+
+func NewOAuthAuthorizationCodeResponse(code *entities.Oauth2AuthorizationCode) *OAuthAuthorizationCodeResponse {
+	return &OAuthAuthorizationCodeResponse{
+		AccessToken:  code.AccessToken,
+		RefreshToken: code.RefreshToken,
+		ExpiresIn:    code.ExpireIn,
+	}
+}
+
 func NewAuthorizePage(csrf, redirectURL, state, scope string, client *entities.OauthClient) map[string]interface{} {
 	return map[string]interface{}{
 		"csrf":         csrf,

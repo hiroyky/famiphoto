@@ -39,6 +39,19 @@ func (r *oauthAccessTokenRepository) SetClientCredentialAccessToken(ctx context.
 	return r.db.SetEx(ctx, r.toHash(accessToken), val, time.Duration(expireIn)*time.Second)
 }
 
+func (r *oauthAccessTokenRepository) SetUserAccessToken(ctx context.Context, clientID, userID, accessToken string, scope entities.OauthScope, expireIn int64) error {
+	val, err := (&models.OauthAccessToken{
+		ClientID:   clientID,
+		ClientType: models.OauthClientTypeUserCredential,
+		Scope:      models.OauthAccessTokenFromEntity(scope),
+		UserID:     userID,
+	}).String()
+	if err != nil {
+		return err
+	}
+	return r.db.SetEx(ctx, r.toHash(accessToken), val, time.Duration(expireIn)*time.Second)
+}
+
 func (r *oauthAccessTokenRepository) GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
 	str, err := r.db.Get(ctx, r.toHash(accessToken))
 	if err != nil {

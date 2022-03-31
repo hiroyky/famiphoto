@@ -8,6 +8,7 @@ import (
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"time"
 )
 
 type OauthController interface {
@@ -44,8 +45,12 @@ func (c *oauthController) PostToken(ctx echo.Context) error {
 			return err
 		}
 		return ctx.JSON(http.StatusOK, responses.NewOauthAccessTokenFromClientCredential(credential))
-	case "token":
 	case "authorization_code":
+		code, err := c.oauthUseCase.Oauth2AuthorizationCode(ctx.Request().Context(), client, req.Code, req.RedirectURL, time.Now())
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(http.StatusOK, responses.NewOAuthAuthorizationCodeResponse(code))
 	case "refresh_token":
 
 	}

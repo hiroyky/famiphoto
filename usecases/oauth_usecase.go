@@ -5,6 +5,7 @@ import (
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
+	"time"
 )
 
 type OauthUseCase interface {
@@ -14,6 +15,7 @@ type OauthUseCase interface {
 	ValidateToAuthorizeUser(ctx context.Context, clientID, redirectURL, scope string) (*entities.OauthClient, error)
 	Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope string) (string, error)
 	Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error)
+	Oauth2AuthorizationCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string, now time.Time) (*entities.Oauth2AuthorizationCode, error)
 	AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
 
@@ -42,6 +44,7 @@ type oauthUseCase struct {
 	oauthClientURLAdapter   OauthClientRedirectURLAdapter
 	oauthAccessTokenAdapter OauthAccessTokenAdapter
 	oauthCodeAdapter        OauthCodeAdapter
+	userAuthAdapter         UserAuthAdapter
 	userService             UserService
 	passwordService         PasswordService
 	randomService           RandomService
@@ -94,7 +97,7 @@ func (u *oauthUseCase) AuthClientSecret(ctx context.Context, clientID, clientSec
 }
 
 func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error) {
-	accessToken, err := u.passwordService.GeneratePassword(50)
+	accessToken, err := u.passwordService.GeneratePassword(config.AccessTokenLength)
 	if err != nil {
 		return nil, err
 	}
@@ -170,9 +173,58 @@ func (u *oauthUseCase) Authorize(ctx context.Context, userID, password, clientID
 	return code, nil
 }
 
-func (u *oauthUseCase) Oauth2AuthorizationCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string) (interface{}, error) {
+func (u *oauthUseCase) Oauth2AuthorizationCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string, now time.Time) (*entities.Oauth2AuthorizationCode, error) {
+	oauthCode, err := u.oauthCodeAdapter.GetCode(ctx, code)
+	if err != nil {
+		return nil, err
+	}
+	if client.OauthClientID != oauthCode.ClientID {
+		return nil, errors.New(errors.OAuthClientUnauthorizedError, nil)
+	}
+	if oauthCode.RedirectURL != redirectURL {
+		return nil, errors.New(errors.OAuthClientUnauthorizedError, nil)
+	}
 
-	return nil, nil
+	accessToken, err := u.passwordService.GeneratePassword(config.AccessTokenLength)
+	if err != nil {
+		return nil, err
+	}
+	if err := u.oauthAccessTokenAdapter.SetUserAccessToken(
+		ctx,
+		oauthCode.ClientID,
+		oauthCode.UserID,
+		accessToken,
+		oauthCode.Scope,
+		config.Env.UserAccessTokenExpireInSec,
+	); err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := u.passwordService.GeneratePassword(config.RefreshTokenLength)
+	if err != nil {
+		return nil, err
+	}
+	refreshTokenHashed, err := u.passwordService.HashPassword(refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	ua := &entities.UserAuth{
+		UserID:                  oauthCode.UserID,
+		OAuthClientID:           oauthCode.ClientID,
+		RefreshToken:            refreshTokenHashed,
+		RefreshTokenPublishedAt: now.Unix(),
+	}
+
+	if _, err := u.userAuthAdapter.UpsertUserAuth(ctx, ua); err != nil {
+		return nil, err
+	}
+
+	return &entities.Oauth2AuthorizationCode{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpireIn:     config.Env.UserAccessTokenExpireInSec,
+	}, nil
 }
 
 func (u *oauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error) {

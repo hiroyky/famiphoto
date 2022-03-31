@@ -46,6 +46,16 @@ func (s OauthAccessTokenScope) Entity() entities.OauthScope {
 	panic("invalid scope: " + s)
 }
 
+func OauthAccessTokenFromEntity(t entities.OauthScope) OauthAccessTokenScope {
+	switch t {
+	case entities.OauthScopeAdmin:
+		return OauthScopeAdmin
+	case entities.OauthScopeUser:
+		return OauthScopeUser
+	}
+	panic("invalid scope: " + t.String())
+}
+
 func (t *OauthAccessToken) String() (string, error) {
 	s, err := json.Marshal(t)
 	if err != nil {
