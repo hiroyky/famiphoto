@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type RandomService interface {
+	GenerateRandomString(length int) string
+}
+
 type UserAdapter interface {
 	GetUser(ctx context.Context, userID string) (*entities.User, error)
 	GetUsers(ctx context.Context, filter *UserFilter, limit, offset int) (entities.UserList, error)
@@ -16,6 +20,29 @@ type UserAdapter interface {
 
 type UserFilter struct {
 	UserID *string
+}
+
+type UserService interface {
+	AuthUserPassword(ctx context.Context, userID, password string) error
+}
+
+type UserPasswordAdapter interface {
+	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
+}
+
+type AuthService interface {
+	PublishUserAccessToken(ctx context.Context, client *entities.OauthClient, userID string) (string, int64, error)
+	PublishCCAccessToken(ctx context.Context, client *entities.OauthClient) (string, int64, error)
+	GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error)
+	AuthByRefreshToken(ctx context.Context, clientID, refreshToken string) (*entities.UserAuth, error)
+	UpsertUserAuth(ctx context.Context, clientID, userID string, now time.Time) (string, error)
+	AuthCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string) (*entities.OAuthCode, error)
+	PublishAuthCode(ctx context.Context, clientID, userID, redirectURL string, scope entities.OauthScope) (string, error)
+	AuthClient(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error)
+	CreateClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
+	ValidateToCreateClient(ctx context.Context, client *entities.OauthClient) error
+	GetUserClient(ctx context.Context, clientID string) (*entities.OauthClient, error)
+	ValidateRedirectURL(ctx context.Context, clientID, redirectURL string) error
 }
 
 type PasswordService interface {
@@ -31,10 +58,25 @@ type OauthClientAdapter interface {
 }
 
 type OauthClientRedirectURLAdapter interface {
-	GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
+	GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) (entities.OAuthClientRedirectURLList, error)
 	CreateOAuthClientRedirectURL(ctx context.Context, url *entities.OAuthClientRedirectURL) (*entities.OAuthClientRedirectURL, error)
 }
 
 type OauthAccessTokenAdapter interface {
 	SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireAt int64) error
+	SetUserAccessToken(ctx context.Context, clientID, userID, accessToken string, scope entities.OauthScope, expireIn int64) error
+	GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error)
+}
+
+type OauthCodeAdapter interface {
+	SetCode(ctx context.Context, code *entities.OAuthCode) error
+	GetCode(ctx context.Context, code string) (*entities.OAuthCode, error)
+}
+
+type UserAuthAdapter interface {
+	UpsertUserAuth(ctx context.Context, m *entities.UserAuth) (*entities.UserAuth, error)
+	GetUserAuth(ctx context.Context, userID, clientID string) (*entities.UserAuth, error)
+	GetUserAuthByRefreshToken(ctx context.Context, refreshToken string) (*entities.UserAuth, error)
+	DeleteUserAuth(ctx context.Context, userID, clientID string) error
+	DeleteClientAllAuth(ctx context.Context, clientID string) error
 }

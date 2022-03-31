@@ -22,3 +22,7 @@ func ArrayValues[T any, V any](list []*T, castFunc func(*T) V) []V {
 	}
 	return dst
 }
+
+func IntToBool[T ~int8 | ~int](v T) bool {
+	return v > 0
+}

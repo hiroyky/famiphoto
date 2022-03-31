@@ -14,6 +14,43 @@ import (
 	usecases "github.com/hiroyky/famiphoto/usecases"
 )
 
+// MockRandomService is a mock of RandomService interface.
+type MockRandomService struct {
+	ctrl     *gomock.Controller
+	recorder *MockRandomServiceMockRecorder
+}
+
+// MockRandomServiceMockRecorder is the mock recorder for MockRandomService.
+type MockRandomServiceMockRecorder struct {
+	mock *MockRandomService
+}
+
+// NewMockRandomService creates a new mock instance.
+func NewMockRandomService(ctrl *gomock.Controller) *MockRandomService {
+	mock := &MockRandomService{ctrl: ctrl}
+	mock.recorder = &MockRandomServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRandomService) EXPECT() *MockRandomServiceMockRecorder {
+	return m.recorder
+}
+
+// GenerateRandomString mocks base method.
+func (m *MockRandomService) GenerateRandomString(length int) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateRandomString", length)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GenerateRandomString indicates an expected call of GenerateRandomString.
+func (mr *MockRandomServiceMockRecorder) GenerateRandomString(length interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateRandomString", reflect.TypeOf((*MockRandomService)(nil).GenerateRandomString), length)
+}
+
 // MockUserAdapter is a mock of UserAdapter interface.
 type MockUserAdapter struct {
 	ctrl     *gomock.Controller
@@ -110,6 +147,81 @@ func (m *MockUserAdapter) GetUsers(ctx context.Context, filter *usecases.UserFil
 func (mr *MockUserAdapterMockRecorder) GetUsers(ctx, filter, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockUserAdapter)(nil).GetUsers), ctx, filter, limit, offset)
+}
+
+// MockUserService is a mock of UserService interface.
+type MockUserService struct {
+	ctrl     *gomock.Controller
+	recorder *MockUserServiceMockRecorder
+}
+
+// MockUserServiceMockRecorder is the mock recorder for MockUserService.
+type MockUserServiceMockRecorder struct {
+	mock *MockUserService
+}
+
+// NewMockUserService creates a new mock instance.
+func NewMockUserService(ctrl *gomock.Controller) *MockUserService {
+	mock := &MockUserService{ctrl: ctrl}
+	mock.recorder = &MockUserServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockUserService) EXPECT() *MockUserServiceMockRecorder {
+	return m.recorder
+}
+
+// AuthUserPassword mocks base method.
+func (m *MockUserService) AuthUserPassword(ctx context.Context, userID, password string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AuthUserPassword", ctx, userID, password)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AuthUserPassword indicates an expected call of AuthUserPassword.
+func (mr *MockUserServiceMockRecorder) AuthUserPassword(ctx, userID, password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthUserPassword", reflect.TypeOf((*MockUserService)(nil).AuthUserPassword), ctx, userID, password)
+}
+
+// MockUserPasswordAdapter is a mock of UserPasswordAdapter interface.
+type MockUserPasswordAdapter struct {
+	ctrl     *gomock.Controller
+	recorder *MockUserPasswordAdapterMockRecorder
+}
+
+// MockUserPasswordAdapterMockRecorder is the mock recorder for MockUserPasswordAdapter.
+type MockUserPasswordAdapterMockRecorder struct {
+	mock *MockUserPasswordAdapter
+}
+
+// NewMockUserPasswordAdapter creates a new mock instance.
+func NewMockUserPasswordAdapter(ctrl *gomock.Controller) *MockUserPasswordAdapter {
+	mock := &MockUserPasswordAdapter{ctrl: ctrl}
+	mock.recorder = &MockUserPasswordAdapterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockUserPasswordAdapter) EXPECT() *MockUserPasswordAdapterMockRecorder {
+	return m.recorder
+}
+
+// GetUserPassword mocks base method.
+func (m *MockUserPasswordAdapter) GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserPassword", ctx, userID)
+	ret0, _ := ret[0].(*entities.UserPassword)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserPassword indicates an expected call of GetUserPassword.
+func (mr *MockUserPasswordAdapterMockRecorder) GetUserPassword(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPassword", reflect.TypeOf((*MockUserPasswordAdapter)(nil).GetUserPassword), ctx, userID)
 }
 
 // MockPasswordService is a mock of PasswordService interface.
@@ -287,10 +399,10 @@ func (mr *MockOauthClientRedirectURLAdapterMockRecorder) CreateOAuthClientRedire
 }
 
 // GetOAuthClientRedirectURLsByOAuthClientID mocks base method.
-func (m *MockOauthClientRedirectURLAdapter) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error) {
+func (m *MockOauthClientRedirectURLAdapter) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) (entities.OAuthClientRedirectURLList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOAuthClientRedirectURLsByOAuthClientID", ctx, oauthClientID)
-	ret0, _ := ret[0].([]*entities.OAuthClientRedirectURL)
+	ret0, _ := ret[0].(entities.OAuthClientRedirectURLList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -324,6 +436,21 @@ func (m *MockOauthAccessTokenAdapter) EXPECT() *MockOauthAccessTokenAdapterMockR
 	return m.recorder
 }
 
+// GetSession mocks base method.
+func (m *MockOauthAccessTokenAdapter) GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSession", ctx, accessToken)
+	ret0, _ := ret[0].(*entities.OauthSession)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSession indicates an expected call of GetSession.
+func (mr *MockOauthAccessTokenAdapterMockRecorder) GetSession(ctx, accessToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockOauthAccessTokenAdapter)(nil).GetSession), ctx, accessToken)
+}
+
 // SetClientCredentialAccessToken mocks base method.
 func (m *MockOauthAccessTokenAdapter) SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireAt int64) error {
 	m.ctrl.T.Helper()
@@ -336,4 +463,56 @@ func (m *MockOauthAccessTokenAdapter) SetClientCredentialAccessToken(ctx context
 func (mr *MockOauthAccessTokenAdapterMockRecorder) SetClientCredentialAccessToken(ctx, clientID, accessToken, expireAt interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetClientCredentialAccessToken", reflect.TypeOf((*MockOauthAccessTokenAdapter)(nil).SetClientCredentialAccessToken), ctx, clientID, accessToken, expireAt)
+}
+
+// MockOauthCodeAdapter is a mock of OauthCodeAdapter interface.
+type MockOauthCodeAdapter struct {
+	ctrl     *gomock.Controller
+	recorder *MockOauthCodeAdapterMockRecorder
+}
+
+// MockOauthCodeAdapterMockRecorder is the mock recorder for MockOauthCodeAdapter.
+type MockOauthCodeAdapterMockRecorder struct {
+	mock *MockOauthCodeAdapter
+}
+
+// NewMockOauthCodeAdapter creates a new mock instance.
+func NewMockOauthCodeAdapter(ctrl *gomock.Controller) *MockOauthCodeAdapter {
+	mock := &MockOauthCodeAdapter{ctrl: ctrl}
+	mock.recorder = &MockOauthCodeAdapterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockOauthCodeAdapter) EXPECT() *MockOauthCodeAdapterMockRecorder {
+	return m.recorder
+}
+
+// GetCode mocks base method.
+func (m *MockOauthCodeAdapter) GetCode(ctx context.Context, code string) (*entities.OAuthCode, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCode", ctx, code)
+	ret0, _ := ret[0].(*entities.OAuthCode)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCode indicates an expected call of GetCode.
+func (mr *MockOauthCodeAdapterMockRecorder) GetCode(ctx, code interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCode", reflect.TypeOf((*MockOauthCodeAdapter)(nil).GetCode), ctx, code)
+}
+
+// SetCode mocks base method.
+func (m *MockOauthCodeAdapter) SetCode(ctx context.Context, code *entities.OAuthCode) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetCode", ctx, code)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetCode indicates an expected call of SetCode.
+func (mr *MockOauthCodeAdapterMockRecorder) SetCode(ctx, code interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCode", reflect.TypeOf((*MockOauthCodeAdapter)(nil).SetCode), ctx, code)
 }

@@ -44,7 +44,7 @@ func (e OauthClientScope) ToEntity() entities.OauthScope {
 	case OauthClientScopeAdmin:
 		return entities.OauthScopeAdmin
 	case OauthClientScopeGeneral:
-		return entities.OauthScopeGeneral
+		return entities.OauthScopeUser
 	}
 	return entities.OauthScopeUnknown
 }

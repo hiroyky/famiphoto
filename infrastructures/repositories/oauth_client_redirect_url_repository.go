@@ -19,7 +19,7 @@ type oauthClientRedirectURLRepository struct {
 	db SQLExecutor
 }
 
-func (r *oauthClientRedirectURLRepository) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error) {
+func (r *oauthClientRedirectURLRepository) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) (entities.OAuthClientRedirectURLList, error) {
 	urls, err := dbmodels.OauthClientRedirectUrls(
 		qm.Where(fmt.Sprintf("%s = ?", dbmodels.OauthClientRedirectURLColumns.OauthClientID), oauthClientID),
 	).All(ctx, r.db)

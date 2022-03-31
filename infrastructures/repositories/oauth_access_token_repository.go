@@ -4,8 +4,11 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 	"github.com/hiroyky/famiphoto/usecases"
 	"time"
@@ -27,12 +30,49 @@ func (r *oauthAccessTokenRepository) SetClientCredentialAccessToken(ctx context.
 	val, err := (&models.OauthAccessToken{
 		ClientID:   clientID,
 		ClientType: models.OauthClientTypeClientCredential,
+		Scope:      models.OauthScopeAdmin,
 	}).String()
 	if err != nil {
 		return err
 	}
 
 	return r.db.SetEx(ctx, r.toHash(accessToken), val, time.Duration(expireIn)*time.Second)
+}
+
+func (r *oauthAccessTokenRepository) SetUserAccessToken(ctx context.Context, clientID, userID, accessToken string, scope entities.OauthScope, expireIn int64) error {
+	val, err := (&models.OauthAccessToken{
+		ClientID:   clientID,
+		ClientType: models.OauthClientTypeUserCredential,
+		Scope:      models.OauthAccessTokenFromEntity(scope),
+		UserID:     userID,
+	}).String()
+	if err != nil {
+		return err
+	}
+	return r.db.SetEx(ctx, r.toHash(accessToken), val, time.Duration(expireIn)*time.Second)
+}
+
+func (r *oauthAccessTokenRepository) GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
+	str, err := r.db.Get(ctx, r.toHash(accessToken))
+	if err != nil {
+		code := errors.GetFPErrorCode(err)
+		if code == errors.RedisKeyNotFound {
+			return nil, errors.New(errors.OAuthAccessTokenNotFoundError, nil)
+		}
+		return nil, err
+	}
+	var val models.OauthAccessToken
+	if err := json.Unmarshal([]byte(str), &val); err != nil {
+		return nil, err
+	}
+
+	dst := &entities.OauthSession{
+		ClientType: val.ClientType.Entity(),
+		ClientID:   val.ClientID,
+		Scope:      val.Scope.Entity(),
+		UserID:     val.UserID,
+	}
+	return dst, nil
 }
 
 func (r *oauthAccessTokenRepository) toHash(accessToken string) string {

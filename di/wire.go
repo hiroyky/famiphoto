@@ -9,6 +9,7 @@ import (
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"github.com/hiroyky/famiphoto/interfaces/http/controllers"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph"
+	"github.com/hiroyky/famiphoto/interfaces/http/middlewares"
 	"github.com/hiroyky/famiphoto/services"
 	"github.com/hiroyky/famiphoto/usecases"
 )
@@ -17,14 +18,11 @@ func InitResolver() *graph.Resolver {
 	wire.Build(
 		graph.NewResolver,
 		usecases.NewUserUseCase,
-		repositories.NewUserRepository,
+		initOauthUseCase,
 		services.NewPasswordService,
+		repositories.NewUserRepository,
+		repositories.NewUserPasswordRepository,
 		mysql.NewDatabaseDriver,
-		usecases.NewOauthUseCase,
-		repositories.NewOauthClientRepository,
-		repositories.NewOauthAccessTokenRepository,
-		repositories.NewOauthClientRedirectURLRepository,
-		redis.NewOAuthRedis,
 	)
 	return nil
 }
@@ -32,13 +30,35 @@ func InitResolver() *graph.Resolver {
 func InitOauthController() controllers.OauthController {
 	wire.Build(
 		controllers.NewOauthController,
+		initOauthUseCase,
+	)
+	return nil
+}
+
+func initOauthUseCase() usecases.OauthUseCase {
+	wire.Build(
 		usecases.NewOauthUseCase,
+		services.NewAuthService,
+		services.NewPasswordService,
+		services.NewRandomService,
+		services.NewUserService,
+		repositories.NewUserRepository,
+		repositories.NewUserAuthAdapter,
 		repositories.NewOauthClientRepository,
 		repositories.NewOauthAccessTokenRepository,
+		repositories.NewUserPasswordRepository,
 		repositories.NewOauthClientRedirectURLRepository,
-		services.NewPasswordService,
+		repositories.NewOauthCodeAdapter,
 		mysql.NewDatabaseDriver,
-		redis.NewOAuthRedis,
+		redis.NewOauthRedis,
+	)
+	return nil
+}
+
+func InitAuthMiddleware() middlewares.AuthMiddleware {
+	wire.Build(
+		middlewares.NewAuthMiddleware,
+		initOauthUseCase,
 	)
 	return nil
 }

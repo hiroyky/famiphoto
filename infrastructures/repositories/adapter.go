@@ -13,5 +13,6 @@ type SQLExecutor interface {
 
 type RedisAdapter interface {
 	Get(ctx context.Context, key string) (string, error)
+	GetDel(ctx context.Context, key string) (string, error)
 	SetEx(ctx context.Context, key string, val interface{}, expiration time.Duration) error
 }
