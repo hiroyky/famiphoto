@@ -16,6 +16,7 @@ type OauthUseCase interface {
 	Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope string) (string, error)
 	Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error)
 	Oauth2AuthorizationCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string, now time.Time) (*entities.Oauth2AuthorizationCode, error)
+	Oauth2RefreshToken(ctx context.Context, client *entities.OauthClient, refreshToken string) (*entities.Oauth2AuthorizationCode, error)
 	AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
 
@@ -204,19 +205,47 @@ func (u *oauthUseCase) Oauth2AuthorizationCode(ctx context.Context, client *enti
 	if err != nil {
 		return nil, err
 	}
-	refreshTokenHashed, err := u.passwordService.HashPassword(refreshToken)
-	if err != nil {
-		return nil, err
-	}
 
 	ua := &entities.UserAuth{
 		UserID:                  oauthCode.UserID,
 		OAuthClientID:           oauthCode.ClientID,
-		RefreshToken:            refreshTokenHashed,
+		RefreshToken:            refreshToken,
 		RefreshTokenPublishedAt: now.Unix(),
 	}
 
 	if _, err := u.userAuthAdapter.UpsertUserAuth(ctx, ua); err != nil {
+		return nil, err
+	}
+
+	return &entities.Oauth2AuthorizationCode{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpireIn:     config.Env.UserAccessTokenExpireInSec,
+	}, nil
+}
+
+func (u *oauthUseCase) Oauth2RefreshToken(ctx context.Context, client *entities.OauthClient, refreshToken string) (*entities.Oauth2AuthorizationCode, error) {
+	ua, err := u.userAuthAdapter.GetUserAuthByRefreshToken(ctx, refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	if ua.OAuthClientID != client.OauthClientID {
+		return nil, errors.New(errors.UserUnauthorizedError, nil)
+	}
+
+	accessToken, err := u.passwordService.GeneratePassword(config.AccessTokenLength)
+	if err != nil {
+		return nil, err
+	}
+	if err := u.oauthAccessTokenAdapter.SetUserAccessToken(
+		ctx,
+		ua.OAuthClientID,
+		ua.UserID,
+		accessToken,
+		client.Scope,
+		config.Env.UserAccessTokenExpireInSec,
+	); err != nil {
 		return nil, err
 	}
 

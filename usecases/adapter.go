@@ -61,6 +61,7 @@ type OauthCodeAdapter interface {
 type UserAuthAdapter interface {
 	UpsertUserAuth(ctx context.Context, m *entities.UserAuth) (*entities.UserAuth, error)
 	GetUserAuth(ctx context.Context, userID, clientID string) (*entities.UserAuth, error)
+	GetUserAuthByRefreshToken(ctx context.Context, refreshToken string) (*entities.UserAuth, error)
 	DeleteUserAuth(ctx context.Context, userID, clientID string) error
 	DeleteClientAllAuth(ctx context.Context, clientID string) error
 }

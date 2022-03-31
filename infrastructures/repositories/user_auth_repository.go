@@ -2,8 +2,12 @@ package repositories
 
 import (
 	"context"
+	"crypto/sha512"
+	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -22,7 +26,7 @@ func (r *userAuthRepository) UpsertUserAuth(ctx context.Context, m *entities.Use
 	userAuth := &dbmodels.UserAuth{
 		UserID:                  m.UserID,
 		OauthClientID:           m.OAuthClientID,
-		RefreshToken:            m.RefreshToken,
+		RefreshToken:            r.refreshTokenHashed(m.RefreshToken),
 		RefreshTokenPublishedAt: m.RefreshTokenPublishedAt,
 	}
 	if err := userAuth.Upsert(ctx, r.db, boil.Infer(), boil.Infer()); err != nil {
@@ -34,9 +38,21 @@ func (r *userAuthRepository) UpsertUserAuth(ctx context.Context, m *entities.Use
 func (r *userAuthRepository) GetUserAuth(ctx context.Context, userID, clientID string) (*entities.UserAuth, error) {
 	row, err := dbmodels.FindUserAuth(ctx, r.db, userID, clientID)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.UserAuthNotFoundError, err)
 	}
 	return r.toEntity(row), nil
+}
+
+func (r *userAuthRepository) GetUserAuthByRefreshToken(ctx context.Context, refreshToken string) (*entities.UserAuth, error) {
+	hashed := r.refreshTokenHashed(refreshToken)
+	ua, err := dbmodels.UserAuths(qm.Where(fmt.Sprintf("%s=?", dbmodels.UserAuthColumns.RefreshToken), hashed)).One(ctx, r.db)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New(errors.UserAuthNotFoundError, err)
+		}
+		return nil, err
+	}
+	return r.toEntity(ua), nil
 }
 
 func (r *userAuthRepository) DeleteUserAuth(ctx context.Context, userID, clientID string) error {
@@ -68,4 +84,9 @@ func (r *userAuthRepository) toEntity(m *dbmodels.UserAuth) *entities.UserAuth {
 		RefreshToken:            m.RefreshToken,
 		RefreshTokenPublishedAt: m.RefreshTokenPublishedAt,
 	}
+}
+
+func (r *userAuthRepository) refreshTokenHashed(refreshToken string) string {
+	hashed := sha512.Sum512([]byte(refreshToken))
+	return base64.StdEncoding.EncodeToString(hashed[:])
 }

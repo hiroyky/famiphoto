@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/requests"
 	"github.com/hiroyky/famiphoto/interfaces/http/responses"
 	"github.com/hiroyky/famiphoto/usecases"
@@ -42,20 +43,24 @@ func (c *oauthController) PostToken(ctx echo.Context) error {
 	case "client_credentials":
 		credential, err := c.oauthUseCase.Oauth2ClientCredential(ctx.Request().Context(), client)
 		if err != nil {
-			return err
+			return responses.ConvertIfNotFatal(err, errors.UserUnauthorizedError)
 		}
 		return ctx.JSON(http.StatusOK, responses.NewOauthAccessTokenFromClientCredential(credential))
 	case "authorization_code":
 		code, err := c.oauthUseCase.Oauth2AuthorizationCode(ctx.Request().Context(), client, req.Code, req.RedirectURL, time.Now())
 		if err != nil {
-			return err
+			return responses.ConvertIfNotFatal(err, errors.UserUnauthorizedError)
 		}
 		return ctx.JSON(http.StatusOK, responses.NewOAuthAuthorizationCodeResponse(code))
 	case "refresh_token":
-
+		code, err := c.oauthUseCase.Oauth2RefreshToken(ctx.Request().Context(), client, req.RefreshToken)
+		if err != nil {
+			return responses.ConvertIfNotFatal(err, errors.UserUnauthorizedError)
+		}
+		return ctx.JSON(http.StatusOK, responses.NewOAuthAuthorizationCodeResponse(code))
 	}
 
-	return nil
+	return ctx.String(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
 }
 
 func (c *oauthController) GetAuthorize(ctx echo.Context) error {

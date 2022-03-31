@@ -42,6 +42,7 @@ const (
 	OAuthClientUnauthorizedError       FamiPhotoErrorCode = "OAuthClientUnauthorizedError"
 	OAuthClientInvalidRedirectURLError FamiPhotoErrorCode = "OAuthClientInvalidRedirectURLError"
 	OAuthAccessTokenNotFoundError      FamiPhotoErrorCode = "OAuthAccessTokenNotFoundError"
+	UserAuthNotFoundError              FamiPhotoErrorCode = "UserAuthNotFoundError"
 	UnauthorizedError                  FamiPhotoErrorCode = "UnauthorizedError"
 	TxnRollbackFatal                   FamiPhotoErrorCode = "TxnRollbackFatal"
 	TxnBeginFatal                      FamiPhotoErrorCode = "TxnBeginFatal"
