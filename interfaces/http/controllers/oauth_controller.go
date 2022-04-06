@@ -29,9 +29,9 @@ type oauthController struct {
 }
 
 func (c *oauthController) PostToken(ctx echo.Context) error {
-	client, ok := ctx.Request().Context().Value(config.OauthClientKey).(*entities.OauthClient)
+	client, ok := ctx.Get(config.OauthClientKey).(*entities.OauthClient)
 	if !ok {
-		return ctx.String(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return errors.New(errors.ContextValueNotFoundFatal, nil)
 	}
 
 	var req requests.OauthGrantTokenRequest
@@ -60,7 +60,7 @@ func (c *oauthController) PostToken(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, responses.NewOAuthAuthorizationCodeResponse(code))
 	}
 
-	return ctx.String(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
+	return errors.New(errors.InvalidRequestError, nil)
 }
 
 func (c *oauthController) GetAuthorize(ctx echo.Context) error {

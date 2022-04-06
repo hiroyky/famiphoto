@@ -11,7 +11,7 @@
     <div><label for="user_id">ユーザID: </label><input type="text" name="user_id" id="user_id"></div>
     <div><label for="password">パスワード: </label><input type="password" name="password" id="password"></div>
     <input type="hidden" name="client_id" value='{{ index . "client_id" }}'>
-    <input type="hidden" name="redirect_url" value='{{ index . "redirect_url" }}'>
+    <input type="hidden" name="redirect_uri" value='{{ index . "redirect_uri" }}'>
     <input type="hidden" name="state" value='{{ index . "state" }}'>
     <input type="hidden" name="scope" value='{{ index . "scope" }}'>
     <input type="hidden" name="csrf" value='{{ index . "csrf" }}'>
