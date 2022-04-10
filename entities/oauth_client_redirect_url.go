@@ -21,6 +21,5 @@ type OAuthCode struct {
 	Code        string
 	ClientID    string
 	UserID      string
-	Scope       OauthScope
 	RedirectURL string
 }
