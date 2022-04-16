@@ -5,6 +5,9 @@ package graph
 
 import (
 	"context"
+	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
@@ -34,6 +37,18 @@ func (r *queryResolver) Users(ctx context.Context, id *string, limit *int, offse
 	dstOffset := pagination.GetOffsetOrDefault(offset)
 	users, total, err := r.userUseCase.GetUsers(ctx, userID, dstLimit, dstOffset)
 	return model.NewUserPagination(users, total, dstLimit, dstOffset), nil
+}
+
+func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return nil, errors.New(errors.UserUnauthorizedError, nil)
+	}
+	user, err := r.userUseCase.GetUser(ctx, sess.UserID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewUser(user), nil
 }
 
 // Query returns generated.QueryResolver implementation.

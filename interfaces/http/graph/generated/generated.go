@@ -108,6 +108,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Me    func(childComplexity int) int
 		User  func(childComplexity int, id string) int
 		Users func(childComplexity int, id *string, limit *int, offset *int) int
 	}
@@ -156,6 +157,7 @@ type PhotoResolver interface {
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
 	Users(ctx context.Context, id *string, limit *int, offset *int) (*model.UserPagination, error)
+	Me(ctx context.Context) (*model.User, error)
 }
 type UserResolver interface {
 	Password(ctx context.Context, obj *model.User) (*model.UserPassword, error)
@@ -436,6 +438,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Photo.OwnerID(childComplexity), true
+
+	case "Query.me":
+		if e.complexity.Query.Me == nil {
+			break
+		}
+
+		return e.complexity.Query.Me(childComplexity), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -726,6 +735,7 @@ enum OauthClientScope {
 	{Name: "schema/gqlschema/query.graphqls", Input: `type Query {
     user(id: ID!): User
     users(id: ID, limit: Int, offset: Int): UserPagination!
+    me: User
 }`, BuiltIn: false},
 	{Name: "schema/gqlschema/user.graphqls", Input: `type User implements Node {
     id: ID!
@@ -2225,6 +2235,38 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	res := resTmp.(*model.UserPagination)
 	fc.Result = res
 	return ec.marshalNUserPagination2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUserPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Me(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4743,6 +4785,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "me":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_me(ctx, field)
 				return res
 			}
 
