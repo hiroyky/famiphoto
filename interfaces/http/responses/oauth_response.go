@@ -35,14 +35,13 @@ func NewOAuthAuthorizationCodeResponse(code *entities.Oauth2AuthorizationCode) *
 	}
 }
 
-func NewAuthorizePage(csrf, redirectURL, state, scope string, client *entities.OauthClient) map[string]interface{} {
+func NewAuthorizePage(csrf, redirectURI, state string, client *entities.OauthClient) map[string]interface{} {
 	return map[string]interface{}{
 		"csrf":         csrf,
 		"client_id":    client.OauthClientID,
 		"client_name":  client.Name,
-		"redirect_url": redirectURL,
+		"redirect_uri": redirectURI,
 		"state":        state,
-		"scope":        scope,
 	}
 }
 

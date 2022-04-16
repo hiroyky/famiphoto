@@ -29,16 +29,15 @@ type oauthController struct {
 }
 
 func (c *oauthController) PostToken(ctx echo.Context) error {
-	client, ok := ctx.Request().Context().Value(config.OauthClientKey).(*entities.OauthClient)
+	client, ok := ctx.Get(config.OauthClientKey).(*entities.OauthClient)
 	if !ok {
-		return ctx.String(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return errors.New(errors.ContextValueNotFoundFatal, nil)
 	}
 
 	var req requests.OauthGrantTokenRequest
 	if err := req.Bind(ctx); err != nil {
 		return err
 	}
-
 	switch req.GrantType {
 	case "client_credentials":
 		credential, err := c.oauthUseCase.Oauth2ClientCredential(ctx.Request().Context(), client)
@@ -47,7 +46,7 @@ func (c *oauthController) PostToken(ctx echo.Context) error {
 		}
 		return ctx.JSON(http.StatusOK, responses.NewOauthAccessTokenFromClientCredential(credential))
 	case "authorization_code":
-		code, err := c.oauthUseCase.Oauth2AuthorizationCode(ctx.Request().Context(), client, req.Code, req.RedirectURL, time.Now())
+		code, err := c.oauthUseCase.Oauth2AuthorizationCode(ctx.Request().Context(), client, req.Code, req.RedirectURI, time.Now())
 		if err != nil {
 			return responses.ConvertIfNotFatal(err, errors.UserUnauthorizedError)
 		}
@@ -60,7 +59,7 @@ func (c *oauthController) PostToken(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, responses.NewOAuthAuthorizationCodeResponse(code))
 	}
 
-	return ctx.String(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
+	return errors.New(errors.InvalidRequestError, nil)
 }
 
 func (c *oauthController) GetAuthorize(ctx echo.Context) error {
@@ -69,13 +68,13 @@ func (c *oauthController) GetAuthorize(ctx echo.Context) error {
 		return err
 	}
 
-	client, err := c.oauthUseCase.ValidateToAuthorizeUser(ctx.Request().Context(), req.ClientID, req.RedirectURI, req.Scope)
+	client, err := c.oauthUseCase.ValidateToAuthorizeUser(ctx.Request().Context(), req.ClientID, req.RedirectURI)
 	if err != nil {
 		return err
 	}
 
 	csrf := ctx.Get("csrf").(string)
-	args := responses.NewAuthorizePage(csrf, req.RedirectURI, req.State, req.Scope, client)
+	args := responses.NewAuthorizePage(csrf, req.RedirectURI, req.State, client)
 	return ctx.Render(http.StatusOK, "authorize.html", args)
 }
 
@@ -84,7 +83,7 @@ func (c *oauthController) PostAuthorize(ctx echo.Context) error {
 	if err := req.Bind(ctx); err != nil {
 		return err
 	}
-	code, err := c.oauthUseCase.Authorize(ctx.Request().Context(), req.UserID, req.Password, req.ClientID, req.RedirectURI, req.Scope)
+	code, err := c.oauthUseCase.Authorize(ctx.Request().Context(), req.UserID, req.Password, req.ClientID, req.RedirectURI)
 	if err != nil {
 		return err
 	}

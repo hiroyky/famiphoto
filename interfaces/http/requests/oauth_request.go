@@ -6,10 +6,10 @@ import (
 )
 
 type OauthGrantTokenRequest struct {
-	GrantType    string `form:"grant_type" validate:"required,oneof=client_credentials authorization_code refresh_token token"`
-	Scope        string `form:"scope" validate:"required"`
+	GrantType    string `form:"grant_type" validate:"required,oneof=client_credentials authorization_code refresh_token"`
+	Scope        string `form:"scope"`
 	Code         string `form:"code"`
-	RedirectURL  string `form:"redirect_url"`
+	RedirectURI  string `form:"redirect_uri"`
 	RefreshToken string `form:"refresh_token"`
 	State        string `form:"state"`
 }
@@ -26,7 +26,6 @@ type OauthAuthorizeGetRequest struct {
 	ClientID     string `query:"client_id" validate:"required"`
 	RedirectURI  string `query:"redirect_uri" validate:"required,uri"`
 	State        string `query:"state" validate:"required"`
-	Scope        string `query:"scope"`
 }
 
 func (r *OauthAuthorizeGetRequest) Bind(ctx echo.Context) error {
@@ -40,7 +39,6 @@ type OauthAuthorizePostRequest struct {
 	ClientID    string `form:"client_id" validate:"required"`
 	RedirectURI string `form:"redirect_uri" validate:"required,uri"`
 	State       string `form:"state" validate:"required"`
-	Scope       string `form:"scope"`
 	UserID      string `form:"user_id" validate:"required"`
 	Password    string `form:"password" validate:"required"`
 }

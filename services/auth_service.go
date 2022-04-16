@@ -40,10 +40,7 @@ type authService struct {
 }
 
 func (s *authService) PublishUserAccessToken(ctx context.Context, client *entities.OauthClient, userID string) (string, int64, error) {
-	accessToken, err := s.passwordService.GeneratePassword(config.AccessTokenLength)
-	if err != nil {
-		return "", 0, err
-	}
+	accessToken := s.randomService.GenerateRandomString(config.AccessTokenLength)
 	expireIn := config.Env.CCAccessTokenExpireInSec
 	if err := s.oauthAccessTokenAdapter.SetUserAccessToken(
 		ctx,
@@ -59,11 +56,7 @@ func (s *authService) PublishUserAccessToken(ctx context.Context, client *entiti
 }
 
 func (s *authService) PublishCCAccessToken(ctx context.Context, client *entities.OauthClient) (string, int64, error) {
-	accessToken, err := s.passwordService.GeneratePassword(config.AccessTokenLength)
-	if err != nil {
-		return "", 0, err
-	}
-
+	accessToken := s.randomService.GenerateRandomString(config.AccessTokenLength)
 	expireIn := config.Env.CCAccessTokenExpireInSec
 
 	if err := s.oauthAccessTokenAdapter.SetClientCredentialAccessToken(
@@ -94,11 +87,7 @@ func (s *authService) AuthByRefreshToken(ctx context.Context, clientID, refreshT
 }
 
 func (s *authService) UpsertUserAuth(ctx context.Context, clientID, userID string, now time.Time) (string, error) {
-	refreshToken, err := s.passwordService.GeneratePassword(config.RefreshTokenLength)
-	if err != nil {
-		return "", err
-	}
-
+	refreshToken := s.randomService.GenerateRandomString(config.RefreshTokenLength)
 	ua := &entities.UserAuth{
 		UserID:                  userID,
 		OAuthClientID:           clientID,
@@ -126,13 +115,12 @@ func (s *authService) AuthCode(ctx context.Context, client *entities.OauthClient
 	return oauthCode, nil
 }
 
-func (s *authService) PublishAuthCode(ctx context.Context, clientID, userID, redirectURL string, scope entities.OauthScope) (string, error) {
+func (s *authService) PublishAuthCode(ctx context.Context, clientID, userID, redirectURL string) (string, error) {
 	code := s.randomService.GenerateRandomString(30)
 	if err := s.oauthCodeAdapter.SetCode(ctx, &entities.OAuthCode{
 		Code:        code,
 		ClientID:    clientID,
 		UserID:      userID,
-		Scope:       scope,
 		RedirectURL: redirectURL,
 	}); err != nil {
 		return "", err

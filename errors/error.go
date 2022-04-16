@@ -50,6 +50,7 @@ const (
 	MatchPasswordFatal                 FamiPhotoErrorCode = "MatchPasswordFatal"
 	RedisKeyNotFound                   FamiPhotoErrorCode = "RedisKeyNotFound"
 	RedisFatal                         FamiPhotoErrorCode = "RedisFatal"
+	ContextValueNotFoundFatal          FamiPhotoErrorCode = "ContextValueNotFoundFatal"
 )
 
 func New(errCode FamiPhotoErrorCode, baseError error) error {

@@ -10,8 +10,8 @@ type OauthUseCase interface {
 	CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
 	GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
 	AuthClientSecret(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error)
-	ValidateToAuthorizeUser(ctx context.Context, clientID, redirectURL, scope string) (*entities.OauthClient, error)
-	Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope string) (string, error)
+	ValidateToAuthorizeUser(ctx context.Context, clientID, redirectURL string) (*entities.OauthClient, error)
+	Authorize(ctx context.Context, userID, password, clientID, redirectURL string) (string, error)
 	Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error)
 	Oauth2AuthorizationCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string, now time.Time) (*entities.Oauth2AuthorizationCode, error)
 	Oauth2RefreshToken(ctx context.Context, client *entities.OauthClient, refreshToken string) (*entities.Oauth2AuthorizationCode, error)
@@ -70,7 +70,7 @@ func (u *oauthUseCase) Oauth2ClientCredential(ctx context.Context, client *entit
 	}, nil
 }
 
-func (u *oauthUseCase) ValidateToAuthorizeUser(ctx context.Context, clientID, redirectURL, scope string) (*entities.OauthClient, error) {
+func (u *oauthUseCase) ValidateToAuthorizeUser(ctx context.Context, clientID, redirectURL string) (*entities.OauthClient, error) {
 	client, err := u.authService.GetUserClient(ctx, clientID)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (u *oauthUseCase) ValidateToAuthorizeUser(ctx context.Context, clientID, re
 	return client, nil
 }
 
-func (u *oauthUseCase) Authorize(ctx context.Context, userID, password, clientID, redirectURL, scope string) (string, error) {
+func (u *oauthUseCase) Authorize(ctx context.Context, userID, password, clientID, redirectURL string) (string, error) {
 	if err := u.userService.AuthUserPassword(ctx, userID, password); err != nil {
 		return "", err
 	}
@@ -97,9 +97,7 @@ func (u *oauthUseCase) Authorize(ctx context.Context, userID, password, clientID
 		return "", err
 	}
 
-	// TODO: scopeの確認
-
-	code, err := u.authService.PublishAuthCode(ctx, clientID, userID, redirectURL, entities.OauthScope(scope))
+	code, err := u.authService.PublishAuthCode(ctx, clientID, userID, redirectURL)
 	if err != nil {
 		return "", err
 	}

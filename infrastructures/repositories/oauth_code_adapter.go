@@ -23,7 +23,6 @@ func (r *oauthCodeAdapter) SetCode(ctx context.Context, code *entities.OAuthCode
 	data, err := (&models.OauthCode{
 		ClientID:    code.ClientID,
 		UserID:      code.UserID,
-		Scope:       code.Scope.String(),
 		RedirectURL: code.RedirectURL,
 	}).JSONString()
 	if err != nil {
@@ -38,7 +37,7 @@ func (r *oauthCodeAdapter) SetCode(ctx context.Context, code *entities.OAuthCode
 }
 
 func (r *oauthCodeAdapter) GetCode(ctx context.Context, code string) (*entities.OAuthCode, error) {
-	val, err := r.db.GetDel(ctx, code)
+	val, err := r.db.GetDel(ctx, r.genKey(code))
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +51,6 @@ func (r *oauthCodeAdapter) GetCode(ctx context.Context, code string) (*entities.
 		Code:        code,
 		ClientID:    m.ClientID,
 		UserID:      m.UserID,
-		Scope:       entities.OauthScope(m.Scope),
 		RedirectURL: m.RedirectURL,
 	}, nil
 }

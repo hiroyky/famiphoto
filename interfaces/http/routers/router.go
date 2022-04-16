@@ -39,7 +39,7 @@ func New() *echo.Echo {
 	e.Renderer = responses.NewHtmlTemplateRenderer()
 
 	oauthController := di.InitOauthController()
-	e.POST("/oauth/v2/token", oauthController.PostToken, echo.WrapMiddleware(authMiddleware.AuthClientSecret()))
+	e.POST("/oauth/v2/token", oauthController.PostToken, authMiddleware.AuthClientSecret)
 	e.GET("/oauth/authorize", oauthController.GetAuthorize, middlewares.CSRFByForm())
 	e.POST("/oauth/authorize", oauthController.PostAuthorize, middlewares.CSRFByForm())
 
