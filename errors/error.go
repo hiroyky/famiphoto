@@ -51,6 +51,15 @@ const (
 	RedisKeyNotFound                   FamiPhotoErrorCode = "RedisKeyNotFound"
 	RedisFatal                         FamiPhotoErrorCode = "RedisFatal"
 	ContextValueNotFoundFatal          FamiPhotoErrorCode = "ContextValueNotFoundFatal"
+	SambaConnectFatal                  FamiPhotoErrorCode = "SambaConnectFatal"
+	SambaCreateFatal                   FamiPhotoErrorCode = "SambaCreateFatal"
+	SambaReadFatal                     FamiPhotoErrorCode = "SambaReadFatal"
+	SambaCreateDirFatal                FamiPhotoErrorCode = "SambaCreateDirFatal"
+	SambaRenameFatal                   FamiPhotoErrorCode = "SambaRenameFatal"
+	SambaDeleteFatal                   FamiPhotoErrorCode = "SambaDeleteFatal"
+	SambaDeleteAllFatal                FamiPhotoErrorCode = "SambaDeleteAllFatal"
+	SambaReadDirFatal                  FamiPhotoErrorCode = "SambaReadDirFatal"
+	SambaGlobFatal                     FamiPhotoErrorCode = "SambaGlobFatal"
 )
 
 func New(errCode FamiPhotoErrorCode, baseError error) error {
