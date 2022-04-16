@@ -3,6 +3,7 @@ package config
 import "github.com/kelseyhightower/envconfig"
 
 type FamiPhotoEnv struct {
+	AppEnv                     string `envconfig:"APP_ENV"`
 	Port                       int64  `envconfig:"PORT"`
 	MySQLUserName              string `envconfig:"MYSQL_USER_NAME"`
 	MySQLPassword              string `envconfig:"MYSQL_PASSWORD"`
@@ -19,9 +20,18 @@ type FamiPhotoEnv struct {
 
 var Env FamiPhotoEnv
 
+func (e FamiPhotoEnv) IsDebug() bool {
+	return e.AppEnv == Local
+}
+
 func init() {
 	err := envconfig.Process("", &Env)
 	if err != nil {
 		panic(err)
 	}
 }
+
+const (
+	Local = "local"
+	Prod  = "prod"
+)
