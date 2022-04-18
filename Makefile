@@ -11,10 +11,17 @@ init:
 restart:
 	docker compose stop && docker compose up -d
 
-build:
+build: build_server build_sub_import
+
+build_prepare:
 	go mod tidy
 	go mod verify
+
+build_server: build_prepare
 	go build -o $(DST_DIR)/app main.go
+
+build_sub_import: build_prepare
+	go build -o $(DST_DIR)/import_photos subsystems/import_photos/main.go
 
 fmt:
 	go fmt ./...
@@ -24,6 +31,8 @@ test:
 
 dc_exec:
 	docker compose exec $(DOCKER) bash
+dc_exec_import:
+	docker compose exec $(DOCKER) ./dst/import_photos --base-dir photos
 dc_fmt:
 	docker compose exec $(DOCKER) make fmt
 dc_build:

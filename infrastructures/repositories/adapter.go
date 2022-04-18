@@ -18,7 +18,7 @@ type RedisAdapter interface {
 	SetEx(ctx context.Context, key string, val interface{}, expiration time.Duration) error
 }
 
-type SambaAdapter interface {
+type StorageAdapter interface {
 	CreateFile(filePath string, data []byte) error
 	CreateDir(dirPath string, perm os.FileMode) error
 	Rename(old, file string) error

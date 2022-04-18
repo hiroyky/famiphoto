@@ -1,6 +1,7 @@
 package samba
 
 import (
+	"fmt"
 	"github.com/hirochachacha/go-smb2"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/errors"
@@ -11,19 +12,28 @@ import (
 
 var mediaStorage *sambaDriver = nil
 
-func NewMediaSambaStorage() repositories.SambaAdapter {
+func NewMediaSambaStorage() repositories.StorageAdapter {
 	if mediaStorage != nil {
 		return mediaStorage
 	}
 
-	d := &sambaDriver{}
-	d.connect(
-		"tcp",
-		config.Env.OauthRedisHostName,
+	fmt.Println(
+		config.Env.MediaSambaHostName,
 		config.Env.MediaSambaUserName,
 		config.Env.MediaSambaPassword,
 		config.Env.MediaSambaShareName,
 	)
+	d := &sambaDriver{}
+	if err := d.connect(
+		"tcp",
+		config.Env.MediaSambaHostName,
+		config.Env.MediaSambaUserName,
+		config.Env.MediaSambaPassword,
+		config.Env.MediaSambaShareName,
+	); err != nil {
+		panic(err)
+	}
+	fmt.Println("connected smb server", config.Env.MediaSambaHostName)
 
 	mediaStorage = d
 	return mediaStorage

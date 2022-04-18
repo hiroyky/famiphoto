@@ -80,3 +80,13 @@ type UserAuthAdapter interface {
 	DeleteUserAuth(ctx context.Context, userID, clientID string) error
 	DeleteClientAllAuth(ctx context.Context, clientID string) error
 }
+
+type PhotoStorageAdapter interface {
+	FindDirContents(dirPath string) ([]*entities.StorageFile, error)
+	LoadContent(path string) ([]byte, error)
+	ParsePhotoMeta(path string) (*entities.PhotoMeta, error)
+}
+
+type PhotoService interface {
+	ParsePhotoExif(filePath string) (*entities.PhotoMeta, error)
+}
