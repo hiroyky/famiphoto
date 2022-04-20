@@ -8,6 +8,7 @@
 app
 main
 .samba/
+./dst/
 
 # Test binary, built with `go test -c`
 *.test
