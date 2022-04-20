@@ -1,6 +1,9 @@
 package models
 
-import "github.com/dsoprea/go-exif"
+import (
+	"github.com/dsoprea/go-exif"
+	"github.com/hiroyky/famiphoto/entities"
+)
 
 type IfdEntry struct {
 	IfdPath     string                `json:"ifd_path"`
@@ -13,4 +16,9 @@ type IfdEntry struct {
 	UnitCount   uint32                `json:"unit_count"`
 	Value       interface{}           `json:"value"`
 	ValueString string                `json:"value_string"`
+}
+
+func (e IfdEntry) ToEntity() entities.PhotoMetaItem {
+	return entities.PhotoMetaItem{}
+
 }

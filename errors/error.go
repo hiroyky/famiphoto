@@ -44,6 +44,8 @@ const (
 	OAuthAccessTokenNotFoundError      FamiPhotoErrorCode = "OAuthAccessTokenNotFoundError"
 	UserAuthNotFoundError              FamiPhotoErrorCode = "UserAuthNotFoundError"
 	UnauthorizedError                  FamiPhotoErrorCode = "UnauthorizedError"
+	DBColumnNotFoundError              FamiPhotoErrorCode = "DBColumnNotFoundError"
+	ForbiddenError                     FamiPhotoErrorCode = "ForbiddenError"
 	TxnRollbackFatal                   FamiPhotoErrorCode = "TxnRollbackFatal"
 	TxnBeginFatal                      FamiPhotoErrorCode = "TxnBeginFatal"
 	HashPasswordFatal                  FamiPhotoErrorCode = "HashPasswordFatal"
@@ -84,4 +86,8 @@ func GetFPErrorCode(err error) FamiPhotoErrorCode {
 		return Unknown
 	}
 	return srError.ErrorCode()
+}
+
+func Is(err, target error) bool {
+	return native.Is(err, target)
 }

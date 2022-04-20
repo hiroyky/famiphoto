@@ -84,9 +84,18 @@ type UserAuthAdapter interface {
 type PhotoStorageAdapter interface {
 	FindDirContents(dirPath string) ([]*entities.StorageFile, error)
 	LoadContent(path string) ([]byte, error)
-	ParsePhotoMeta(path string) (*entities.PhotoMeta, error)
+	ParsePhotoMeta(path string) (entities.PhotoMeta, error)
+}
+
+type PhotoAdapter interface {
+	InsertPhoto(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
+	UpdatePhoto(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
+	GetPhotoByFilePath(ctx context.Context, filePath string) (*entities.Photo, error)
+	InsertPhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (entities.PhotoMeta, error)
+	UpdatePhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (entities.PhotoMeta, error)
+	GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int64) (*entities.PhotoMetaItem, error)
 }
 
 type PhotoService interface {
-	ParsePhotoExif(filePath string) (*entities.PhotoMeta, error)
+	RegisterPhoto(ctx context.Context, filePath, ownerID, groupID string) error
 }

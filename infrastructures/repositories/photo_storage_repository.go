@@ -8,6 +8,7 @@ import (
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 	"github.com/hiroyky/famiphoto/usecases"
+	"github.com/hiroyky/famiphoto/utils/array"
 	"path"
 	"path/filepath"
 )
@@ -47,20 +48,31 @@ func (r *photoStorageRepository) LoadContent(path string) ([]byte, error) {
 	return r.driver.ReadFile(path)
 }
 
-func (r *photoStorageRepository) ParsePhotoMeta(path string) (*entities.PhotoMeta, error) {
+func (r *photoStorageRepository) ParsePhotoMeta(path string) (entities.PhotoMeta, error) {
 	data, err := r.LoadContent(path)
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err := r.parseExif(data); err != nil {
+	ifdList, err := r.parseExif(data)
+	if err != nil {
 		return nil, err
 	}
-	return nil, err
+
+	photoMeta := array.Map(ifdList, func(t models.IfdEntry) *entities.PhotoMetaItem {
+		return &entities.PhotoMetaItem{
+			TagID:       int64(t.TagId),
+			TagName:     t.TagName,
+			TagType:     t.TagTypeName,
+			Value:       t.Value,
+			ValueString: t.ValueString,
+		}
+	})
+
+	return photoMeta, err
 }
 
 func (r *photoStorageRepository) parseExif(data []byte) ([]models.IfdEntry, error) {
-	fmt.Printf("parseExif")
 	rawExif, err := exif.SearchAndExtractExif(data)
 	if err != nil {
 		return nil, err
@@ -118,8 +130,6 @@ func (r *photoStorageRepository) parseExif(data []byte) ([]models.IfdEntry, erro
 			Value:       value,
 			ValueString: valueString,
 		}
-
-		fmt.Println(fmt.Sprintf("0x%04x", entry.TagId), entry.TagName, entry.ValueString)
 
 		entries = append(entries, entry)
 
