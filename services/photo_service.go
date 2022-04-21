@@ -8,9 +8,11 @@ import (
 	"time"
 )
 
-func NewPhotoService(photoStorage usecases.PhotoStorageAdapter) usecases.PhotoService {
+func NewPhotoService(photoRepo usecases.PhotoAdapter, photoStorage usecases.PhotoStorageAdapter) usecases.PhotoService {
 	return &photoService{
+		photoRepo:    photoRepo,
 		photoStorage: photoStorage,
+		nowFunc:      time.Now,
 	}
 }
 
@@ -48,10 +50,11 @@ func (s *photoService) insertPhotoIfNotExist(ctx context.Context, filePath, owne
 	return s.photoRepo.InsertPhoto(
 		ctx,
 		&entities.Photo{
-			Name:     filepath.Base(filePath),
-			FilePath: filePath,
-			GroupID:  groupID,
-			OwnerID:  ownerID,
+			Name:       filepath.Base(filePath),
+			FilePath:   filePath,
+			GroupID:    groupID,
+			OwnerID:    ownerID,
+			ImportedAt: s.nowFunc(),
 		},
 	)
 }

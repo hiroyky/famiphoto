@@ -15,11 +15,12 @@ type Photo struct {
 }
 
 type PhotoMetaItem struct {
-	TagID       int64
-	TagName     string
-	TagType     string
-	Value       interface{}
-	ValueString string
+	PhotoMetaItemID int64
+	TagID           int64
+	TagName         string
+	TagType         string
+	Value           interface{}
+	ValueString     string
 }
 
 func (i PhotoMetaItem) sortOrder() int64 {

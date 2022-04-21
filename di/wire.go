@@ -19,7 +19,9 @@ func InitPhotoImportUseCase() usecases.PhotoImportUseCase {
 	wire.Build(
 		usecases.NewPhotoImportUseCase,
 		services.NewPhotoService,
+		repositories.NewPhotoRepository,
 		repositories.NewPhotoStorageRepository,
+		mysql.NewDatabaseDriver,
 		samba.NewMediaSambaStorage,
 	)
 	return nil

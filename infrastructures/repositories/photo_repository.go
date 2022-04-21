@@ -72,12 +72,36 @@ func (r *photoRepository) toPhotoEntity(p *dbmodels.Photo) *entities.Photo {
 	}
 }
 
-func (r *photoRepository) InsertPhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (entities.PhotoMeta, error) {
-	panic("")
+func (r *photoRepository) InsertPhotoMetaItem(ctx context.Context, photoID int64, item *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error) {
+	m := &dbmodels.Exif{
+		PhotoID:     int(photoID),
+		TagID:       int(item.TagID),
+		TagName:     item.TagName,
+		TagType:     item.TagType,
+		Value:       []byte{},
+		ValueString: item.ValueString,
+		SortOrder:   0,
+	}
+	if err := m.Insert(ctx, r.db, boil.Infer()); err != nil {
+		return nil, err
+	}
+	return r.toPhotoMetaItem(m), nil
 }
 
-func (r *photoRepository) UpdatePhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (entities.PhotoMeta, error) {
-	panic("")
+func (r *photoRepository) UpdatePhotoMetaItem(ctx context.Context, photoID int64, item *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error) {
+	m := &dbmodels.Exif{
+		ExifID:      int(item.PhotoMetaItemID),
+		PhotoID:     int(photoID),
+		TagID:       int(item.TagID),
+		TagName:     item.TagName,
+		TagType:     item.TagType,
+		Value:       []byte{},
+		ValueString: item.ValueString,
+	}
+	if _, err := m.Update(ctx, r.db, boil.Infer()); err != nil {
+		return nil, err
+	}
+	return r.toPhotoMetaItem(m), nil
 }
 
 func (r *photoRepository) GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int64) (*entities.PhotoMetaItem, error) {
@@ -88,11 +112,16 @@ func (r *photoRepository) GetPhotoMetaItemByTagID(ctx context.Context, photoID, 
 		}
 		return nil, err
 	}
+	return r.toPhotoMetaItem(m), nil
+}
+
+func (r *photoRepository) toPhotoMetaItem(m *dbmodels.Exif) *entities.PhotoMetaItem {
 	return &entities.PhotoMetaItem{
-		TagID:       int64(m.TagID),
-		TagName:     m.TagName,
-		TagType:     m.TagType,
-		Value:       m.Value,
-		ValueString: m.ValueString,
-	}, nil
+		PhotoMetaItemID: int64(m.ExifID),
+		TagID:           int64(m.TagID),
+		TagName:         m.TagName,
+		TagType:         m.TagType,
+		Value:           m.Value,
+		ValueString:     m.ValueString,
+	}
 }

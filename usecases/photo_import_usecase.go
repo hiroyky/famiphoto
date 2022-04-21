@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
+	"github.com/hiroyky/famiphoto/utils"
 )
 
 type PhotoImportUseCase interface {
@@ -23,6 +25,11 @@ type photoImportUseCase struct {
 }
 
 func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, extensions []string) error {
+	groupID, ownerID, err := u.parseBasePath(basePath)
+	if err != nil {
+		return err
+	}
+
 	contents, err := u.storage.FindDirContents(basePath)
 	if err != nil {
 		return err
@@ -40,11 +47,22 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 
 	for _, file := range files {
 		fmt.Println(file)
-		if err := u.photoService.RegisterPhoto(ctx, file.Path, "", ""); err != nil {
+		if err := u.photoService.RegisterPhoto(ctx, file.Path, ownerID, groupID); err != nil {
 			return err
 		}
 
 	}
 
 	return nil
+}
+
+func (u *photoImportUseCase) parseBasePath(basePath string) (string, string, error) {
+	directories := utils.Directories(basePath)
+	fmt.Println(directories)
+	if len(directories) < 3 {
+		return "", "", errors.New(errors.InvalidFilePathFatal, fmt.Errorf(basePath))
+	}
+	groupID := directories[1]
+	ownerID := directories[2]
+	return groupID, ownerID, nil
 }

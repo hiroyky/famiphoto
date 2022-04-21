@@ -45,6 +45,7 @@ const (
 	UserAuthNotFoundError              FamiPhotoErrorCode = "UserAuthNotFoundError"
 	UnauthorizedError                  FamiPhotoErrorCode = "UnauthorizedError"
 	DBColumnNotFoundError              FamiPhotoErrorCode = "DBColumnNotFoundError"
+	InvalidFilePathFatal               FamiPhotoErrorCode = "InvalidFilePathFatal"
 	ForbiddenError                     FamiPhotoErrorCode = "ForbiddenError"
 	TxnRollbackFatal                   FamiPhotoErrorCode = "TxnRollbackFatal"
 	TxnBeginFatal                      FamiPhotoErrorCode = "TxnBeginFatal"

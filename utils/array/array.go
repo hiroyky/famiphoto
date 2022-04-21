@@ -16,3 +16,13 @@ func Map[T any, V any](list []T, fc func(T) V) []V {
 	}
 	return dst
 }
+
+func Filter[T comparable](list []T, fc func(T) bool) []T {
+	dst := make([]T, 0)
+	for _, v := range list {
+		if fc(v) {
+			dst = append(dst, v)
+		}
+	}
+	return dst
+}

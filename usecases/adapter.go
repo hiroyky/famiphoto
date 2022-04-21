@@ -91,8 +91,8 @@ type PhotoAdapter interface {
 	InsertPhoto(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
 	UpdatePhoto(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
 	GetPhotoByFilePath(ctx context.Context, filePath string) (*entities.Photo, error)
-	InsertPhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (entities.PhotoMeta, error)
-	UpdatePhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (entities.PhotoMeta, error)
+	InsertPhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
+	UpdatePhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
 	GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int64) (*entities.PhotoMetaItem, error)
 }
 

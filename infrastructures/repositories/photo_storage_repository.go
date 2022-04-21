@@ -75,6 +75,9 @@ func (r *photoStorageRepository) ParsePhotoMeta(path string) (entities.PhotoMeta
 func (r *photoStorageRepository) parseExif(data []byte) ([]models.IfdEntry, error) {
 	rawExif, err := exif.SearchAndExtractExif(data)
 	if err != nil {
+		if errors.Is(err, exif.ErrNoExif) {
+			return make([]models.IfdEntry, 0), nil
+		}
 		return nil, err
 	}
 

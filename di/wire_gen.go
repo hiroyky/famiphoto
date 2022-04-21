@@ -21,9 +21,11 @@ import (
 // Injectors from wire.go:
 
 func InitPhotoImportUseCase() usecases.PhotoImportUseCase {
+	sqlExecutor := mysql.NewDatabaseDriver()
+	photoAdapter := repositories.NewPhotoRepository(sqlExecutor)
 	storageAdapter := samba.NewMediaSambaStorage()
 	photoStorageAdapter := repositories.NewPhotoStorageRepository(storageAdapter)
-	photoService := services.NewPhotoService(photoStorageAdapter)
+	photoService := services.NewPhotoService(photoAdapter, photoStorageAdapter)
 	photoImportUseCase := usecases.NewPhotoImportUseCase(photoService, photoStorageAdapter)
 	return photoImportUseCase
 }
