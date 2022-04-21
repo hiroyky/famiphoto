@@ -19,7 +19,6 @@ type PhotoMetaItem struct {
 	TagID           int64
 	TagName         string
 	TagType         string
-	Value           interface{}
 	ValueString     string
 }
 

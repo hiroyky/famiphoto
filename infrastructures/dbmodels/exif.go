@@ -28,7 +28,6 @@ type Exif struct {
 	TagID       int       `boil:"tag_id" json:"tag_id" toml:"tag_id" yaml:"tag_id"`
 	TagName     string    `boil:"tag_name" json:"tag_name" toml:"tag_name" yaml:"tag_name"`
 	TagType     string    `boil:"tag_type" json:"tag_type" toml:"tag_type" yaml:"tag_type"`
-	Value       []byte    `boil:"value" json:"value" toml:"value" yaml:"value"`
 	ValueString string    `boil:"value_string" json:"value_string" toml:"value_string" yaml:"value_string"`
 	SortOrder   int       `boil:"sort_order" json:"sort_order" toml:"sort_order" yaml:"sort_order"`
 	CreatedAt   time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
@@ -44,7 +43,6 @@ var ExifColumns = struct {
 	TagID       string
 	TagName     string
 	TagType     string
-	Value       string
 	ValueString string
 	SortOrder   string
 	CreatedAt   string
@@ -55,7 +53,6 @@ var ExifColumns = struct {
 	TagID:       "tag_id",
 	TagName:     "tag_name",
 	TagType:     "tag_type",
-	Value:       "value",
 	ValueString: "value_string",
 	SortOrder:   "sort_order",
 	CreatedAt:   "created_at",
@@ -68,7 +65,6 @@ var ExifTableColumns = struct {
 	TagID       string
 	TagName     string
 	TagType     string
-	Value       string
 	ValueString string
 	SortOrder   string
 	CreatedAt   string
@@ -79,7 +75,6 @@ var ExifTableColumns = struct {
 	TagID:       "exif.tag_id",
 	TagName:     "exif.tag_name",
 	TagType:     "exif.tag_type",
-	Value:       "exif.value",
 	ValueString: "exif.value_string",
 	SortOrder:   "exif.sort_order",
 	CreatedAt:   "exif.created_at",
@@ -134,15 +129,6 @@ func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-type whereHelper__byte struct{ field string }
-
-func (w whereHelper__byte) EQ(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelper__byte) NEQ(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelper__byte) LT(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelper__byte) LTE(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelper__byte) GT(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelper__byte) GTE(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-
 type whereHelpertime_Time struct{ field string }
 
 func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
@@ -170,7 +156,6 @@ var ExifWhere = struct {
 	TagID       whereHelperint
 	TagName     whereHelperstring
 	TagType     whereHelperstring
-	Value       whereHelper__byte
 	ValueString whereHelperstring
 	SortOrder   whereHelperint
 	CreatedAt   whereHelpertime_Time
@@ -181,7 +166,6 @@ var ExifWhere = struct {
 	TagID:       whereHelperint{field: "`exif`.`tag_id`"},
 	TagName:     whereHelperstring{field: "`exif`.`tag_name`"},
 	TagType:     whereHelperstring{field: "`exif`.`tag_type`"},
-	Value:       whereHelper__byte{field: "`exif`.`value`"},
 	ValueString: whereHelperstring{field: "`exif`.`value_string`"},
 	SortOrder:   whereHelperint{field: "`exif`.`sort_order`"},
 	CreatedAt:   whereHelpertime_Time{field: "`exif`.`created_at`"},
@@ -209,8 +193,8 @@ func (*exifR) NewStruct() *exifR {
 type exifL struct{}
 
 var (
-	exifAllColumns            = []string{"exif_id", "photo_id", "tag_id", "tag_name", "tag_type", "value", "value_string", "sort_order", "created_at", "updated_at"}
-	exifColumnsWithoutDefault = []string{"photo_id", "tag_id", "tag_name", "tag_type", "value", "value_string", "sort_order"}
+	exifAllColumns            = []string{"exif_id", "photo_id", "tag_id", "tag_name", "tag_type", "value_string", "sort_order", "created_at", "updated_at"}
+	exifColumnsWithoutDefault = []string{"photo_id", "tag_id", "tag_name", "tag_type", "value_string", "sort_order"}
 	exifColumnsWithDefault    = []string{"exif_id", "created_at", "updated_at"}
 	exifPrimaryKeyColumns     = []string{"exif_id"}
 	exifGeneratedColumns      = []string{}

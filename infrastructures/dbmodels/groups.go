@@ -23,37 +23,51 @@ import (
 
 // Group is an object representing the database table.
 type Group struct {
-	GroupID string `boil:"group_id" json:"group_id" toml:"group_id" yaml:"group_id"`
-	Name    string `boil:"name" json:"name" toml:"name" yaml:"name"`
+	GroupID   string    `boil:"group_id" json:"group_id" toml:"group_id" yaml:"group_id"`
+	Name      string    `boil:"name" json:"name" toml:"name" yaml:"name"`
+	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 
 	R *groupR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L groupL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var GroupColumns = struct {
-	GroupID string
-	Name    string
+	GroupID   string
+	Name      string
+	CreatedAt string
+	UpdatedAt string
 }{
-	GroupID: "group_id",
-	Name:    "name",
+	GroupID:   "group_id",
+	Name:      "name",
+	CreatedAt: "created_at",
+	UpdatedAt: "updated_at",
 }
 
 var GroupTableColumns = struct {
-	GroupID string
-	Name    string
+	GroupID   string
+	Name      string
+	CreatedAt string
+	UpdatedAt string
 }{
-	GroupID: "groups.group_id",
-	Name:    "groups.name",
+	GroupID:   "groups.group_id",
+	Name:      "groups.name",
+	CreatedAt: "groups.created_at",
+	UpdatedAt: "groups.updated_at",
 }
 
 // Generated where
 
 var GroupWhere = struct {
-	GroupID whereHelperstring
-	Name    whereHelperstring
+	GroupID   whereHelperstring
+	Name      whereHelperstring
+	CreatedAt whereHelpertime_Time
+	UpdatedAt whereHelpertime_Time
 }{
-	GroupID: whereHelperstring{field: "`groups`.`group_id`"},
-	Name:    whereHelperstring{field: "`groups`.`name`"},
+	GroupID:   whereHelperstring{field: "`groups`.`group_id`"},
+	Name:      whereHelperstring{field: "`groups`.`name`"},
+	CreatedAt: whereHelpertime_Time{field: "`groups`.`created_at`"},
+	UpdatedAt: whereHelpertime_Time{field: "`groups`.`updated_at`"},
 }
 
 // GroupRels is where relationship names are stored.
@@ -80,9 +94,9 @@ func (*groupR) NewStruct() *groupR {
 type groupL struct{}
 
 var (
-	groupAllColumns            = []string{"group_id", "name"}
+	groupAllColumns            = []string{"group_id", "name", "created_at", "updated_at"}
 	groupColumnsWithoutDefault = []string{"group_id", "name"}
-	groupColumnsWithDefault    = []string{}
+	groupColumnsWithDefault    = []string{"created_at", "updated_at"}
 	groupPrimaryKeyColumns     = []string{"group_id"}
 	groupGeneratedColumns      = []string{}
 )
@@ -744,6 +758,16 @@ func (o *Group) Insert(ctx context.Context, exec boil.ContextExecutor, columns b
 	}
 
 	var err error
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
+		}
+		if o.UpdatedAt.IsZero() {
+			o.UpdatedAt = currTime
+		}
+	}
 
 	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
 		return err
@@ -835,6 +859,12 @@ CacheNoHooks:
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *Group) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		o.UpdatedAt = currTime
+	}
+
 	var err error
 	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
 		return 0, err
@@ -968,6 +998,14 @@ var mySQLGroupUniqueColumns = []string{
 func (o *Group) Upsert(ctx context.Context, exec boil.ContextExecutor, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
 		return errors.New("dbmodels: no groups provided for upsert")
+	}
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
+		}
+		o.UpdatedAt = currTime
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {

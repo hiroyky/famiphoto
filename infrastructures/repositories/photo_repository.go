@@ -78,7 +78,6 @@ func (r *photoRepository) InsertPhotoMetaItem(ctx context.Context, photoID int64
 		TagID:       int(item.TagID),
 		TagName:     item.TagName,
 		TagType:     item.TagType,
-		Value:       []byte{},
 		ValueString: item.ValueString,
 		SortOrder:   0,
 	}
@@ -95,7 +94,6 @@ func (r *photoRepository) UpdatePhotoMetaItem(ctx context.Context, photoID int64
 		TagID:       int(item.TagID),
 		TagName:     item.TagName,
 		TagType:     item.TagType,
-		Value:       []byte{},
 		ValueString: item.ValueString,
 	}
 	if _, err := m.Update(ctx, r.db, boil.Infer()); err != nil {
@@ -121,7 +119,6 @@ func (r *photoRepository) toPhotoMetaItem(m *dbmodels.Exif) *entities.PhotoMetaI
 		TagID:           int64(m.TagID),
 		TagName:         m.TagName,
 		TagType:         m.TagType,
-		Value:           m.Value,
 		ValueString:     m.ValueString,
 	}
 }

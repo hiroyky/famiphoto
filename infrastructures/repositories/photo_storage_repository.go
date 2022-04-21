@@ -64,7 +64,6 @@ func (r *photoStorageRepository) ParsePhotoMeta(path string) (entities.PhotoMeta
 			TagID:       int64(t.TagId),
 			TagName:     t.TagName,
 			TagType:     t.TagTypeName,
-			Value:       t.Value,
 			ValueString: t.ValueString,
 		}
 	})
