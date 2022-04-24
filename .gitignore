@@ -7,7 +7,7 @@
 .air/tmp/
 app
 main
-.samba/
+samba/
 dst/
 
 # Test binary, built with `go test -c`
