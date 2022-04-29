@@ -23,6 +23,7 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.8.6
 	github.com/volatiletech/strmangle v0.0.2
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
 	gopkg.in/DataDog/dd-trace-go.v1 v1.37.0
 )
 
