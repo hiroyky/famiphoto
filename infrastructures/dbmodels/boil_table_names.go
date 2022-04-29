@@ -10,6 +10,7 @@ var TableNames = struct {
 	OauthClientRedirectUrls string
 	OauthClients            string
 	PhotoFiles              string
+	PhotoThumbnails         string
 	Photos                  string
 	UserAuth                string
 	UserPasswords           string
@@ -21,6 +22,7 @@ var TableNames = struct {
 	OauthClientRedirectUrls: "oauth_client_redirect_urls",
 	OauthClients:            "oauth_clients",
 	PhotoFiles:              "photo_files",
+	PhotoThumbnails:         "photo_thumbnails",
 	Photos:                  "photos",
 	UserAuth:                "user_auth",
 	UserPasswords:           "user_passwords",

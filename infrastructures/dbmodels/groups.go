@@ -72,20 +72,23 @@ var GroupWhere = struct {
 
 // GroupRels is where relationship names are stored.
 var GroupRels = struct {
-	GroupUsers string
-	PhotoFiles string
-	Photos     string
+	GroupUsers      string
+	PhotoFiles      string
+	PhotoThumbnails string
+	Photos          string
 }{
-	GroupUsers: "GroupUsers",
-	PhotoFiles: "PhotoFiles",
-	Photos:     "Photos",
+	GroupUsers:      "GroupUsers",
+	PhotoFiles:      "PhotoFiles",
+	PhotoThumbnails: "PhotoThumbnails",
+	Photos:          "Photos",
 }
 
 // groupR is where relationships are stored.
 type groupR struct {
-	GroupUsers GroupUserSlice `boil:"GroupUsers" json:"GroupUsers" toml:"GroupUsers" yaml:"GroupUsers"`
-	PhotoFiles PhotoFileSlice `boil:"PhotoFiles" json:"PhotoFiles" toml:"PhotoFiles" yaml:"PhotoFiles"`
-	Photos     PhotoSlice     `boil:"Photos" json:"Photos" toml:"Photos" yaml:"Photos"`
+	GroupUsers      GroupUserSlice      `boil:"GroupUsers" json:"GroupUsers" toml:"GroupUsers" yaml:"GroupUsers"`
+	PhotoFiles      PhotoFileSlice      `boil:"PhotoFiles" json:"PhotoFiles" toml:"PhotoFiles" yaml:"PhotoFiles"`
+	PhotoThumbnails PhotoThumbnailSlice `boil:"PhotoThumbnails" json:"PhotoThumbnails" toml:"PhotoThumbnails" yaml:"PhotoThumbnails"`
+	Photos          PhotoSlice          `boil:"Photos" json:"Photos" toml:"Photos" yaml:"Photos"`
 }
 
 // NewStruct creates a new relationship struct
@@ -105,6 +108,13 @@ func (r *groupR) GetPhotoFiles() PhotoFileSlice {
 		return nil
 	}
 	return r.PhotoFiles
+}
+
+func (r *groupR) GetPhotoThumbnails() PhotoThumbnailSlice {
+	if r == nil {
+		return nil
+	}
+	return r.PhotoThumbnails
 }
 
 func (r *groupR) GetPhotos() PhotoSlice {
@@ -431,6 +441,20 @@ func (o *Group) PhotoFiles(mods ...qm.QueryMod) photoFileQuery {
 	return PhotoFiles(queryMods...)
 }
 
+// PhotoThumbnails retrieves all the photo_thumbnail's PhotoThumbnails with an executor.
+func (o *Group) PhotoThumbnails(mods ...qm.QueryMod) photoThumbnailQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("`photo_thumbnails`.`group_id`=?", o.GroupID),
+	)
+
+	return PhotoThumbnails(queryMods...)
+}
+
 // Photos retrieves all the photo's Photos with an executor.
 func (o *Group) Photos(mods ...qm.QueryMod) photoQuery {
 	var queryMods []qm.QueryMod
@@ -641,6 +665,104 @@ func (groupL) LoadPhotoFiles(ctx context.Context, e boil.ContextExecutor, singul
 	return nil
 }
 
+// LoadPhotoThumbnails allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (groupL) LoadPhotoThumbnails(ctx context.Context, e boil.ContextExecutor, singular bool, maybeGroup interface{}, mods queries.Applicator) error {
+	var slice []*Group
+	var object *Group
+
+	if singular {
+		object = maybeGroup.(*Group)
+	} else {
+		slice = *maybeGroup.(*[]*Group)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &groupR{}
+		}
+		args = append(args, object.GroupID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &groupR{}
+			}
+
+			for _, a := range args {
+				if a == obj.GroupID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.GroupID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`photo_thumbnails`),
+		qm.WhereIn(`photo_thumbnails.group_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load photo_thumbnails")
+	}
+
+	var resultSlice []*PhotoThumbnail
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice photo_thumbnails")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on photo_thumbnails")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for photo_thumbnails")
+	}
+
+	if len(photoThumbnailAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.PhotoThumbnails = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &photoThumbnailR{}
+			}
+			foreign.R.Group = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.GroupID == foreign.GroupID {
+				local.R.PhotoThumbnails = append(local.R.PhotoThumbnails, foreign)
+				if foreign.R == nil {
+					foreign.R = &photoThumbnailR{}
+				}
+				foreign.R.Group = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // LoadPhotos allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
 func (groupL) LoadPhotos(ctx context.Context, e boil.ContextExecutor, singular bool, maybeGroup interface{}, mods queries.Applicator) error {
@@ -836,6 +958,59 @@ func (o *Group) AddPhotoFiles(ctx context.Context, exec boil.ContextExecutor, in
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &photoFileR{
+				Group: o,
+			}
+		} else {
+			rel.R.Group = o
+		}
+	}
+	return nil
+}
+
+// AddPhotoThumbnails adds the given related objects to the existing relationships
+// of the group, optionally inserting them as new records.
+// Appends related to o.R.PhotoThumbnails.
+// Sets related.R.Group appropriately.
+func (o *Group) AddPhotoThumbnails(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*PhotoThumbnail) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.GroupID = o.GroupID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE `photo_thumbnails` SET %s WHERE %s",
+				strmangle.SetParamNames("`", "`", 0, []string{"group_id"}),
+				strmangle.WhereClause("`", "`", 0, photoThumbnailPrimaryKeyColumns),
+			)
+			values := []interface{}{o.GroupID, rel.PhotoID, rel.ThumbnailName}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.GroupID = o.GroupID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &groupR{
+			PhotoThumbnails: related,
+		}
+	} else {
+		o.R.PhotoThumbnails = append(o.R.PhotoThumbnails, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &photoThumbnailR{
 				Group: o,
 			}
 		} else {

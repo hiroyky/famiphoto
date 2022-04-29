@@ -79,26 +79,29 @@ var UserWhere = struct {
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	UserPassword    string
-	GroupUsers      string
-	OwnerPhotoFiles string
-	OwnerPhotos     string
-	UserAuths       string
+	UserPassword         string
+	GroupUsers           string
+	OwnerPhotoFiles      string
+	OwnerPhotoThumbnails string
+	OwnerPhotos          string
+	UserAuths            string
 }{
-	UserPassword:    "UserPassword",
-	GroupUsers:      "GroupUsers",
-	OwnerPhotoFiles: "OwnerPhotoFiles",
-	OwnerPhotos:     "OwnerPhotos",
-	UserAuths:       "UserAuths",
+	UserPassword:         "UserPassword",
+	GroupUsers:           "GroupUsers",
+	OwnerPhotoFiles:      "OwnerPhotoFiles",
+	OwnerPhotoThumbnails: "OwnerPhotoThumbnails",
+	OwnerPhotos:          "OwnerPhotos",
+	UserAuths:            "UserAuths",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	UserPassword    *UserPassword  `boil:"UserPassword" json:"UserPassword" toml:"UserPassword" yaml:"UserPassword"`
-	GroupUsers      GroupUserSlice `boil:"GroupUsers" json:"GroupUsers" toml:"GroupUsers" yaml:"GroupUsers"`
-	OwnerPhotoFiles PhotoFileSlice `boil:"OwnerPhotoFiles" json:"OwnerPhotoFiles" toml:"OwnerPhotoFiles" yaml:"OwnerPhotoFiles"`
-	OwnerPhotos     PhotoSlice     `boil:"OwnerPhotos" json:"OwnerPhotos" toml:"OwnerPhotos" yaml:"OwnerPhotos"`
-	UserAuths       UserAuthSlice  `boil:"UserAuths" json:"UserAuths" toml:"UserAuths" yaml:"UserAuths"`
+	UserPassword         *UserPassword       `boil:"UserPassword" json:"UserPassword" toml:"UserPassword" yaml:"UserPassword"`
+	GroupUsers           GroupUserSlice      `boil:"GroupUsers" json:"GroupUsers" toml:"GroupUsers" yaml:"GroupUsers"`
+	OwnerPhotoFiles      PhotoFileSlice      `boil:"OwnerPhotoFiles" json:"OwnerPhotoFiles" toml:"OwnerPhotoFiles" yaml:"OwnerPhotoFiles"`
+	OwnerPhotoThumbnails PhotoThumbnailSlice `boil:"OwnerPhotoThumbnails" json:"OwnerPhotoThumbnails" toml:"OwnerPhotoThumbnails" yaml:"OwnerPhotoThumbnails"`
+	OwnerPhotos          PhotoSlice          `boil:"OwnerPhotos" json:"OwnerPhotos" toml:"OwnerPhotos" yaml:"OwnerPhotos"`
+	UserAuths            UserAuthSlice       `boil:"UserAuths" json:"UserAuths" toml:"UserAuths" yaml:"UserAuths"`
 }
 
 // NewStruct creates a new relationship struct
@@ -125,6 +128,13 @@ func (r *userR) GetOwnerPhotoFiles() PhotoFileSlice {
 		return nil
 	}
 	return r.OwnerPhotoFiles
+}
+
+func (r *userR) GetOwnerPhotoThumbnails() PhotoThumbnailSlice {
+	if r == nil {
+		return nil
+	}
+	return r.OwnerPhotoThumbnails
 }
 
 func (r *userR) GetOwnerPhotos() PhotoSlice {
@@ -469,6 +479,20 @@ func (o *User) OwnerPhotoFiles(mods ...qm.QueryMod) photoFileQuery {
 	return PhotoFiles(queryMods...)
 }
 
+// OwnerPhotoThumbnails retrieves all the photo_thumbnail's PhotoThumbnails with an executor via owner_id column.
+func (o *User) OwnerPhotoThumbnails(mods ...qm.QueryMod) photoThumbnailQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("`photo_thumbnails`.`owner_id`=?", o.UserID),
+	)
+
+	return PhotoThumbnails(queryMods...)
+}
+
 // OwnerPhotos retrieves all the photo's Photos with an executor via owner_id column.
 func (o *User) OwnerPhotos(mods ...qm.QueryMod) photoQuery {
 	var queryMods []qm.QueryMod
@@ -784,6 +808,104 @@ func (userL) LoadOwnerPhotoFiles(ctx context.Context, e boil.ContextExecutor, si
 				local.R.OwnerPhotoFiles = append(local.R.OwnerPhotoFiles, foreign)
 				if foreign.R == nil {
 					foreign.R = &photoFileR{}
+				}
+				foreign.R.Owner = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadOwnerPhotoThumbnails allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadOwnerPhotoThumbnails(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.UserID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.UserID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.UserID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`photo_thumbnails`),
+		qm.WhereIn(`photo_thumbnails.owner_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load photo_thumbnails")
+	}
+
+	var resultSlice []*PhotoThumbnail
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice photo_thumbnails")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on photo_thumbnails")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for photo_thumbnails")
+	}
+
+	if len(photoThumbnailAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.OwnerPhotoThumbnails = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &photoThumbnailR{}
+			}
+			foreign.R.Owner = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.UserID == foreign.OwnerID {
+				local.R.OwnerPhotoThumbnails = append(local.R.OwnerPhotoThumbnails, foreign)
+				if foreign.R == nil {
+					foreign.R = &photoThumbnailR{}
 				}
 				foreign.R.Owner = local
 				break
@@ -1137,6 +1259,59 @@ func (o *User) AddOwnerPhotoFiles(ctx context.Context, exec boil.ContextExecutor
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &photoFileR{
+				Owner: o,
+			}
+		} else {
+			rel.R.Owner = o
+		}
+	}
+	return nil
+}
+
+// AddOwnerPhotoThumbnails adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.OwnerPhotoThumbnails.
+// Sets related.R.Owner appropriately.
+func (o *User) AddOwnerPhotoThumbnails(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*PhotoThumbnail) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.OwnerID = o.UserID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE `photo_thumbnails` SET %s WHERE %s",
+				strmangle.SetParamNames("`", "`", 0, []string{"owner_id"}),
+				strmangle.WhereClause("`", "`", 0, photoThumbnailPrimaryKeyColumns),
+			)
+			values := []interface{}{o.UserID, rel.PhotoID, rel.ThumbnailName}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.OwnerID = o.UserID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			OwnerPhotoThumbnails: related,
+		}
+	} else {
+		o.R.OwnerPhotoThumbnails = append(o.R.OwnerPhotoThumbnails, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &photoThumbnailR{
 				Owner: o,
 			}
 		} else {
