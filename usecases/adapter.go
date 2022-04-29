@@ -80,3 +80,33 @@ type UserAuthAdapter interface {
 	DeleteUserAuth(ctx context.Context, userID, clientID string) error
 	DeleteClientAllAuth(ctx context.Context, clientID string) error
 }
+
+type PhotoStorageAdapter interface {
+	FindDirContents(dirPath string) ([]*entities.StorageFileInfo, error)
+	LoadContent(path string) (entities.StorageFileData, error)
+	ParsePhotoMeta(path string) (entities.PhotoMeta, error)
+}
+
+type PhotoAdapter interface {
+	InsertPhoto(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
+	UpdatePhoto(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
+	GetPhotoByFilePath(ctx context.Context, filePath string) (*entities.Photo, error)
+	GetPhotoFileByFilePath(ctx context.Context, filePath string) (*entities.PhotoFile, error)
+	InsertPhotoFile(ctx context.Context, file *entities.PhotoFile) (*entities.PhotoFile, error)
+	UpdatePhotoFile(ctx context.Context, file *entities.PhotoFile) (*entities.PhotoFile, error)
+	InsertPhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
+	UpdatePhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
+	GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int64) (*entities.PhotoMetaItem, error)
+}
+
+type PhotoService interface {
+	RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) (*entities.PhotoFile, error)
+}
+
+type ImageProcessService interface {
+	CreateThumbnails(ctx context.Context, photoFile *entities.PhotoFile, data []byte) error
+}
+
+type PhotoThumbnailAdapter interface {
+	SavePreviewThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
+}

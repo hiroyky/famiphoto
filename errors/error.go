@@ -44,6 +44,9 @@ const (
 	OAuthAccessTokenNotFoundError      FamiPhotoErrorCode = "OAuthAccessTokenNotFoundError"
 	UserAuthNotFoundError              FamiPhotoErrorCode = "UserAuthNotFoundError"
 	UnauthorizedError                  FamiPhotoErrorCode = "UnauthorizedError"
+	DBColumnNotFoundError              FamiPhotoErrorCode = "DBColumnNotFoundError"
+	InvalidFilePathFatal               FamiPhotoErrorCode = "InvalidFilePathFatal"
+	ForbiddenError                     FamiPhotoErrorCode = "ForbiddenError"
 	TxnRollbackFatal                   FamiPhotoErrorCode = "TxnRollbackFatal"
 	TxnBeginFatal                      FamiPhotoErrorCode = "TxnBeginFatal"
 	HashPasswordFatal                  FamiPhotoErrorCode = "HashPasswordFatal"
@@ -51,6 +54,16 @@ const (
 	RedisKeyNotFound                   FamiPhotoErrorCode = "RedisKeyNotFound"
 	RedisFatal                         FamiPhotoErrorCode = "RedisFatal"
 	ContextValueNotFoundFatal          FamiPhotoErrorCode = "ContextValueNotFoundFatal"
+	FileNotFound                       FamiPhotoErrorCode = "FileNotFound"
+	SambaConnectFatal                  FamiPhotoErrorCode = "SambaConnectFatal"
+	SambaCreateFatal                   FamiPhotoErrorCode = "SambaCreateFatal"
+	SambaReadFatal                     FamiPhotoErrorCode = "SambaReadFatal"
+	SambaCreateDirFatal                FamiPhotoErrorCode = "SambaCreateDirFatal"
+	SambaRenameFatal                   FamiPhotoErrorCode = "SambaRenameFatal"
+	SambaDeleteFatal                   FamiPhotoErrorCode = "SambaDeleteFatal"
+	SambaDeleteAllFatal                FamiPhotoErrorCode = "SambaDeleteAllFatal"
+	SambaReadDirFatal                  FamiPhotoErrorCode = "SambaReadDirFatal"
+	SambaGlobFatal                     FamiPhotoErrorCode = "SambaGlobFatal"
 )
 
 func New(errCode FamiPhotoErrorCode, baseError error) error {
@@ -69,9 +82,20 @@ func UnwrapFPError(err error) *FamiPhotoError {
 }
 
 func GetFPErrorCode(err error) FamiPhotoErrorCode {
-	srError := UnwrapFPError(err)
-	if srError == nil {
+	appError := UnwrapFPError(err)
+	if appError == nil {
 		return Unknown
 	}
-	return srError.ErrorCode()
+	return appError.ErrorCode()
+}
+
+func Is(err, target error) bool {
+	return native.Is(err, target)
+}
+
+func IsErrCode(err error, errCode FamiPhotoErrorCode) bool {
+	if err == nil {
+		return false
+	}
+	return GetFPErrorCode(err) == errCode
 }

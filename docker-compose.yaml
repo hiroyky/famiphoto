@@ -42,7 +42,7 @@ services:
       - WORKGROUP=famiphoto
       - SHARE=famiphoto;/mnt/famiphoto;yes;no;no;famiphoto
     volumes:
-      - ./.samba/:/mnt/famiphoto
+      - ./samba/:/mnt/famiphoto
     networks:
       - famiphoto_network
   redis_oauth:

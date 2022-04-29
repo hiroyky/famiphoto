@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/di"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/middlewares"
@@ -30,11 +31,14 @@ func New() *echo.Echo {
 	})
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: di.InitResolver()}))
-	e.GET("/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql")))
 	e.POST("/graphql", func(ctx echo.Context) error {
 		srv.ServeHTTP(ctx.Response(), ctx.Request())
 		return nil
 	}, echo.WrapMiddleware(authMiddleware.AuthAccessToken()))
+
+	if config.Env.IsDebug() {
+		e.GET("/debug/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql")))
+	}
 
 	e.Renderer = responses.NewHtmlTemplateRenderer()
 

@@ -41,7 +41,7 @@ type userRepository struct {
 
 func (r *userRepository) GetUser(ctx context.Context, userID string) (*entities.User, error) {
 	user, err := dbmodels.FindUser(ctx, r.db, userID)
-	if err != sql.ErrNoRows {
+	if err == sql.ErrNoRows {
 		return nil, errors.New(errors.UserNotFoundError, err)
 	}
 	return r.toUserEntity(user), nil

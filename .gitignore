@@ -7,7 +7,9 @@
 .air/tmp/
 app
 main
-.samba/
+samba/
+dst/
+assets/thumbnails/*
 
 # Test binary, built with `go test -c`
 *.test
@@ -19,3 +21,4 @@ main
 # Dependency directories (remove the comment below to include it)
 # vendor/
 .idea/
+.DS_Store

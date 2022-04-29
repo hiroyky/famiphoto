@@ -11,9 +11,17 @@ VALUES
 
 INSERT INTO `users` (`user_id`, `name`, `status`, `created_at`, `updated_at`)
 VALUES
-    ('yokoyama001', '横山', 1, '2022-04-10 09:17:22', '2022-04-10 09:17:22');
+    ('hiro', 'ヒロ', 1, '2022-04-10 09:17:22', '2022-04-10 09:17:22');
 
 -- password: password1
 INSERT INTO `user_passwords` (`user_id`, `password`, `last_modified_at`, `is_initialized`, `created_at`, `updated_at`)
 VALUES
-    ('yokoyama001', 'JDJhJDEwJEoyWVNFcFptNkticjlmNEE0Qmc1Mk9CdjFUY1pFTWRDSUd2cEhmN1VoclhsTDZxcWFQaUUu', '2022-04-10 09:17:22', 1, '2022-04-10 09:17:22', '2022-04-10 09:17:22');
+    ('hiro', 'JDJhJDEwJEoyWVNFcFptNkticjlmNEE0Qmc1Mk9CdjFUY1pFTWRDSUd2cEhmN1VoclhsTDZxcWFQaUUu', '2022-04-10 09:17:22', 1, '2022-04-10 09:17:22', '2022-04-10 09:17:22');
+
+INSERT INTO `groups` (`group_id`, `name`, `created_at`, `updated_at`)
+VALUES
+    ('yokoyama', 'よこやま', '2022-04-21 18:22:30', '2022-04-21 18:22:30');
+
+INSERT INTO `group_users` (`group_id`, `user_id`, `created_at`, `updated_at`)
+VALUES
+    ('yokoyama', 'hiro', '2022-04-21 18:22:48', '2022-04-21 18:22:48');

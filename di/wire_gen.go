@@ -9,6 +9,8 @@ package di
 import (
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/drivers/redis"
+	"github.com/hiroyky/famiphoto/drivers/samba"
+	"github.com/hiroyky/famiphoto/drivers/storage"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"github.com/hiroyky/famiphoto/interfaces/http/controllers"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph"
@@ -18,6 +20,19 @@ import (
 )
 
 // Injectors from wire.go:
+
+func InitPhotoImportUseCase() usecases.PhotoImportUseCase {
+	sqlExecutor := mysql.NewDatabaseDriver()
+	photoAdapter := repositories.NewPhotoRepository(sqlExecutor)
+	storageAdapter := samba.NewMediaSambaStorage()
+	photoStorageAdapter := repositories.NewPhotoStorageRepository(storageAdapter)
+	photoService := services.NewPhotoService(photoAdapter, photoStorageAdapter)
+	thumbnailStorageAdapter := storage.NewPhotoThumbnailDriver()
+	photoThumbnailAdapter := repositories.NewPhotoThumbnailRepository(thumbnailStorageAdapter, sqlExecutor)
+	imageProcessService := services.NewImageProcessService(photoThumbnailAdapter)
+	photoImportUseCase := usecases.NewPhotoImportUseCase(photoService, imageProcessService, photoStorageAdapter)
+	return photoImportUseCase
+}
 
 func InitResolver() *graph.Resolver {
 	sqlExecutor := mysql.NewDatabaseDriver()

@@ -6,6 +6,8 @@ import (
 	"github.com/google/wire"
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/drivers/redis"
+	"github.com/hiroyky/famiphoto/drivers/samba"
+	"github.com/hiroyky/famiphoto/drivers/storage"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"github.com/hiroyky/famiphoto/interfaces/http/controllers"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph"
@@ -13,6 +15,21 @@ import (
 	"github.com/hiroyky/famiphoto/services"
 	"github.com/hiroyky/famiphoto/usecases"
 )
+
+func InitPhotoImportUseCase() usecases.PhotoImportUseCase {
+	wire.Build(
+		usecases.NewPhotoImportUseCase,
+		services.NewPhotoService,
+		services.NewImageProcessService,
+		repositories.NewPhotoRepository,
+		repositories.NewPhotoThumbnailRepository,
+		repositories.NewPhotoStorageRepository,
+		mysql.NewDatabaseDriver,
+		samba.NewMediaSambaStorage,
+		storage.NewPhotoThumbnailDriver,
+	)
+	return nil
+}
 
 func InitResolver() *graph.Resolver {
 	wire.Build(
