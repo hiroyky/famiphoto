@@ -3,8 +3,9 @@ package services
 import (
 	"context"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/usecases"
-	"path/filepath"
+	"github.com/hiroyky/famiphoto/utils"
 	"time"
 )
 
@@ -22,9 +23,15 @@ type photoService struct {
 	nowFunc      func() time.Time
 }
 
-func (s *photoService) RegisterPhoto(ctx context.Context, filePath, ownerID, groupID string) error {
-	photo, err := s.insertPhotoIfNotExist(ctx, filePath, ownerID, groupID)
+func (s *photoService) RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) error {
+	now := s.nowFunc()
+
+	photo, err := s.insertPhotoIfNotExist(ctx, filePath, ownerID, groupID, now)
 	if err != nil {
+		return err
+	}
+
+	if err := s.upsertPhotoFile(ctx, photo, filePath, fileHash); err != nil {
 		return err
 	}
 
@@ -42,7 +49,7 @@ func (s *photoService) RegisterPhoto(ctx context.Context, filePath, ownerID, gro
 	return err
 }
 
-func (s *photoService) insertPhotoIfNotExist(ctx context.Context, filePath, ownerID, groupID string) (*entities.Photo, error) {
+func (s *photoService) insertPhotoIfNotExist(ctx context.Context, filePath, ownerID, groupID string, now time.Time) (*entities.Photo, error) {
 	existPhoto, err := s.photoRepo.GetPhotoByFilePath(ctx, filePath)
 	if err == nil && existPhoto != nil {
 		return existPhoto, nil
@@ -50,13 +57,43 @@ func (s *photoService) insertPhotoIfNotExist(ctx context.Context, filePath, owne
 	return s.photoRepo.InsertPhoto(
 		ctx,
 		&entities.Photo{
-			Name:       filepath.Base(filePath),
-			FilePath:   filePath,
+			Name:       utils.FileNameExceptExt(filePath),
 			GroupID:    groupID,
 			OwnerID:    ownerID,
-			ImportedAt: s.nowFunc(),
+			ImportedAt: now,
+			FilePath:   filePath,
 		},
 	)
+}
+
+func (s *photoService) upsertPhotoFile(ctx context.Context, photo *entities.Photo, filePath, fileHash string) error {
+	photoFile := &entities.PhotoFile{
+		PhotoFileID: 0,
+		PhotoID:     photo.PhotoID,
+		FilePath:    filePath,
+		ImportedAt:  photo.ImportedAt,
+		GroupID:     photo.GroupID,
+		OwnerID:     photo.OwnerID,
+		FileHash:    fileHash,
+	}
+
+	existPhotoFile, err := s.photoRepo.GetPhotoFileByFilePath(ctx, filePath)
+	if err != nil && !errors.IsErrCode(err, errors.DBColumnNotFoundError) {
+		return err
+	}
+
+	if err == nil && existPhotoFile != nil {
+		photoFile.PhotoFileID = existPhotoFile.PhotoFileID
+		if _, err := s.photoRepo.UpdatePhotoFile(ctx, photoFile); err != nil {
+			return err
+		}
+	}
+
+	if _, err := s.photoRepo.InsertPhotoFile(ctx, photoFile); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *photoService) upsertPhotoMetaItem(ctx context.Context, photoID int64, metaItem *entities.PhotoMetaItem) error {
@@ -65,6 +102,7 @@ func (s *photoService) upsertPhotoMetaItem(ctx context.Context, photoID int64, m
 		if _, err := s.photoRepo.UpdatePhotoMetaItem(ctx, photoID, metaItem); err != nil {
 			return err
 		}
+		return nil
 	}
 
 	if _, err := s.photoRepo.InsertPhotoMetaItem(ctx, photoID, metaItem); err != nil {

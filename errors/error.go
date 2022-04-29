@@ -82,13 +82,20 @@ func UnwrapFPError(err error) *FamiPhotoError {
 }
 
 func GetFPErrorCode(err error) FamiPhotoErrorCode {
-	srError := UnwrapFPError(err)
-	if srError == nil {
+	appError := UnwrapFPError(err)
+	if appError == nil {
 		return Unknown
 	}
-	return srError.ErrorCode()
+	return appError.ErrorCode()
 }
 
 func Is(err, target error) bool {
 	return native.Is(err, target)
+}
+
+func IsErrCode(err error, errCode FamiPhotoErrorCode) bool {
+	if err == nil {
+		return false
+	}
+	return GetFPErrorCode(err) == errCode
 }

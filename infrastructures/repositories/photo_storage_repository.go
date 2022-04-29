@@ -23,15 +23,15 @@ type photoStorageRepository struct {
 	driver StorageAdapter
 }
 
-func (r *photoStorageRepository) FindDirContents(dirPath string) ([]*entities.StorageFile, error) {
+func (r *photoStorageRepository) FindDirContents(dirPath string) ([]*entities.StorageFileInfo, error) {
 	list, err := r.driver.ReadDir(dirPath)
 	if err != nil {
 		return nil, err
 	}
 
-	files := make([]*entities.StorageFile, len(list))
+	files := make([]*entities.StorageFileInfo, len(list))
 	for i, v := range list {
-		files[i] = &entities.StorageFile{
+		files[i] = &entities.StorageFileInfo{
 			Name:  v.Name(),
 			Path:  path.Join(dirPath, v.Name()),
 			Ext:   filepath.Ext(v.Name()),
@@ -41,7 +41,7 @@ func (r *photoStorageRepository) FindDirContents(dirPath string) ([]*entities.St
 	return files, nil
 }
 
-func (r *photoStorageRepository) LoadContent(path string) ([]byte, error) {
+func (r *photoStorageRepository) LoadContent(path string) (entities.StorageFileData, error) {
 	if exist := r.driver.Exist(path); !exist {
 		return nil, errors.New(errors.FileNotFound, fmt.Errorf(path))
 	}

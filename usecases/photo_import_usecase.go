@@ -34,7 +34,7 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 	if err != nil {
 		return err
 	}
-	files := make([]*entities.StorageFile, 0)
+	files := make([]*entities.StorageFileInfo, 0)
 	for _, c := range contents {
 		if c.IsDir {
 			if err := u.ImportPhotos(ctx, c.Path, extensions); err != nil {
@@ -47,7 +47,12 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 
 	for _, file := range files {
 		fmt.Println(file)
-		if err := u.photoService.RegisterPhoto(ctx, file.Path, ownerID, groupID); err != nil {
+		data, err := u.storage.LoadContent(file.Path)
+		if err != nil {
+			return err
+		}
+
+		if err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash(), ownerID, groupID); err != nil {
 			return err
 		}
 
@@ -57,7 +62,7 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 }
 
 func (u *photoImportUseCase) parseBasePath(basePath string) (string, string, error) {
-	directories := utils.Directories(basePath)
+	directories := utils.SplitPath(basePath)
 	fmt.Println(directories)
 	if len(directories) < 3 {
 		return "", "", errors.New(errors.InvalidFilePathFatal, fmt.Errorf(basePath))

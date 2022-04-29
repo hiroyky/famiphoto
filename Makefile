@@ -32,7 +32,7 @@ test:
 dc_exec:
 	docker compose exec $(DOCKER) bash
 dc_exec_import:
-	docker compose exec $(DOCKER) ./dst/import_photos --base-dir photos
+	docker compose exec $(DOCKER) ./dst/import_photos --base-dir photos/yokoyama/hiro
 dc_fmt:
 	docker compose exec $(DOCKER) make fmt
 dc_build:

@@ -6,13 +6,19 @@ import (
 	"strings"
 )
 
-func Directories(path string) []string {
-	dir := filepath.Dir(path)
-	if dir == "." {
-		return []string{}
-	}
-
-	return array.Filter(strings.Split(dir, "/"), func(t string) bool {
-		return len(t) > 0
+func SplitPath(path string) []string {
+	return array.Filter(strings.Split(path, "/"), func(t string) bool {
+		if len(t) == 0 {
+			return false
+		}
+		if t == "." {
+			return false
+		}
+		return true
 	})
+}
+
+func FileNameExceptExt(p string) string {
+	name := filepath.Base(p)
+	return strings.TrimSuffix(name, filepath.Ext(name))
 }
