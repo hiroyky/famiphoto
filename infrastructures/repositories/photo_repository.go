@@ -41,7 +41,11 @@ func (r *photoRepository) UpdatePhoto(ctx context.Context, photo *entities.Photo
 		Name:         photo.Name,
 		FileNameHash: photo.FileNameHash(),
 	}
-	if _, err := p.Update(ctx, r.db, boil.Infer()); err != nil {
+	if _, err := p.Update(ctx, r.db, boil.Blacklist(
+		dbmodels.PhotoColumns.ImportedAt,
+		dbmodels.PhotoColumns.GroupID,
+		dbmodels.PhotoColumns.OwnerID,
+	)); err != nil {
 		return nil, err
 	}
 	return r.toPhotoEntity(p), nil
@@ -116,7 +120,11 @@ func (r *photoRepository) UpdatePhotoFile(ctx context.Context, file *entities.Ph
 		FilePath:    file.FilePath,
 		FileHash:    file.FileHash,
 	}
-	if _, err := m.Update(ctx, r.db, boil.Infer()); err != nil {
+	if _, err := m.Update(ctx, r.db, boil.Blacklist(
+		dbmodels.PhotoColumns.ImportedAt,
+		dbmodels.PhotoColumns.GroupID,
+		dbmodels.PhotoColumns.OwnerID,
+	)); err != nil {
 		return nil, err
 	}
 	return r.toPhotoFileEntity(m), nil
