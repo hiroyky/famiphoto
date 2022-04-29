@@ -29,3 +29,10 @@ type StorageAdapter interface {
 	Delete(filePath string) error
 	DeleteAll(path string) error
 }
+
+type ThumbnailStorageAdapter interface {
+	CreateFile(filePath string, data []byte) error
+	ReadFile(filePath string) ([]byte, error)
+	Delete(filePath string) error
+	DeleteAll(path string) error
+}

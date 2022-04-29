@@ -104,8 +104,9 @@ type PhotoService interface {
 }
 
 type ImageProcessService interface {
-	CreateThumbnails(photoFile *entities.PhotoFile, data []byte) error
+	CreateThumbnails(ctx context.Context, photoFile *entities.PhotoFile, data []byte) error
 }
 
 type PhotoThumbnailAdapter interface {
+	SavePreviewThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
 }

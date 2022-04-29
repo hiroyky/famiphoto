@@ -7,6 +7,7 @@ import (
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/drivers/redis"
 	"github.com/hiroyky/famiphoto/drivers/samba"
+	"github.com/hiroyky/famiphoto/drivers/storage"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"github.com/hiroyky/famiphoto/interfaces/http/controllers"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph"
@@ -25,6 +26,7 @@ func InitPhotoImportUseCase() usecases.PhotoImportUseCase {
 		repositories.NewPhotoStorageRepository,
 		mysql.NewDatabaseDriver,
 		samba.NewMediaSambaStorage,
+		storage.NewPhotoThumbnailDriver,
 	)
 	return nil
 }

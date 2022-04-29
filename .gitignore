@@ -9,6 +9,7 @@ app
 main
 samba/
 dst/
+assets/thumbnails/*
 
 # Test binary, built with `go test -c`
 *.test

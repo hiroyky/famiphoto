@@ -65,7 +65,7 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 
 		// JPEGでなければサムネ画像の作成処理は行わないので終了
 		if photoFile.FileType() == entities.PhotoFileTypeJPEG {
-			if err := u.imageProcessService.CreateThumbnails(photoFile, data); err != nil {
+			if err := u.imageProcessService.CreateThumbnails(ctx, photoFile, data); err != nil {
 				return err
 			}
 		}
