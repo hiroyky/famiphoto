@@ -27,7 +27,7 @@ fmt:
 	go fmt ./...
 
 test:
-	go test ./... -v -count 1
+	go test ./...
 
 dc_exec:
 	docker compose exec $(DOCKER) bash
