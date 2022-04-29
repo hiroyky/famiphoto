@@ -23,30 +23,31 @@ type photoService struct {
 	nowFunc      func() time.Time
 }
 
-func (s *photoService) RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) error {
+func (s *photoService) RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) (*entities.PhotoFile, error) {
 	now := s.nowFunc()
 
 	photo, err := s.insertPhotoIfNotExist(ctx, filePath, ownerID, groupID, now)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if err := s.upsertPhotoFile(ctx, photo, filePath, fileHash); err != nil {
-		return err
+	photoFile, err := s.upsertPhotoFile(ctx, photo, filePath, fileHash)
+	if err != nil {
+		return nil, err
 	}
 
 	meta, err := s.photoStorage.ParsePhotoMeta(filePath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for _, item := range meta {
 		if err := s.upsertPhotoMetaItem(ctx, photo.PhotoID, item); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return err
+	return photoFile, err
 }
 
 func (s *photoService) insertPhotoIfNotExist(ctx context.Context, filePath, ownerID, groupID string, now time.Time) (*entities.Photo, error) {
@@ -66,7 +67,7 @@ func (s *photoService) insertPhotoIfNotExist(ctx context.Context, filePath, owne
 	)
 }
 
-func (s *photoService) upsertPhotoFile(ctx context.Context, photo *entities.Photo, filePath, fileHash string) error {
+func (s *photoService) upsertPhotoFile(ctx context.Context, photo *entities.Photo, filePath, fileHash string) (*entities.PhotoFile, error) {
 	photoFile := &entities.PhotoFile{
 		PhotoFileID: 0,
 		PhotoID:     photo.PhotoID,
@@ -79,21 +80,21 @@ func (s *photoService) upsertPhotoFile(ctx context.Context, photo *entities.Phot
 
 	existPhotoFile, err := s.photoRepo.GetPhotoFileByFilePath(ctx, filePath)
 	if err != nil && !errors.IsErrCode(err, errors.DBColumnNotFoundError) {
-		return err
+		return nil, err
 	}
 
 	if err == nil && existPhotoFile != nil {
 		photoFile.PhotoFileID = existPhotoFile.PhotoFileID
 		if _, err := s.photoRepo.UpdatePhotoFile(ctx, photoFile); err != nil {
-			return err
+			return photoFile, err
 		}
 	}
 
 	if _, err := s.photoRepo.InsertPhotoFile(ctx, photoFile); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return photoFile, nil
 }
 
 func (s *photoService) upsertPhotoMetaItem(ctx context.Context, photoID int64, metaItem *entities.PhotoMetaItem) error {

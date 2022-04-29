@@ -12,16 +12,22 @@ type PhotoImportUseCase interface {
 	ImportPhotos(ctx context.Context, basePath string, extensions []string) error
 }
 
-func NewPhotoImportUseCase(photoService PhotoService, storage PhotoStorageAdapter) PhotoImportUseCase {
+func NewPhotoImportUseCase(
+	photoService PhotoService,
+	imageProcessService ImageProcessService,
+	storage PhotoStorageAdapter,
+) PhotoImportUseCase {
 	return &photoImportUseCase{
-		photoService: photoService,
-		storage:      storage,
+		photoService:        photoService,
+		imageProcessService: imageProcessService,
+		storage:             storage,
 	}
 }
 
 type photoImportUseCase struct {
-	photoService PhotoService
-	storage      PhotoStorageAdapter
+	photoService        PhotoService
+	imageProcessService ImageProcessService
+	storage             PhotoStorageAdapter
 }
 
 func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, extensions []string) error {
@@ -52,8 +58,16 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 			return err
 		}
 
-		if err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash(), ownerID, groupID); err != nil {
+		photoFile, err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash(), ownerID, groupID)
+		if err != nil {
 			return err
+		}
+
+		// JPEGでなければサムネ画像の作成処理は行わないので終了
+		if photoFile.FileType() == entities.PhotoFileTypeJPEG {
+			if err := u.imageProcessService.CreateThumbnails(photoFile, data); err != nil {
+				return err
+			}
 		}
 
 	}

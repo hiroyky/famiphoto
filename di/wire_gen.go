@@ -26,7 +26,9 @@ func InitPhotoImportUseCase() usecases.PhotoImportUseCase {
 	storageAdapter := samba.NewMediaSambaStorage()
 	photoStorageAdapter := repositories.NewPhotoStorageRepository(storageAdapter)
 	photoService := services.NewPhotoService(photoAdapter, photoStorageAdapter)
-	photoImportUseCase := usecases.NewPhotoImportUseCase(photoService, photoStorageAdapter)
+	photoThumbnailAdapter := repositories.NewPhotoThumbnailRepository(sqlExecutor)
+	imageProcessService := services.NewImageProcessService(photoThumbnailAdapter)
+	photoImportUseCase := usecases.NewPhotoImportUseCase(photoService, imageProcessService, photoStorageAdapter)
 	return photoImportUseCase
 }
 

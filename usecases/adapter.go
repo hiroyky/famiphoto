@@ -100,5 +100,12 @@ type PhotoAdapter interface {
 }
 
 type PhotoService interface {
-	RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) error
+	RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) (*entities.PhotoFile, error)
+}
+
+type ImageProcessService interface {
+	CreateThumbnails(photoFile *entities.PhotoFile, data []byte) error
+}
+
+type PhotoThumbnailAdapter interface {
 }
