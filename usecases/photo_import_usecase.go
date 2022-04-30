@@ -53,23 +53,9 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 
 	for _, file := range files {
 		fmt.Println(file)
-		data, err := u.storage.LoadContent(file.Path)
-		if err != nil {
+		if err := u.registerPhoto(ctx, file, ownerID, groupID); err != nil {
 			return err
 		}
-
-		photoFile, err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash(), ownerID, groupID)
-		if err != nil {
-			return err
-		}
-
-		// JPEGでなければサムネ画像の作成処理は行わないので終了
-		if photoFile.FileType() == entities.PhotoFileTypeJPEG {
-			if err := u.imageProcessService.CreateThumbnails(ctx, photoFile, data); err != nil {
-				return err
-			}
-		}
-
 	}
 
 	return nil
@@ -84,4 +70,23 @@ func (u *photoImportUseCase) parseBasePath(basePath string) (string, string, err
 	groupID := directories[1]
 	ownerID := directories[2]
 	return groupID, ownerID, nil
+}
+
+func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.StorageFileInfo, ownerID, groupID string) error {
+	data, err := u.storage.LoadContent(file.Path)
+	if err != nil {
+		return err
+	}
+
+	photoFile, err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash(), ownerID, groupID)
+	if err != nil {
+		return err
+	}
+
+	if photoFile.FileType() == entities.PhotoFileTypeJPEG {
+		if err := u.imageProcessService.CreateThumbnails(ctx, photoFile, data); err != nil {
+			return err
+		}
+	}
+	return nil
 }
