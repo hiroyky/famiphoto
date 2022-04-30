@@ -47,5 +47,7 @@ func New() *echo.Echo {
 	e.GET("/oauth/authorize", oauthController.GetAuthorize, middlewares.CSRFByForm())
 	e.POST("/oauth/authorize", oauthController.PostAuthorize, middlewares.CSRFByForm())
 
+	e.Group("assets").Use(middleware.StaticWithConfig(middleware.StaticConfig{Root: "assets"}))
+
 	return e
 }
