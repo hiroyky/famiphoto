@@ -7,7 +7,7 @@ services:
     container_name: famiphoto
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/famiphoto/Dockerfile
       target: local
     ports:
       - 8080:8080
@@ -19,6 +19,7 @@ services:
       - .env.local
     volumes:
       - ./:/go/src/github.com/hiroyky/famiphoto/
+
   mysql:
     image: mysql:8.0
     container_name: famiphoto_mysqldb
