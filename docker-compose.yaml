@@ -19,14 +19,44 @@ services:
       - .env.local
     volumes:
       - ./:/go/src/github.com/hiroyky/famiphoto/
-
+  elasticsearch:
+    build:
+      context: .
+      dockerfile: docker/search/Dockerfile
+    #image: docker.elastic.co/elasticsearch/elasticsearch:8.1.3
+    container_name: elasticsearch
+    restart: always
+    networks:
+      - famiphoto_network
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - "xpack.security.enabled=false"
+    volumes:
+      - ./elasticsearch/data/:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.1.3
+    container_name: kibana
+    networks:
+      - famiphoto_network
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
   mysql:
     image: mysql:8.0
     container_name: famiphoto_mysqldb
     platform: linux/amd64
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: secret
     volumes:
       - ./schema/dbschema/generator/:/docker-entrypoint-initdb.d/
     ports:
@@ -39,7 +69,7 @@ services:
     restart: always
     environment:
       - PERMISSIONS=1
-      - USER=famiphoto;password
+      - USER=famiphoto;secret
       - WORKGROUP=famiphoto
       - SHARE=famiphoto;/mnt/famiphoto;yes;no;no;famiphoto
     volumes:
