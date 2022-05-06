@@ -7,6 +7,7 @@ import (
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
 	"github.com/hiroyky/famiphoto/usecases"
+	"github.com/hiroyky/famiphoto/utils/array"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -49,6 +50,18 @@ func (r *photoRepository) UpdatePhoto(ctx context.Context, photo *entities.Photo
 		return nil, err
 	}
 	return r.toPhotoEntity(p), nil
+}
+
+func (r *photoRepository) CountPhotos(ctx context.Context) (int64, error) {
+	return dbmodels.Photos().Count(ctx, r.db)
+}
+
+func (r *photoRepository) GetPhotos(ctx context.Context, limit, offset int64) (entities.PhotoList, error) {
+	photos, err := dbmodels.Photos(qm.Limit(int(limit)), qm.Offset(int(offset))).All(ctx, r.db)
+	if err != nil {
+		return nil, err
+	}
+	return array.Map(photos, r.toPhotoEntity), nil
 }
 
 func (r *photoRepository) GetPhotoByFilePath(ctx context.Context, filePath string) (*entities.Photo, error) {
@@ -128,6 +141,14 @@ func (r *photoRepository) UpdatePhotoFile(ctx context.Context, file *entities.Ph
 		return nil, err
 	}
 	return r.toPhotoFileEntity(m), nil
+}
+
+func (r *photoRepository) GetPhotoFilesByPhotoIDs(ctx context.Context, photoIDs []int64) ([]*entities.PhotoFile, error) {
+	files, err := dbmodels.PhotoFiles(qm.WhereIn("photo_id in ?", toInterfaceSlice(photoIDs)...)).All(ctx, r.db)
+	if err != nil {
+		return nil, err
+	}
+	return array.Map(files, r.toPhotoFileEntity), nil
 }
 
 func (r *photoRepository) InsertPhotoMetaItem(ctx context.Context, photoID int64, item *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error) {

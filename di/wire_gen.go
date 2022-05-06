@@ -7,6 +7,7 @@
 package di
 
 import (
+	"github.com/hiroyky/famiphoto/drivers/elasticsearch"
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/drivers/redis"
 	"github.com/hiroyky/famiphoto/drivers/samba"
@@ -67,6 +68,15 @@ func initOauthUseCase() usecases.OauthUseCase {
 	userService := services.NewUserService(userAdapter, userPasswordAdapter, passwordService)
 	oauthUseCase := usecases.NewOauthUseCase(authService, oauthClientRedirectURLAdapter, userService)
 	return oauthUseCase
+}
+
+func InitSearchUseCase() usecases.SearchUseCase {
+	bulkIndexer := elasticsearch.NewBulkClient()
+	searchAdapter := repositories.NewElasticSearchRepository(bulkIndexer)
+	sqlExecutor := mysql.NewDatabaseDriver()
+	photoAdapter := repositories.NewPhotoRepository(sqlExecutor)
+	searchUseCase := usecases.NewSearchUseCase(searchAdapter, photoAdapter)
+	return searchUseCase
 }
 
 func InitAuthMiddleware() middlewares.AuthMiddleware {

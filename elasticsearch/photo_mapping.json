@@ -1,0 +1,38 @@
+{
+  "mappings": {
+    "properties": {
+      "photo_id": {
+        "type":  "integer"
+      },
+      "owner_id": {
+        "type":  "keyword"
+      },
+      "group_id": {
+        "type":  "keyword"
+      },
+      "file_types": {
+        "type":  "keyword"
+      },
+      "name": {
+        "type": "text",
+        "analyzer": "kuromoji"
+      },
+      "imported_at": {
+        "type":  "date",
+        "format": "epoch_second"
+      },
+      "date_time_original": {
+        "type":  "date",
+        "format": "epoch_second"
+      },
+      "preview_url": {
+        "type": "keyword",
+        "index": false
+      },
+      "thumbnail_url": {
+        "type": "keyword",
+        "index": false
+      }
+    }
+  }
+}

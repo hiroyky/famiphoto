@@ -4,6 +4,7 @@ package di
 
 import (
 	"github.com/google/wire"
+	"github.com/hiroyky/famiphoto/drivers/elasticsearch"
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/drivers/redis"
 	"github.com/hiroyky/famiphoto/drivers/samba"
@@ -68,6 +69,17 @@ func initOauthUseCase() usecases.OauthUseCase {
 		repositories.NewOauthCodeAdapter,
 		mysql.NewDatabaseDriver,
 		redis.NewOauthRedis,
+	)
+	return nil
+}
+
+func InitSearchUseCase() usecases.SearchUseCase {
+	wire.Build(
+		usecases.NewSearchUseCase,
+		repositories.NewElasticSearchRepository,
+		repositories.NewPhotoRepository,
+		mysql.NewDatabaseDriver,
+		elasticsearch.NewBulkClient,
 	)
 	return nil
 }

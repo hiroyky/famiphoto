@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/hiroyky/famiphoto/entities"
 	"time"
 )
@@ -90,10 +91,13 @@ type PhotoStorageAdapter interface {
 type PhotoAdapter interface {
 	InsertPhoto(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
 	UpdatePhoto(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
+	GetPhotos(ctx context.Context, limit, offset int64) (entities.PhotoList, error)
+	CountPhotos(ctx context.Context) (int64, error)
 	GetPhotoByFilePath(ctx context.Context, filePath string) (*entities.Photo, error)
 	GetPhotoFileByFilePath(ctx context.Context, filePath string) (*entities.PhotoFile, error)
 	InsertPhotoFile(ctx context.Context, file *entities.PhotoFile) (*entities.PhotoFile, error)
 	UpdatePhotoFile(ctx context.Context, file *entities.PhotoFile) (*entities.PhotoFile, error)
+	GetPhotoFilesByPhotoIDs(ctx context.Context, photoIDs []int64) ([]*entities.PhotoFile, error)
 	InsertPhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
 	UpdatePhotoMetaItem(ctx context.Context, photoID int64, meta *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
 	GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int64) (*entities.PhotoMetaItem, error)
@@ -109,4 +113,8 @@ type ImageProcessService interface {
 
 type PhotoThumbnailAdapter interface {
 	SavePreviewThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
+}
+
+type SearchAdapter interface {
+	BulkInsertPhoto(ctx context.Context, photos []*entities.Photo, photoFiles entities.PhotoFileList, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error)
 }
