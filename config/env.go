@@ -21,6 +21,7 @@ type FamiPhotoEnv struct {
 	UserAccessTokenExpireInSec int64    `envconfig:"USER_ACCESS_TOKEN_EXPIRE_IN_SEC"`
 	AccessTokenHashedPrefix    string   `envconfig:"ACCESS_TOKEN_HASHED_PREFIX"`
 	ElasticsearchAddresses     []string `envconfig:"ELASTICSEARCH_ADDRESSES"`
+	AssetBaseURL               string   `envconfig:"ASSET_BASE_URL"`
 }
 
 var Env FamiPhotoEnv

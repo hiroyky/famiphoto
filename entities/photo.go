@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"fmt"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/utils"
 	"path"
 	"path/filepath"
@@ -16,14 +18,25 @@ type Photo struct {
 	GroupID    string
 	OwnerID    string
 	FilePath   string
+	Files      PhotoFileList
+}
+
+func (e Photo) HasJpeg() bool {
+	return e.Files.FindFileByFileType(e.PhotoID, PhotoFileTypeJPEG) != nil
 }
 
 func (e Photo) PreviewURL() string {
-	return "http://preview_ulr"
+	if !e.HasJpeg() {
+		return ""
+	}
+	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.GroupID, e.OwnerID, e.PhotoID, config.AssetPreviewImageName)
 }
 
 func (e Photo) ThumbnailURL() string {
-	return "http://thumbnail_ulr"
+	if !e.HasJpeg() {
+		return ""
+	}
+	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.GroupID, e.OwnerID, e.PhotoID, config.AssetThumbnailImageName)
 }
 
 func (e Photo) FileNameHash() string {
@@ -64,6 +77,19 @@ func (list PhotoFileList) FindFileTypesByPhotoID(photoID int64) []PhotoFileType 
 	}
 
 	return types
+}
+
+func (list PhotoFileList) FindFileByFileType(photoID int64, fileType PhotoFileType) *PhotoFile {
+	for _, item := range list {
+		if item.PhotoID != photoID {
+			continue
+		}
+		if item.FileType() != fileType {
+			continue
+		}
+		return item
+	}
+	return nil
 }
 
 func (f PhotoFile) FileType() PhotoFileType {

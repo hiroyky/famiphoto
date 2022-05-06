@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -22,15 +23,11 @@ type photoThumbnailRepository struct {
 }
 
 func (r *photoThumbnailRepository) SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
-	name := "preview"
-
-	return r.saveImage(ctx, photoID, data, groupID, ownerID, name)
+	return r.saveImage(ctx, photoID, data, groupID, ownerID, config.AssetPreviewImageName)
 }
 
 func (r *photoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
-	name := "thumbnail"
-
-	return r.saveImage(ctx, photoID, data, groupID, ownerID, name)
+	return r.saveImage(ctx, photoID, data, groupID, ownerID, config.AssetThumbnailImageName)
 }
 
 func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int64, data []byte, groupID, ownerID, name string) error {
