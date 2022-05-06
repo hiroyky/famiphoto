@@ -21,9 +21,19 @@ type photoThumbnailRepository struct {
 	db         SQLExecutor
 }
 
-func (r *photoThumbnailRepository) SavePreviewThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+func (r *photoThumbnailRepository) SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
 	name := "preview"
 
+	return r.saveImage(ctx, photoID, data, groupID, ownerID, name)
+}
+
+func (r *photoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+	name := "thumbnail"
+
+	return r.saveImage(ctx, photoID, data, groupID, ownerID, name)
+}
+
+func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int64, data []byte, groupID, ownerID, name string) error {
 	m := &dbmodels.PhotoThumbnail{
 		PhotoID:       int(photoID),
 		ThumbnailName: name,

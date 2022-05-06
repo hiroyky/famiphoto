@@ -112,7 +112,8 @@ type ImageProcessService interface {
 }
 
 type PhotoThumbnailAdapter interface {
-	SavePreviewThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
+	SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
+	SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
 }
 
 type SearchAdapter interface {
