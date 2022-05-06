@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.1
 	github.com/dsoprea/go-exif v0.0.0-20210625224831-a6301f85c82b
 	github.com/dsoprea/go-logging v0.0.0-20190624164917-c4f10aab7696
+	github.com/elastic/go-elasticsearch/v8 v8.2.0
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-redis/redis/v8 v8.11.5
@@ -40,6 +41,7 @@ require (
 	github.com/dgraph-io/ristretto v0.1.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.1.0 // indirect
 	github.com/geoffgarside/ber v1.1.0 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
