@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/99designs/gqlgen v0.17.1
+	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/dsoprea/go-exif v0.0.0-20210625224831-a6301f85c82b
 	github.com/dsoprea/go-logging v0.0.0-20190624164917-c4f10aab7696
 	github.com/elastic/go-elasticsearch/v8 v8.2.0

@@ -2,7 +2,7 @@
   "mappings": {
     "properties": {
       "photo_id": {
-        "type":  "keyword"
+        "type":  "integer"
       },
       "owner_id": {
         "type":  "keyword"
@@ -19,17 +19,17 @@
       },
       "imported_at": {
         "type":  "date",
-        "format": "basic_date_time"
+        "format": "epoch_second"
       },
       "date_time_original": {
         "type":  "date",
-        "format": "basic_date_time"
+        "format": "epoch_second"
       },
       "preview_url": {
         "type": "keyword",
         "index": false
       },
-      "download_url": {
+      "thumbnail_url": {
         "type": "keyword",
         "index": false
       }

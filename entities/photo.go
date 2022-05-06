@@ -18,9 +18,27 @@ type Photo struct {
 	FilePath   string
 }
 
+func (e Photo) PreviewURL() string {
+	return "http://preview_ulr"
+}
+
+func (e Photo) ThumbnailURL() string {
+	return "http://thumbnail_ulr"
+}
+
 func (e Photo) FileNameHash() string {
 	p := path.Join(filepath.Dir(e.FilePath), utils.FileNameExceptExt(e.FilePath))
 	return utils.MD5(p)
+}
+
+type PhotoList []*Photo
+
+func (l PhotoList) PhotoIDs() []int64 {
+	idList := make([]int64, len(l))
+	for _, p := range l {
+		idList = append(idList, p.PhotoID)
+	}
+	return idList
 }
 
 type PhotoFile struct {
@@ -31,6 +49,21 @@ type PhotoFile struct {
 	GroupID     string
 	OwnerID     string
 	FileHash    string
+}
+
+type PhotoFileList []*PhotoFile
+
+func (list PhotoFileList) FindFileTypesByPhotoID(photoID int64) []PhotoFileType {
+	types := make([]PhotoFileType, 0)
+
+	for _, item := range list {
+		if item.PhotoID != photoID {
+			continue
+		}
+		types = append(types, item.FileType())
+	}
+
+	return types
 }
 
 func (f PhotoFile) FileType() PhotoFileType {
