@@ -5,9 +5,14 @@ import (
 	native "github.com/go-redis/redis/v8"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/errors"
-	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"time"
 )
+
+type Driver interface {
+	Get(ctx context.Context, key string) (string, error)
+	GetDel(ctx context.Context, key string) (string, error)
+	SetEx(ctx context.Context, key string, val interface{}, expiration time.Duration) error
+}
 
 type redisDB struct {
 	client *native.Client
@@ -45,7 +50,7 @@ func (r *redisDB) SetEx(ctx context.Context, key string, val interface{}, expira
 
 var oauthDB *redisDB = nil
 
-func NewOauthRedis() repositories.RedisAdapter {
+func NewOauthRedis() Driver {
 	if oauthDB != nil {
 		return oauthDB
 	}

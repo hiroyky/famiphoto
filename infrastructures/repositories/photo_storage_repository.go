@@ -4,51 +4,38 @@ import (
 	"fmt"
 	"github.com/dsoprea/go-exif"
 	log "github.com/dsoprea/go-logging"
-	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/drivers/storage"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
-	"github.com/hiroyky/famiphoto/usecases"
-	"github.com/hiroyky/famiphoto/utils/array"
-	"path"
-	"path/filepath"
+	"os"
 )
 
-func NewPhotoStorageRepository(driver StorageAdapter) usecases.PhotoStorageAdapter {
-	return &photoStorageRepository{
-		driver: driver,
-	}
+type PhotoStorageRepository interface {
+	ReadDir(dirPath string) ([]os.FileInfo, error)
+	LoadContent(path string) ([]byte, error)
+	ParsePhotoMeta(path string) ([]models.IfdEntry, error)
+}
+
+func NewPhotoStorageRepository(driver storage.Driver) PhotoStorageRepository {
+	return &photoStorageRepository{driver: driver}
 }
 
 type photoStorageRepository struct {
-	driver StorageAdapter
+	driver storage.Driver
 }
 
-func (r *photoStorageRepository) FindDirContents(dirPath string) ([]*entities.StorageFileInfo, error) {
-	list, err := r.driver.ReadDir(dirPath)
-	if err != nil {
-		return nil, err
-	}
-
-	files := make([]*entities.StorageFileInfo, len(list))
-	for i, v := range list {
-		files[i] = &entities.StorageFileInfo{
-			Name:  v.Name(),
-			Path:  path.Join(dirPath, v.Name()),
-			Ext:   filepath.Ext(v.Name()),
-			IsDir: v.IsDir(),
-		}
-	}
-	return files, nil
+func (r *photoStorageRepository) ReadDir(dirPath string) ([]os.FileInfo, error) {
+	return r.driver.ReadDir(dirPath)
 }
 
-func (r *photoStorageRepository) LoadContent(path string) (entities.StorageFileData, error) {
+func (r *photoStorageRepository) LoadContent(path string) ([]byte, error) {
 	if exist := r.driver.Exist(path); !exist {
 		return nil, errors.New(errors.FileNotFound, fmt.Errorf(path))
 	}
 	return r.driver.ReadFile(path)
 }
 
-func (r *photoStorageRepository) ParsePhotoMeta(path string) (entities.PhotoMeta, error) {
+func (r *photoStorageRepository) ParsePhotoMeta(path string) ([]models.IfdEntry, error) {
 	data, err := r.LoadContent(path)
 	if err != nil {
 		return nil, err
@@ -59,16 +46,7 @@ func (r *photoStorageRepository) ParsePhotoMeta(path string) (entities.PhotoMeta
 		return nil, err
 	}
 
-	photoMeta := array.Map(ifdList, func(t models.IfdEntry) *entities.PhotoMetaItem {
-		return &entities.PhotoMetaItem{
-			TagID:       int64(t.TagId),
-			TagName:     t.TagName,
-			TagType:     t.TagTypeName,
-			ValueString: t.ValueString,
-		}
-	})
-
-	return photoMeta, err
+	return ifdList, nil
 }
 
 func (r *photoStorageRepository) parseExif(data []byte) ([]models.IfdEntry, error) {

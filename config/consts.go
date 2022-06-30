@@ -6,3 +6,5 @@ const UserIDKey string = "user_id"
 const AccessTokenLength = 512
 const RefreshTokenLength = 1024
 const ElasticsearchPhotoIndexName = "photo"
+const AssetPreviewImageName = "preview"
+const AssetThumbnailImageName = "thumbnail"

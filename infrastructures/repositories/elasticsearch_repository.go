@@ -8,38 +8,24 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
-	"github.com/hiroyky/famiphoto/usecases"
-	"github.com/hiroyky/famiphoto/utils/array"
-	"time"
 )
 
-func NewElasticSearchRepository(bulkIndexer esutil.BulkIndexer) usecases.SearchAdapter {
+func NewElasticSearchRepository(bulkIndexer esutil.BulkIndexer) ElasticSearchRepository {
 	return &elasticSearchRepository{
 		bulkIndexer: bulkIndexer,
 	}
+}
+
+type ElasticSearchRepository interface {
+	BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error)
 }
 
 type elasticSearchRepository struct {
 	bulkIndexer esutil.BulkIndexer
 }
 
-func (r *elasticSearchRepository) BulkInsertPhoto(ctx context.Context, photos []*entities.Photo, photoFiles entities.PhotoFileList, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error) {
-	for _, photo := range photos {
-		//fmt.Println(photo)
-		p := &models.PhotoIndex{
-			PhotoID: photo.PhotoID,
-			OwnerID: photo.OwnerID,
-			GroupID: photo.GroupID,
-			FileTypes: array.Map(photoFiles.FindFileTypesByPhotoID(photo.PhotoID), func(t entities.PhotoFileType) string {
-				return t.ToString()
-			}),
-			Name:             photo.Name,
-			ImportedAt:       photo.ImportedAt.Unix(),
-			DateTimeOriginal: time.Now().Unix(),
-			PreviewURL:       photo.PreviewURL(),
-			ThumbnailURL:     photo.ThumbnailURL(),
-		}
-
+func (r *elasticSearchRepository) BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error) {
+	for _, p := range photos {
 		data, err := json.Marshal(p)
 		if err != nil {
 			return nil, err

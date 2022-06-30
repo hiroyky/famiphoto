@@ -3,13 +3,20 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/drivers/mysql"
+	"github.com/hiroyky/famiphoto/drivers/storage"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
-	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"path"
 )
 
-func NewPhotoThumbnailRepository(fileDriver ThumbnailStorageAdapter, db SQLExecutor) usecases.PhotoThumbnailAdapter {
+type PhotoThumbnailRepository interface {
+	SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
+	SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
+}
+
+func NewPhotoThumbnailRepository(fileDriver storage.Driver, db mysql.SQLExecutor) PhotoThumbnailRepository {
 	return &photoThumbnailRepository{
 		fileDriver: fileDriver,
 		db:         db,
@@ -17,13 +24,19 @@ func NewPhotoThumbnailRepository(fileDriver ThumbnailStorageAdapter, db SQLExecu
 }
 
 type photoThumbnailRepository struct {
-	fileDriver ThumbnailStorageAdapter
-	db         SQLExecutor
+	fileDriver storage.Driver
+	db         mysql.SQLExecutor
 }
 
-func (r *photoThumbnailRepository) SavePreviewThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
-	name := "preview"
+func (r *photoThumbnailRepository) SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+	return r.saveImage(ctx, photoID, data, groupID, ownerID, config.AssetPreviewImageName)
+}
 
+func (r *photoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+	return r.saveImage(ctx, photoID, data, groupID, ownerID, config.AssetThumbnailImageName)
+}
+
+func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int64, data []byte, groupID, ownerID, name string) error {
 	m := &dbmodels.PhotoThumbnail{
 		PhotoID:       int(photoID),
 		ThumbnailName: name,

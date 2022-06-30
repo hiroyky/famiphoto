@@ -3,23 +3,27 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
-	"github.com/hiroyky/famiphoto/usecases"
-	"github.com/hiroyky/famiphoto/utils/cast"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-func NewOauthClientRedirectURLRepository(db SQLExecutor) usecases.OauthClientRedirectURLAdapter {
+type OAuthClientRedirectURLRepository interface {
+	GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) ([]*dbmodels.OauthClientRedirectURL, error)
+	CreateOAuthClientRedirectURL(ctx context.Context, url *entities.OAuthClientRedirectURL) (*dbmodels.OauthClientRedirectURL, error)
+}
+
+func NewOauthClientRedirectURLRepository(db mysql.SQLExecutor) OAuthClientRedirectURLRepository {
 	return &oauthClientRedirectURLRepository{db: db}
 }
 
 type oauthClientRedirectURLRepository struct {
-	db SQLExecutor
+	db mysql.SQLExecutor
 }
 
-func (r *oauthClientRedirectURLRepository) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) (entities.OAuthClientRedirectURLList, error) {
+func (r *oauthClientRedirectURLRepository) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) ([]*dbmodels.OauthClientRedirectURL, error) {
 	urls, err := dbmodels.OauthClientRedirectUrls(
 		qm.Where(fmt.Sprintf("%s = ?", dbmodels.OauthClientRedirectURLColumns.OauthClientID), oauthClientID),
 	).All(ctx, r.db)
@@ -27,10 +31,10 @@ func (r *oauthClientRedirectURLRepository) GetOAuthClientRedirectURLsByOAuthClie
 		return nil, err
 	}
 
-	return cast.Array(urls, r.toEntity), nil
+	return urls, nil
 }
 
-func (r *oauthClientRedirectURLRepository) CreateOAuthClientRedirectURL(ctx context.Context, url *entities.OAuthClientRedirectURL) (*entities.OAuthClientRedirectURL, error) {
+func (r *oauthClientRedirectURLRepository) CreateOAuthClientRedirectURL(ctx context.Context, url *entities.OAuthClientRedirectURL) (*dbmodels.OauthClientRedirectURL, error) {
 	data := &dbmodels.OauthClientRedirectURL{
 		OauthClientID:            url.OauthClientID,
 		RedirectURL:              url.RedirectURL,
@@ -41,13 +45,5 @@ func (r *oauthClientRedirectURLRepository) CreateOAuthClientRedirectURL(ctx cont
 		return nil, err
 	}
 
-	return r.toEntity(data), nil
-}
-
-func (r *oauthClientRedirectURLRepository) toEntity(t *dbmodels.OauthClientRedirectURL) *entities.OAuthClientRedirectURL {
-	return &entities.OAuthClientRedirectURL{
-		OAuthClientRedirectUrlID: t.OauthClientRedirectURLID,
-		OauthClientID:            t.OauthClientID,
-		RedirectURL:              t.RedirectURL,
-	}
+	return data, nil
 }

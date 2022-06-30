@@ -44,7 +44,7 @@ dc_build:
 	docker compose exec $(DOCKER) make build
 dc_test:
 	docker compose exec $(DOCKER) make test
-dc_gen: dc_get_wire
+dc_gen:
 	docker compose exec $(DOCKER) go generate ./...
 dc_sqlboil:
 	docker compose exec $(DOCKER) sqlboiler mysql
@@ -52,9 +52,6 @@ dc_gengql:
 	docker compose exec $(DOCKER) gqlgen
 dc_genmock:
 	docker compose exec $(DOCKER) make mockgen -B -j3
-
-dc_get_wire:
-	docker compose exec $(DOCKER) go get github.com/google/wire/cmd/wire@v0.5.0
 
 mockgen: $(MOCK_TARGETS)
 

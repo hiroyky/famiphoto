@@ -1,13 +1,12 @@
 package storage
 
 import (
-	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"os"
 	"path"
 	"path/filepath"
 )
 
-func NewPhotoThumbnailDriver() repositories.ThumbnailStorageAdapter {
+func NewPhotoThumbnailDriver() Driver {
 	return &photoThumbnailDriver{
 		baseDir: "assets/thumbnails",
 	}
@@ -34,12 +33,33 @@ func (d *photoThumbnailDriver) CreateFile(filePath string, data []byte) error {
 	return f.Close()
 }
 
+func (d *photoThumbnailDriver) CreateDir(dirPath string, perm os.FileMode) error {
+	panic("Not implmented")
+}
+
+func (d *photoThumbnailDriver) Rename(old, file string) error {
+	panic("Not implemented")
+}
+
+func (d *photoThumbnailDriver) ReadDir(dirPath string) ([]os.FileInfo, error) {
+	panic("Not implemented")
+}
+
 func (d *photoThumbnailDriver) ReadFile(filePath string) ([]byte, error) {
 	panic("Not implemented")
 }
+
 func (d *photoThumbnailDriver) Delete(filePath string) error {
 	return os.Remove(path.Join(d.baseDir, filePath))
 }
 func (d *photoThumbnailDriver) DeleteAll(p string) error {
 	return os.Remove(path.Join(d.baseDir, p))
+}
+
+func (d *photoThumbnailDriver) Glob(pattern string) ([]string, error) {
+	panic("Not implemented")
+}
+
+func (d *photoThumbnailDriver) Exist(filePath string) bool {
+	panic("Not implemented")
 }

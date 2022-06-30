@@ -1,8 +1,9 @@
 package entities
 
 import (
+	"fmt"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/utils"
-	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -10,25 +11,31 @@ import (
 )
 
 type Photo struct {
-	PhotoID    int64
-	Name       string
-	ImportedAt time.Time
-	GroupID    string
-	OwnerID    string
-	FilePath   string
+	PhotoID      int64
+	Name         string
+	ImportedAt   time.Time
+	GroupID      string
+	OwnerID      string
+	FileNameHash string
+	Files        PhotoFileList
+}
+
+func (e Photo) HasJpeg() bool {
+	return e.Files.FindFileByFileType(e.PhotoID, PhotoFileTypeJPEG) != nil
 }
 
 func (e Photo) PreviewURL() string {
-	return "http://preview_ulr"
+	if !e.HasJpeg() {
+		return ""
+	}
+	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.GroupID, e.OwnerID, e.PhotoID, config.AssetPreviewImageName)
 }
 
 func (e Photo) ThumbnailURL() string {
-	return "http://thumbnail_ulr"
-}
-
-func (e Photo) FileNameHash() string {
-	p := path.Join(filepath.Dir(e.FilePath), utils.FileNameExceptExt(e.FilePath))
-	return utils.MD5(p)
+	if !e.HasJpeg() {
+		return ""
+	}
+	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.GroupID, e.OwnerID, e.PhotoID, config.AssetThumbnailImageName)
 }
 
 type PhotoList []*Photo
@@ -64,6 +71,19 @@ func (list PhotoFileList) FindFileTypesByPhotoID(photoID int64) []PhotoFileType 
 	}
 
 	return types
+}
+
+func (list PhotoFileList) FindFileByFileType(photoID int64, fileType PhotoFileType) *PhotoFile {
+	for _, item := range list {
+		if item.PhotoID != photoID {
+			continue
+		}
+		if item.FileType() != fileType {
+			continue
+		}
+		return item
+	}
+	return nil
 }
 
 func (f PhotoFile) FileType() PhotoFileType {

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
+	"github.com/hiroyky/famiphoto/infrastructures"
+	"github.com/hiroyky/famiphoto/services"
 	"github.com/hiroyky/famiphoto/utils"
 )
 
@@ -13,9 +15,9 @@ type PhotoImportUseCase interface {
 }
 
 func NewPhotoImportUseCase(
-	photoService PhotoService,
-	imageProcessService ImageProcessService,
-	storage PhotoStorageAdapter,
+	photoService services.PhotoService,
+	imageProcessService services.ImageProcessService,
+	storage infrastructures.PhotoStorageAdapter,
 ) PhotoImportUseCase {
 	return &photoImportUseCase{
 		photoService:        photoService,
@@ -25,9 +27,9 @@ func NewPhotoImportUseCase(
 }
 
 type photoImportUseCase struct {
-	photoService        PhotoService
-	imageProcessService ImageProcessService
-	storage             PhotoStorageAdapter
+	photoService        services.PhotoService
+	imageProcessService services.ImageProcessService
+	storage             infrastructures.PhotoStorageAdapter
 }
 
 func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, extensions []string) error {
@@ -52,7 +54,6 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 	}
 
 	for _, file := range files {
-		fmt.Println(file)
 		if err := u.registerPhoto(ctx, file, ownerID, groupID); err != nil {
 			return err
 		}
@@ -78,14 +79,16 @@ func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.S
 		return err
 	}
 
-	photoFile, err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash(), ownerID, groupID)
+	photo, err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash(), ownerID, groupID)
 	if err != nil {
 		return err
 	}
 
-	if photoFile.FileType() == entities.PhotoFileTypeJPEG {
-		if err := u.imageProcessService.CreateThumbnails(ctx, photoFile, data); err != nil {
-			return err
+	for _, photoFile := range photo.Files {
+		if photoFile.FileType() == entities.PhotoFileTypeJPEG {
+			if err := u.imageProcessService.CreateThumbnails(ctx, photoFile, data); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

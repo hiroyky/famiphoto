@@ -5,12 +5,17 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/hiroyky/famiphoto/config"
-	"github.com/hiroyky/famiphoto/infrastructures/repositories"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
-var db *sql.DB = nil
+type SQLExecutor interface {
+	boil.ContextExecutor
+	boil.ContextBeginner
+}
 
-func NewDatabaseDriver() repositories.SQLExecutor {
+var db SQLExecutor = nil
+
+func NewDatabaseDriver() SQLExecutor {
 	if db != nil {
 		return db
 	}
