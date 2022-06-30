@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"fmt"
+	"github.com/hiroyky/famiphoto/infrastructures"
 )
 
 type SearchUseCase interface {
@@ -10,8 +11,8 @@ type SearchUseCase interface {
 }
 
 func NewSearchUseCase(
-	searchAdapter SearchAdapter,
-	photoAdapter PhotoAdapter,
+	searchAdapter infrastructures.SearchAdapter,
+	photoAdapter infrastructures.PhotoAdapter,
 ) SearchUseCase {
 	return &searchUseCase{
 		searchAdapter: searchAdapter,
@@ -20,8 +21,8 @@ func NewSearchUseCase(
 }
 
 type searchUseCase struct {
-	searchAdapter SearchAdapter
-	photoAdapter  PhotoAdapter
+	searchAdapter infrastructures.SearchAdapter
+	photoAdapter  infrastructures.PhotoAdapter
 }
 
 func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
@@ -37,12 +38,7 @@ func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 			return err
 		}
 
-		files, err := u.photoAdapter.GetPhotoFilesByPhotoIDs(ctx, photos.PhotoIDs())
-		if err != nil {
-			return err
-		}
-
-		stats, err := u.searchAdapter.BulkInsertPhoto(ctx, photos, files, nil)
+		stats, err := u.searchAdapter.BulkInsertPhotos(ctx, photos, nil)
 		if err != nil {
 			return err
 		}

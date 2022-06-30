@@ -6,44 +6,46 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"fmt"
-	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
-	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-func NewUserAuthAdapter(db SQLExecutor) usecases.UserAuthAdapter {
+func NewUserAuthRepository(db mysql.SQLExecutor) UserAuthRepository {
 	return &userAuthRepository{db: db}
 }
 
-type userAuthRepository struct {
-	db SQLExecutor
+type UserAuthRepository interface {
+	UpsertUserAuth(ctx context.Context, m *dbmodels.UserAuth, refreshTokenRaw string) (*dbmodels.UserAuth, error)
+	GetUserAuth(ctx context.Context, userID, clientID string) (*dbmodels.UserAuth, error)
+	GetUserAuthByRefreshToken(ctx context.Context, refreshToken string) (*dbmodels.UserAuth, error)
+	DeleteUserAuth(ctx context.Context, userID, clientID string) error
+	DeleteClientAllAuth(ctx context.Context, clientID string) error
 }
 
-func (r *userAuthRepository) UpsertUserAuth(ctx context.Context, m *entities.UserAuth) (*entities.UserAuth, error) {
-	userAuth := &dbmodels.UserAuth{
-		UserID:                  m.UserID,
-		OauthClientID:           m.OAuthClientID,
-		RefreshToken:            r.refreshTokenHashed(m.RefreshToken),
-		RefreshTokenPublishedAt: m.RefreshTokenPublishedAt,
-	}
-	if err := userAuth.Upsert(ctx, r.db, boil.Infer(), boil.Infer()); err != nil {
+type userAuthRepository struct {
+	db mysql.SQLExecutor
+}
+
+func (r *userAuthRepository) UpsertUserAuth(ctx context.Context, m *dbmodels.UserAuth, refreshTokenRaw string) (*dbmodels.UserAuth, error) {
+	m.RefreshToken = r.refreshTokenHashed(refreshTokenRaw)
+	if err := m.Upsert(ctx, r.db, boil.Infer(), boil.Infer()); err != nil {
 		return nil, err
 	}
-	return r.toEntity(userAuth), nil
+	return m, nil
 }
 
-func (r *userAuthRepository) GetUserAuth(ctx context.Context, userID, clientID string) (*entities.UserAuth, error) {
+func (r *userAuthRepository) GetUserAuth(ctx context.Context, userID, clientID string) (*dbmodels.UserAuth, error) {
 	row, err := dbmodels.FindUserAuth(ctx, r.db, userID, clientID)
 	if err != nil {
 		return nil, errors.New(errors.UserAuthNotFoundError, err)
 	}
-	return r.toEntity(row), nil
+	return row, nil
 }
 
-func (r *userAuthRepository) GetUserAuthByRefreshToken(ctx context.Context, refreshToken string) (*entities.UserAuth, error) {
+func (r *userAuthRepository) GetUserAuthByRefreshToken(ctx context.Context, refreshToken string) (*dbmodels.UserAuth, error) {
 	hashed := r.refreshTokenHashed(refreshToken)
 	ua, err := dbmodels.UserAuths(qm.Where(fmt.Sprintf("%s=?", dbmodels.UserAuthColumns.RefreshToken), hashed)).One(ctx, r.db)
 	if err != nil {
@@ -52,7 +54,7 @@ func (r *userAuthRepository) GetUserAuthByRefreshToken(ctx context.Context, refr
 		}
 		return nil, err
 	}
-	return r.toEntity(ua), nil
+	return ua, nil
 }
 
 func (r *userAuthRepository) DeleteUserAuth(ctx context.Context, userID, clientID string) error {
@@ -75,15 +77,6 @@ func (r *userAuthRepository) DeleteClientAllAuth(ctx context.Context, clientID s
 		return err
 	}
 	return nil
-}
-
-func (r *userAuthRepository) toEntity(m *dbmodels.UserAuth) *entities.UserAuth {
-	return &entities.UserAuth{
-		UserID:                  m.UserID,
-		OAuthClientID:           m.OauthClientID,
-		RefreshToken:            m.RefreshToken,
-		RefreshTokenPublishedAt: m.RefreshTokenPublishedAt,
-	}
 }
 
 func (r *userAuthRepository) refreshTokenHashed(refreshToken string) string {

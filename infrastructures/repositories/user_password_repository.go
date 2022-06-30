@@ -3,22 +3,24 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
-	"github.com/hiroyky/famiphoto/usecases"
-	"github.com/hiroyky/famiphoto/utils/cast"
 )
 
-func NewUserPasswordRepository(db SQLExecutor) usecases.UserPasswordAdapter {
+type UserPasswordRepository interface {
+	GetUserPassword(ctx context.Context, userID string) (*dbmodels.UserPassword, error)
+}
+
+func NewUserPasswordRepository(db mysql.SQLExecutor) UserPasswordRepository {
 	return &userPasswordRepository{db: db}
 }
 
 type userPasswordRepository struct {
-	db SQLExecutor
+	db mysql.SQLExecutor
 }
 
-func (r *userPasswordRepository) GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error) {
+func (r *userPasswordRepository) GetUserPassword(ctx context.Context, userID string) (*dbmodels.UserPassword, error) {
 	up, err := dbmodels.FindUserPassword(ctx, r.db, userID)
 	if err == sql.ErrNoRows {
 		return nil, errors.New(errors.UserPasswordNotFoundError, err)
@@ -26,10 +28,6 @@ func (r *userPasswordRepository) GetUserPassword(ctx context.Context, userID str
 	if err != nil {
 		return nil, err
 	}
-	return &entities.UserPassword{
-		UserId:         up.UserID,
-		Password:       up.Password,
-		LastModifiedAt: up.LastModifiedAt,
-		IsInitialized:  cast.IntToBool(up.IsInitialized),
-	}, nil
+
+	return up, err
 }

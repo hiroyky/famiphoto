@@ -7,14 +7,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/drivers/redis"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
-	"github.com/hiroyky/famiphoto/usecases"
 	"time"
 )
 
-func NewOauthAccessTokenRepository(db RedisAdapter) usecases.OauthAccessTokenAdapter {
+type OauthAccessTokenRepository interface {
+	SetClientCredentialAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error
+	SetUserAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error
+	GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error)
+}
+
+func NewOauthAccessTokenRepository(db redis.Driver) OauthAccessTokenRepository {
 	return &oauthAccessTokenRepository{
 		db:     db,
 		prefix: config.Env.AccessTokenHashedPrefix,
@@ -22,16 +28,12 @@ func NewOauthAccessTokenRepository(db RedisAdapter) usecases.OauthAccessTokenAda
 }
 
 type oauthAccessTokenRepository struct {
-	db     RedisAdapter
+	db     redis.Driver
 	prefix string
 }
 
-func (r *oauthAccessTokenRepository) SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireIn int64) error {
-	val, err := (&models.OauthAccessToken{
-		ClientID:   clientID,
-		ClientType: models.OauthClientTypeClientCredential,
-		Scope:      models.OauthScopeAdmin,
-	}).String()
+func (r *oauthAccessTokenRepository) SetClientCredentialAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error {
+	val, err := oauthAccessToken.String()
 	if err != nil {
 		return err
 	}
@@ -39,13 +41,8 @@ func (r *oauthAccessTokenRepository) SetClientCredentialAccessToken(ctx context.
 	return r.db.SetEx(ctx, r.toHash(accessToken), val, time.Duration(expireIn)*time.Second)
 }
 
-func (r *oauthAccessTokenRepository) SetUserAccessToken(ctx context.Context, clientID, userID, accessToken string, scope entities.OauthScope, expireIn int64) error {
-	val, err := (&models.OauthAccessToken{
-		ClientID:   clientID,
-		ClientType: models.OauthClientTypeUserCredential,
-		Scope:      models.OauthAccessTokenFromEntity(scope),
-		UserID:     userID,
-	}).String()
+func (r *oauthAccessTokenRepository) SetUserAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error {
+	val, err := oauthAccessToken.String()
 	if err != nil {
 		return err
 	}

@@ -3,25 +3,26 @@ package services
 import (
 	"context"
 	"github.com/hiroyky/famiphoto/errors"
-	"github.com/hiroyky/famiphoto/usecases"
+	"github.com/hiroyky/famiphoto/infrastructures"
 )
 
+type UserService interface {
+	AuthUserPassword(ctx context.Context, userID, password string) error
+}
+
 func NewUserService(
-	userAdapter usecases.UserAdapter,
-	userPasswordAdapter usecases.UserPasswordAdapter,
-	passwordService usecases.PasswordService,
-) usecases.UserService {
+	userAdapter infrastructures.UserAdapter,
+	passwordService PasswordService,
+) UserService {
 	return &userService{
-		userAdapter:         userAdapter,
-		userPasswordAdapter: userPasswordAdapter,
-		passwordService:     passwordService,
+		userAdapter:     userAdapter,
+		passwordService: passwordService,
 	}
 }
 
 type userService struct {
-	userAdapter         usecases.UserAdapter
-	userPasswordAdapter usecases.UserPasswordAdapter
-	passwordService     usecases.PasswordService
+	userAdapter     infrastructures.UserAdapter
+	passwordService PasswordService
 }
 
 func (s *userService) AuthUserPassword(ctx context.Context, userID, password string) error {
@@ -30,7 +31,7 @@ func (s *userService) AuthUserPassword(ctx context.Context, userID, password str
 	} else if !exist {
 		return errors.New(errors.UserUnauthorizedError, nil)
 	}
-	pass, err := s.userPasswordAdapter.GetUserPassword(ctx, userID)
+	pass, err := s.userAdapter.GetUserPassword(ctx, userID)
 	if err != nil {
 		return err
 	}

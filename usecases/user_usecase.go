@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
+	"github.com/hiroyky/famiphoto/infrastructures"
+	"github.com/hiroyky/famiphoto/services"
 	"time"
 )
 
@@ -15,21 +17,18 @@ type UserUseCase interface {
 }
 
 func NewUserUseCase(
-	userAdapter UserAdapter,
-	userPasswordAdapter UserPasswordAdapter,
-	passwordService PasswordService,
+	userAdapter infrastructures.UserAdapter,
+	passwordService services.PasswordService,
 ) UserUseCase {
 	return &userUseCase{
-		userAdapter:         userAdapter,
-		userPasswordAdapter: userPasswordAdapter,
-		passwordService:     passwordService,
+		userAdapter:     userAdapter,
+		passwordService: passwordService,
 	}
 }
 
 type userUseCase struct {
-	userAdapter         UserAdapter
-	userPasswordAdapter UserPasswordAdapter
-	passwordService     PasswordService
+	userAdapter     infrastructures.UserAdapter
+	passwordService services.PasswordService
 }
 
 func (u *userUseCase) ValidateToCreateUser(ctx context.Context, userID, name string, password string) error {
@@ -70,7 +69,7 @@ func (u *userUseCase) GetUser(ctx context.Context, userID string) (*entities.Use
 }
 
 func (u *userUseCase) GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error) {
-	filter := &UserFilter{UserID: userID}
+	filter := &infrastructures.UserFilter{UserID: userID}
 	users, err := u.userAdapter.GetUsers(ctx, filter, limit, offset)
 	if err != nil {
 		return nil, 0, err

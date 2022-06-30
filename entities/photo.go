@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/utils"
-	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -12,13 +11,13 @@ import (
 )
 
 type Photo struct {
-	PhotoID    int64
-	Name       string
-	ImportedAt time.Time
-	GroupID    string
-	OwnerID    string
-	FilePath   string
-	Files      PhotoFileList
+	PhotoID      int64
+	Name         string
+	ImportedAt   time.Time
+	GroupID      string
+	OwnerID      string
+	FileNameHash string
+	Files        PhotoFileList
 }
 
 func (e Photo) HasJpeg() bool {
@@ -37,11 +36,6 @@ func (e Photo) ThumbnailURL() string {
 		return ""
 	}
 	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.GroupID, e.OwnerID, e.PhotoID, config.AssetThumbnailImageName)
-}
-
-func (e Photo) FileNameHash() string {
-	p := path.Join(filepath.Dir(e.FilePath), utils.FileNameExceptExt(e.FilePath))
-	return utils.MD5(p)
 }
 
 type PhotoList []*Photo

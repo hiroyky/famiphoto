@@ -1,18 +1,17 @@
-package samba
+package storage
 
 import (
 	"fmt"
 	"github.com/hirochachacha/go-smb2"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/errors"
-	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"net"
 	"os"
 )
 
 var mediaStorage *sambaDriver = nil
 
-func NewMediaSambaStorage() repositories.StorageAdapter {
+func NewMediaSambaStorage() Driver {
 	if mediaStorage != nil {
 		return mediaStorage
 	}

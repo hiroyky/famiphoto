@@ -30,7 +30,7 @@ func main() {
 		baseDir := ctx.String("base-dir")
 		extensions := array.Map(strings.Split(ctx.String("extensions"), ","), strings.TrimSpace)
 		fmt.Printf("base-dir: %s, extensions: %d %v\n", baseDir, len(extensions), extensions)
-		uc := di.InitPhotoImportUseCase()
+		uc := di.NewPhotoImportUseCase()
 		if err := uc.ImportPhotos(ctx.Context, baseDir, extensions); err != nil {
 			panic(err)
 		}

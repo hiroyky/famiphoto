@@ -6,12 +6,17 @@ import (
 	"encoding/base64"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/errors"
-	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/sethvargo/go-password/password"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func NewPasswordService() usecases.PasswordService {
+type PasswordService interface {
+	HashPassword(password string) (string, error)
+	MatchPassword(password string, hash string) (bool, error)
+	GeneratePassword(length int) (string, error)
+}
+
+func NewPasswordService() PasswordService {
 	return &passwordService{hmacKey: []byte(config.Env.HMacKey)}
 }
 

@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/services"
 	"time"
 )
 
@@ -19,21 +20,18 @@ type OauthUseCase interface {
 }
 
 func NewOauthUseCase(
-	authService AuthService,
-	oauthClientURLAdapter OauthClientRedirectURLAdapter,
-	userService UserService,
+	authService services.AuthService,
+	userService services.UserService,
 ) OauthUseCase {
 	return &oauthUseCase{
-		authService:           authService,
-		oauthClientURLAdapter: oauthClientURLAdapter,
-		userService:           userService,
+		authService: authService,
+		userService: userService,
 	}
 }
 
 type oauthUseCase struct {
-	authService           AuthService
-	oauthClientURLAdapter OauthClientRedirectURLAdapter
-	userService           UserService
+	authService services.AuthService
+	userService services.UserService
 }
 
 func (u *oauthUseCase) CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error) {
@@ -50,7 +48,7 @@ func (u *oauthUseCase) CreateOauthClient(ctx context.Context, client *entities.O
 }
 
 func (u *oauthUseCase) GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error) {
-	return u.oauthClientURLAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, oauthClientID)
+	return u.authService.GetOAuthClientRedirectURLsByOAuthClientID(ctx, oauthClientID)
 }
 
 func (u *oauthUseCase) AuthClientSecret(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error) {

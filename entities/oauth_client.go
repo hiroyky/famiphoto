@@ -37,6 +37,10 @@ func (t OauthClientType) String() string {
 	return ""
 }
 
+func (t OauthClientType) Int() int {
+	return int(t)
+}
+
 type Oauth2ClientCredential struct {
 	AccessToken string
 	TokenType   OauthClientType

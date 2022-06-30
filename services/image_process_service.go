@@ -3,16 +3,20 @@ package services
 import (
 	"context"
 	"github.com/hiroyky/famiphoto/entities"
-	"github.com/hiroyky/famiphoto/usecases"
+	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/utils/image"
 )
 
-func NewImageProcessService(thumbRepo usecases.PhotoThumbnailAdapter) usecases.ImageProcessService {
+type ImageProcessService interface {
+	CreateThumbnails(ctx context.Context, photoFile *entities.PhotoFile, data []byte) error
+}
+
+func NewImageProcessService(thumbRepo infrastructures.PhotoStorageAdapter) ImageProcessService {
 	return &imageProcessService{thumbRepo: thumbRepo}
 }
 
 type imageProcessService struct {
-	thumbRepo usecases.PhotoThumbnailAdapter
+	thumbRepo infrastructures.PhotoStorageAdapter
 }
 
 func (s *imageProcessService) CreateThumbnails(ctx context.Context, photoFile *entities.PhotoFile, data []byte) error {

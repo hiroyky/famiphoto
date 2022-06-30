@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	uc := di.InitSearchUseCase()
+	uc := di.NewSearchUseCase()
 	if err := uc.AppendAllPhotoDocuments(context.Background()); err != nil {
 		panic(err)
 	}
