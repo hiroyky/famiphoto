@@ -16,12 +16,14 @@ type SearchAdapter interface {
 
 func NewSearchAdapter(esRepo repositories.ElasticSearchRepository) SearchAdapter {
 	return &searchAdapter{
-		esRepo: esRepo,
+		esRepo:  esRepo,
+		nowFunc: time.Now,
 	}
 }
 
 type searchAdapter struct {
-	esRepo repositories.ElasticSearchRepository
+	esRepo  repositories.ElasticSearchRepository
+	nowFunc func() time.Time
 }
 
 func (a *searchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.PhotoList, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error) {
@@ -35,7 +37,7 @@ func (a *searchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.Ph
 			}),
 			Name:             photo.Name,
 			ImportedAt:       photo.ImportedAt.Unix(),
-			DateTimeOriginal: time.Now().Unix(),
+			DateTimeOriginal: a.nowFunc().Unix(),
 			PreviewURL:       photo.PreviewURL(),
 			ThumbnailURL:     photo.ThumbnailURL(),
 		}
