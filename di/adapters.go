@@ -53,7 +53,11 @@ func newExifRepository() repositories.ExifRepository {
 }
 
 func NewPhotoStorageAdapter() infrastructures.PhotoStorageAdapter {
-	return infrastructures.NewPhotoStorageAdapter(newPhotoStorageRepository())
+	return infrastructures.NewPhotoStorageAdapter(newPhotoStorageRepository(), newPhotoThumbnailRepository())
+}
+
+func newPhotoThumbnailRepository() repositories.PhotoThumbnailRepository {
+	return repositories.NewPhotoThumbnailRepository(NewPhotoThumbnailStorageDriver(), NewMySQLDriver())
 }
 
 func newPhotoStorageRepository() repositories.PhotoStorageRepository {

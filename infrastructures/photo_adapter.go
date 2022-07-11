@@ -65,7 +65,7 @@ func (a *photoAdapter) UpsertPhotoByFilePath(ctx context.Context, photo *entitie
 		Name:         photo.Name,
 		ImportedAt:   photo.ImportedAt,
 		GroupID:      photo.GroupID,
-		OwnerID:      photo.GroupID,
+		OwnerID:      photo.OwnerID,
 		FileNameHash: photo.FileNameHash,
 	})
 	if err != nil {

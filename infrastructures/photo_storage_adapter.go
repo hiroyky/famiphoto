@@ -18,8 +18,14 @@ type PhotoStorageAdapter interface {
 	SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
 }
 
-func NewPhotoStorageAdapter(photoStorageRepo repositories.PhotoStorageRepository) PhotoStorageAdapter {
-	return &photoStorageAdapter{photoStorageRepo: photoStorageRepo}
+func NewPhotoStorageAdapter(
+	photoStorageRepo repositories.PhotoStorageRepository,
+	thumbnailRepo repositories.PhotoThumbnailRepository,
+) PhotoStorageAdapter {
+	return &photoStorageAdapter{
+		photoStorageRepo: photoStorageRepo,
+		thumbnailRepo:    thumbnailRepo,
+	}
 }
 
 type photoStorageAdapter struct {
