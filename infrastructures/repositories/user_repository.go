@@ -3,11 +3,11 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
+	"github.com/hiroyky/famiphoto/infrastructures/filters"
 	"github.com/hiroyky/famiphoto/utils/cast"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -16,8 +16,8 @@ import (
 
 type UserRepository interface {
 	GetUser(ctx context.Context, userID string) (*dbmodels.User, error)
-	GetUsers(ctx context.Context, filter *UserFilter, limit, offset int) ([]*dbmodels.User, error)
-	CountUsers(ctx context.Context, filter *UserFilter) (int, error)
+	GetUsers(ctx context.Context, filter *filters.UserFilter, limit, offset int) ([]*dbmodels.User, error)
+	CountUsers(ctx context.Context, filter *filters.UserFilter) (int, error)
 	ExistUser(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, user *dbmodels.User, password string, isInitializedPassword bool, now time.Time) (*dbmodels.User, error)
 }
@@ -26,21 +26,6 @@ func NewUserRepository(db mysql.SQLExecutor) UserRepository {
 	return &userRepository{
 		db: db,
 	}
-}
-
-type UserFilter struct {
-	UserID *string
-}
-
-func (f *UserFilter) WhereMods() []qm.QueryMod {
-	var filter []qm.QueryMod
-	if f == nil {
-		return filter
-	}
-	if f.UserID != nil {
-		filter = append(filter, qm.Where(fmt.Sprintf("%s = ?", dbmodels.UserColumns.UserID), f.UserID))
-	}
-	return filter
 }
 
 type userRepository struct {
@@ -55,7 +40,7 @@ func (r *userRepository) GetUser(ctx context.Context, userID string) (*dbmodels.
 	return user, nil
 }
 
-func (r *userRepository) GetUsers(ctx context.Context, filter *UserFilter, limit, offset int) ([]*dbmodels.User, error) {
+func (r *userRepository) GetUsers(ctx context.Context, filter *filters.UserFilter, limit, offset int) ([]*dbmodels.User, error) {
 	mods := filter.WhereMods()
 	mods = append(mods, qm.Limit(limit), qm.Offset(offset))
 
@@ -66,7 +51,7 @@ func (r *userRepository) GetUsers(ctx context.Context, filter *UserFilter, limit
 	return users, nil
 }
 
-func (r *userRepository) CountUsers(ctx context.Context, filter *UserFilter) (int, error) {
+func (r *userRepository) CountUsers(ctx context.Context, filter *filters.UserFilter) (int, error) {
 	mods := filter.WhereMods()
 	total, err := dbmodels.Users(mods...).Count(ctx, r.db)
 	if err != nil {

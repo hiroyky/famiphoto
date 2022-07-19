@@ -64,6 +64,7 @@ const (
 	SambaDeleteAllFatal                FamiPhotoErrorCode = "SambaDeleteAllFatal"
 	SambaReadDirFatal                  FamiPhotoErrorCode = "SambaReadDirFatal"
 	SambaGlobFatal                     FamiPhotoErrorCode = "SambaGlobFatal"
+	ElasticSearchFatal                 FamiPhotoErrorCode = "ElasticSearchFatal"
 )
 
 func New(errCode FamiPhotoErrorCode, baseError error) error {

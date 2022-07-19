@@ -2,7 +2,7 @@
 
 DST_DIR=./dst
 DOCKER=famiphoto
-MOCK_TARGETS= infrastructures/repositories/adapter.go usecases/adapter.go
+MOCK_TARGETS=$(shell find . -type f -name "*.go" | grep -v "testing/" | grep -v "_test.go" | grep -v "dst/")
 
 init:
 	docker compose build --no-cache
@@ -57,3 +57,7 @@ mockgen: $(MOCK_TARGETS)
 
 $(MOCK_TARGETS):
 	mockgen -source $@ -destination testing/mocks/$@
+
+clean:
+	rm -rf ./testing/mocks/
+	rm -rf ./dst

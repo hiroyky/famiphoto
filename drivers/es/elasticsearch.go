@@ -1,4 +1,4 @@
-package elasticsearch
+package es
 
 import (
 	"github.com/cenkalti/backoff/v4"
@@ -9,12 +9,9 @@ import (
 	"time"
 )
 
-type Client interface {
-}
+var searchClient *elasticsearch.Client = nil
 
-var searchClient Client = nil
-
-func NewSearchClient() Client {
+func NewSearchClient() *elasticsearch.Client {
 	if searchClient != nil {
 		return searchClient
 	}

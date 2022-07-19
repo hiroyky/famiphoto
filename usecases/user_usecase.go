@@ -5,6 +5,7 @@ import (
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
+	"github.com/hiroyky/famiphoto/infrastructures/filters"
 	"github.com/hiroyky/famiphoto/services"
 	"time"
 )
@@ -69,7 +70,7 @@ func (u *userUseCase) GetUser(ctx context.Context, userID string) (*entities.Use
 }
 
 func (u *userUseCase) GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error) {
-	filter := &infrastructures.UserFilter{UserID: userID}
+	filter := &filters.UserFilter{UserID: userID}
 	users, err := u.userAdapter.GetUsers(ctx, filter, limit, offset)
 	if err != nil {
 		return nil, 0, err

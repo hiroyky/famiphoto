@@ -5,8 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
+	"github.com/hiroyky/famiphoto/infrastructures/filters"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 )
 
@@ -21,7 +25,52 @@ type ElasticSearchRepository interface {
 }
 
 type elasticSearchRepository struct {
-	bulkIndexer esutil.BulkIndexer
+	searchClient *elasticsearch.Client
+	bulkIndexer  esutil.BulkIndexer
+}
+
+func (r *elasticSearchRepository) SearchPhotos(ctx context.Context, query filters.PhotoSearchRequest) (*models.PhotoResult, error) {
+	res, err := r.searchPhotos(ctx, query)
+	if err != nil {
+		fmt.Println(err)
+		return nil, errors.New(errors.ElasticSearchFatal, err)
+	}
+	defer res.Body.Close()
+
+	var body map[string]any
+	if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
+		return nil, errors.New(errors.ElasticSearchFatal, err)
+	}
+
+	return r.parsePhotoResult(body)
+}
+
+func (r *elasticSearchRepository) searchPhotos(ctx context.Context, query filters.PhotoSearchRequest) (*esapi.Response, error) {
+	es := r.searchClient
+	return es.Search(
+		es.Search.WithContext(ctx),
+		es.Search.WithIndex("photo"),
+		es.Search.WithTrackTotalHits(true),
+		es.Search.WithBody(query.Body().MustBuffer()),
+	)
+}
+
+func (r *elasticSearchRepository) parsePhotoResult(body map[string]any) (*models.PhotoResult, error) {
+	photos := make([]*models.PhotoIndex, 0)
+	for _, v := range body["hits"].(map[string]any)["hits"].([]any) {
+		item, err := models.NewPhotoIndexFromMap(v.(map[string]any)["_source"].(map[string]any))
+		if err != nil {
+			return nil, errors.New(errors.ElasticSearchFatal, err)
+		}
+		photos = append(photos, item)
+	}
+
+	total := body["hits"].(map[string]any)["total"].(map[string]any)["value"].(float64)
+
+	return &models.PhotoResult{
+		Total:  int64(total),
+		Photos: photos,
+	}, nil
 }
 
 func (r *elasticSearchRepository) BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error) {

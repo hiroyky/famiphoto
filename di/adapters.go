@@ -1,7 +1,7 @@
 package di
 
 import (
-	"github.com/hiroyky/famiphoto/drivers/elasticsearch"
+	"github.com/hiroyky/famiphoto/drivers/es"
 	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 )
@@ -69,7 +69,7 @@ func NewSearchAdapter() infrastructures.SearchAdapter {
 }
 
 func newElasticSearchRepo() repositories.ElasticSearchRepository {
-	return repositories.NewElasticSearchRepository(elasticsearch.NewBulkClient())
+	return repositories.NewElasticSearchRepository(es.NewBulkClient())
 }
 
 func NewUserAdapter() infrastructures.UserAdapter {
