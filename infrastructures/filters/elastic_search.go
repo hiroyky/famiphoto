@@ -27,6 +27,9 @@ type PhotoSearchRequest struct {
 	Limit   *int64
 	Offset  *int64
 	PhotoID *int64
+	OwnerID *string
+	GroupID *string
+	Name    *string
 }
 
 func (r *PhotoSearchRequest) Body() searchBody {
