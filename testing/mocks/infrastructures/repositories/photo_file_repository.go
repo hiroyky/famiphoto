@@ -51,7 +51,7 @@ func (mr *MockPhotoFileRepositoryMockRecorder) GetPhotoFileByFilePath(ctx, fileP
 }
 
 // GetPhotoFilesByPhotoID mocks base method.
-func (m *MockPhotoFileRepository) GetPhotoFilesByPhotoID(ctx context.Context, photoIDs []int64) ([]*dbmodels.PhotoFile, error) {
+func (m *MockPhotoFileRepository) GetPhotoFilesByPhotoID(ctx context.Context, photoIDs []int) ([]*dbmodels.PhotoFile, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPhotoFilesByPhotoID", ctx, photoIDs)
 	ret0, _ := ret[0].([]*dbmodels.PhotoFile)

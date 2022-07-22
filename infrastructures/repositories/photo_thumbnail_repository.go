@@ -12,8 +12,8 @@ import (
 )
 
 type PhotoThumbnailRepository interface {
-	SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
-	SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
+	SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
+	SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
 }
 
 func NewPhotoThumbnailRepository(fileDriver storage.Driver, db mysql.SQLExecutor) PhotoThumbnailRepository {
@@ -28,17 +28,17 @@ type photoThumbnailRepository struct {
 	db         mysql.SQLExecutor
 }
 
-func (r *photoThumbnailRepository) SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+func (r *photoThumbnailRepository) SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
 	return r.saveImage(ctx, photoID, data, groupID, ownerID, config.AssetPreviewImageName)
 }
 
-func (r *photoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+func (r *photoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
 	return r.saveImage(ctx, photoID, data, groupID, ownerID, config.AssetThumbnailImageName)
 }
 
-func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int64, data []byte, groupID, ownerID, name string) error {
+func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int, data []byte, groupID, ownerID, name string) error {
 	m := &dbmodels.PhotoThumbnail{
-		PhotoID:       int(photoID),
+		PhotoID:       photoID,
 		ThumbnailName: name,
 		FilePath:      r.genFilePath(groupID, ownerID, name, photoID),
 		GroupID:       groupID,
@@ -49,7 +49,7 @@ func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int64,
 		return err
 	}
 
-	if exist, err := dbmodels.PhotoThumbnailExists(ctx, r.db, int(photoID), name); err != nil {
+	if exist, err := dbmodels.PhotoThumbnailExists(ctx, r.db, photoID, name); err != nil {
 		return err
 	} else if exist {
 		if _, err := m.Update(ctx, r.db, boil.Infer()); err != nil {
@@ -65,6 +65,6 @@ func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int64,
 	return nil
 }
 
-func (r *photoThumbnailRepository) genFilePath(groupID, ownerID, thumbnailName string, photoID int64) string {
+func (r *photoThumbnailRepository) genFilePath(groupID, ownerID, thumbnailName string, photoID int) string {
 	return path.Join(groupID, ownerID, fmt.Sprintf("%d-%s.jpg", photoID, thumbnailName))
 }

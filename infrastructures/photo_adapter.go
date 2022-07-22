@@ -10,10 +10,10 @@ import (
 )
 
 type PhotoAdapter interface {
-	GetPhotos(ctx context.Context, limit, offset int64) (entities.PhotoList, error)
-	CountPhotos(ctx context.Context) (int64, error)
+	GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error)
+	CountPhotos(ctx context.Context) (int, error)
 	UpsertPhotoByFilePath(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
-	UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int64, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
+	UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
 }
 
 func NewPhotoAdapter(
@@ -34,14 +34,14 @@ type photoAdapter struct {
 	exifRepo      repositories.ExifRepository
 }
 
-func (a *photoAdapter) GetPhotos(ctx context.Context, limit, offset int64) (entities.PhotoList, error) {
+func (a *photoAdapter) GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error) {
 	photos, err := a.photoRepo.GetPhotos(ctx, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 
-	photoIDs := array.Map(photos, func(p *dbmodels.Photo) int64 {
-		return int64(p.PhotoID)
+	photoIDs := array.Map(photos, func(p *dbmodels.Photo) int {
+		return p.PhotoID
 	})
 
 	files, err := a.photoFileRepo.GetPhotoFilesByPhotoID(ctx, photoIDs)
@@ -56,7 +56,7 @@ func (a *photoAdapter) GetPhotos(ctx context.Context, limit, offset int64) (enti
 	return photoEntities, nil
 }
 
-func (a *photoAdapter) CountPhotos(ctx context.Context) (int64, error) {
+func (a *photoAdapter) CountPhotos(ctx context.Context) (int, error) {
 	return a.photoRepo.CountPhotos(ctx)
 }
 
@@ -122,8 +122,8 @@ func (a *photoAdapter) toPhotoEntity(photo *dbmodels.Photo, files []*dbmodels.Ph
 	})
 	photoFileEntities := array.Map(photoFiles, func(t *dbmodels.PhotoFile) *entities.PhotoFile {
 		return &entities.PhotoFile{
-			PhotoFileID: int64(t.PhotoFileID),
-			PhotoID:     int64(t.PhotoID),
+			PhotoFileID: t.PhotoFileID,
+			PhotoID:     t.PhotoID,
 			FilePath:    t.FilePath,
 			ImportedAt:  t.ImportedAt,
 			GroupID:     t.GroupID,
@@ -133,7 +133,7 @@ func (a *photoAdapter) toPhotoEntity(photo *dbmodels.Photo, files []*dbmodels.Ph
 	})
 
 	return &entities.Photo{
-		PhotoID:      int64(photo.PhotoID),
+		PhotoID:      photo.PhotoID,
 		Name:         photo.Name,
 		ImportedAt:   photo.ImportedAt,
 		GroupID:      photo.GroupID,
@@ -143,10 +143,10 @@ func (a *photoAdapter) toPhotoEntity(photo *dbmodels.Photo, files []*dbmodels.Ph
 	}
 }
 
-func (a *photoAdapter) UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int64, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error) {
+func (a *photoAdapter) UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error) {
 	dbMetaItem := &dbmodels.Exif{
-		PhotoID:     int(photoID),
-		TagID:       int(metaItem.TagID),
+		PhotoID:     photoID,
+		TagID:       metaItem.TagID,
 		TagName:     metaItem.TagName,
 		TagType:     metaItem.TagType,
 		ValueString: metaItem.ValueString,
@@ -172,8 +172,8 @@ func (a *photoAdapter) UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, phot
 
 func (a *photoAdapter) toPhotoMetaItemEntity(m *dbmodels.Exif) *entities.PhotoMetaItem {
 	return &entities.PhotoMetaItem{
-		PhotoMetaItemID: int64(m.ExifID),
-		TagID:           int64(m.TagID),
+		PhotoMetaItemID: m.ExifID,
+		TagID:           m.TagID,
 		TagName:         m.TagName,
 		TagType:         m.TagType,
 		ValueString:     m.ValueString,

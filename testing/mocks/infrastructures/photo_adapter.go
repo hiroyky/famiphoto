@@ -36,10 +36,10 @@ func (m *MockPhotoAdapter) EXPECT() *MockPhotoAdapterMockRecorder {
 }
 
 // CountPhotos mocks base method.
-func (m *MockPhotoAdapter) CountPhotos(ctx context.Context) (int64, error) {
+func (m *MockPhotoAdapter) CountPhotos(ctx context.Context) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CountPhotos", ctx)
-	ret0, _ := ret[0].(int64)
+	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -51,7 +51,7 @@ func (mr *MockPhotoAdapterMockRecorder) CountPhotos(ctx interface{}) *gomock.Cal
 }
 
 // GetPhotos mocks base method.
-func (m *MockPhotoAdapter) GetPhotos(ctx context.Context, limit, offset int64) (entities.PhotoList, error) {
+func (m *MockPhotoAdapter) GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPhotos", ctx, limit, offset)
 	ret0, _ := ret[0].(entities.PhotoList)
@@ -81,7 +81,7 @@ func (mr *MockPhotoAdapterMockRecorder) UpsertPhotoByFilePath(ctx, photo interfa
 }
 
 // UpsertPhotoMetaItemByPhotoTagID mocks base method.
-func (m *MockPhotoAdapter) UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int64, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error) {
+func (m *MockPhotoAdapter) UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpsertPhotoMetaItemByPhotoTagID", ctx, photoID, metaItem)
 	ret0, _ := ret[0].(*entities.PhotoMetaItem)

@@ -26,3 +26,12 @@ func ArrayValues[T any, V any](list []*T, castFunc func(*T) V) []V {
 func IntToBool[T ~int8 | ~int](v T) bool {
 	return v > 0
 }
+
+func IntPtrToInt64Ptr(intVal *int) *int64 {
+	if intVal == nil {
+		return nil
+	}
+	val := *intVal
+	dst := int64(val)
+	return &dst
+}

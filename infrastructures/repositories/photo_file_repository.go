@@ -11,7 +11,7 @@ import (
 )
 
 type PhotoFileRepository interface {
-	GetPhotoFilesByPhotoID(ctx context.Context, photoIDs []int64) ([]*dbmodels.PhotoFile, error)
+	GetPhotoFilesByPhotoID(ctx context.Context, photoIDs []int) ([]*dbmodels.PhotoFile, error)
 	InsertPhotoFile(ctx context.Context, photoFile *dbmodels.PhotoFile) (*dbmodels.PhotoFile, error)
 	UpdatePhotoFile(ctx context.Context, photoFile *dbmodels.PhotoFile) (*dbmodels.PhotoFile, error)
 	GetPhotoFileByFilePath(ctx context.Context, filePath string) (*dbmodels.PhotoFile, error)
@@ -25,7 +25,7 @@ type photoFileRepository struct {
 	db mysql.SQLExecutor
 }
 
-func (r *photoFileRepository) GetPhotoFilesByPhotoID(ctx context.Context, photoIDs []int64) ([]*dbmodels.PhotoFile, error) {
+func (r *photoFileRepository) GetPhotoFilesByPhotoID(ctx context.Context, photoIDs []int) ([]*dbmodels.PhotoFile, error) {
 	return dbmodels.PhotoFiles(qm.WhereIn("photo_id in ?", toInterfaceSlice(photoIDs)...)).All(ctx, r.db)
 }
 

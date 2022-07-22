@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/infrastructures/filters"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"github.com/hiroyky/famiphoto/utils/array"
@@ -12,6 +13,7 @@ import (
 
 type SearchAdapter interface {
 	BulkInsertPhotos(ctx context.Context, photos entities.PhotoList, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error)
+	SearchPhotos(ctx context.Context, q *filters.PhotoSearchQuery) (*entities.PhotoSearchResult, error)
 }
 
 func NewSearchAdapter(esRepo repositories.ElasticSearchRepository) SearchAdapter {
@@ -48,4 +50,20 @@ func (a *searchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.Ph
 		return nil, err
 	}
 	return stats, nil
+}
+
+func (a *searchAdapter) SearchPhotos(ctx context.Context, q *filters.PhotoSearchQuery) (*entities.PhotoSearchResult, error) {
+	res, err := a.esRepo.SearchPhotos(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	dstItems := array.Map(res.Photos, func(photo *models.PhotoIndex) *entities.PhotoSearchResultItem {
+		return photo.ToEntityItem()
+	})
+
+	return &entities.PhotoSearchResult{
+		Items: dstItems,
+		Total: res.Total,
+	}, nil
 }

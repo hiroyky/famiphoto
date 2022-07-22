@@ -287,6 +287,36 @@ func (m *MockPhotoResolver) EXPECT() *MockPhotoResolverMockRecorder {
 	return m.recorder
 }
 
+// ExifData mocks base method.
+func (m *MockPhotoResolver) ExifData(ctx context.Context, obj *model.Photo) ([]*model.PhotoExif, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExifData", ctx, obj)
+	ret0, _ := ret[0].([]*model.PhotoExif)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExifData indicates an expected call of ExifData.
+func (mr *MockPhotoResolverMockRecorder) ExifData(ctx, obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExifData", reflect.TypeOf((*MockPhotoResolver)(nil).ExifData), ctx, obj)
+}
+
+// Files mocks base method.
+func (m *MockPhotoResolver) Files(ctx context.Context, obj *model.Photo) ([]*model.PhotoFile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Files", ctx, obj)
+	ret0, _ := ret[0].([]*model.PhotoFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Files indicates an expected call of Files.
+func (mr *MockPhotoResolverMockRecorder) Files(ctx, obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Files", reflect.TypeOf((*MockPhotoResolver)(nil).Files), ctx, obj)
+}
+
 // Group mocks base method.
 func (m *MockPhotoResolver) Group(ctx context.Context, obj *model.Photo) (*model.Group, error) {
 	m.ctrl.T.Helper()
@@ -300,6 +330,21 @@ func (m *MockPhotoResolver) Group(ctx context.Context, obj *model.Photo) (*model
 func (mr *MockPhotoResolverMockRecorder) Group(ctx, obj interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Group", reflect.TypeOf((*MockPhotoResolver)(nil).Group), ctx, obj)
+}
+
+// ImportedAt mocks base method.
+func (m *MockPhotoResolver) ImportedAt(ctx context.Context, obj *model.Photo) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ImportedAt", ctx, obj)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ImportedAt indicates an expected call of ImportedAt.
+func (mr *MockPhotoResolverMockRecorder) ImportedAt(ctx, obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImportedAt", reflect.TypeOf((*MockPhotoResolver)(nil).ImportedAt), ctx, obj)
 }
 
 // Owner mocks base method.
@@ -353,6 +398,66 @@ func (m *MockQueryResolver) Me(ctx context.Context) (*model.User, error) {
 func (mr *MockQueryResolverMockRecorder) Me(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Me", reflect.TypeOf((*MockQueryResolver)(nil).Me), ctx)
+}
+
+// Photo mocks base method.
+func (m *MockQueryResolver) Photo(ctx context.Context, id string) (*model.Photo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Photo", ctx, id)
+	ret0, _ := ret[0].(*model.Photo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Photo indicates an expected call of Photo.
+func (mr *MockQueryResolverMockRecorder) Photo(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Photo", reflect.TypeOf((*MockQueryResolver)(nil).Photo), ctx, id)
+}
+
+// PhotoFile mocks base method.
+func (m *MockQueryResolver) PhotoFile(ctx context.Context, id string) (*model.PhotoFile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PhotoFile", ctx, id)
+	ret0, _ := ret[0].(*model.PhotoFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PhotoFile indicates an expected call of PhotoFile.
+func (mr *MockQueryResolverMockRecorder) PhotoFile(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PhotoFile", reflect.TypeOf((*MockQueryResolver)(nil).PhotoFile), ctx, id)
+}
+
+// PhotoFiles mocks base method.
+func (m *MockQueryResolver) PhotoFiles(ctx context.Context, photoID string) ([]*model.PhotoFile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PhotoFiles", ctx, photoID)
+	ret0, _ := ret[0].([]*model.PhotoFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PhotoFiles indicates an expected call of PhotoFiles.
+func (mr *MockQueryResolverMockRecorder) PhotoFiles(ctx, photoID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PhotoFiles", reflect.TypeOf((*MockQueryResolver)(nil).PhotoFiles), ctx, photoID)
+}
+
+// Photos mocks base method.
+func (m *MockQueryResolver) Photos(ctx context.Context, id *string, limit, offset *int) (*model.PhotoPagination, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Photos", ctx, id, limit, offset)
+	ret0, _ := ret[0].(*model.PhotoPagination)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Photos indicates an expected call of Photos.
+func (mr *MockQueryResolverMockRecorder) Photos(ctx, id, limit, offset interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Photos", reflect.TypeOf((*MockQueryResolver)(nil).Photos), ctx, id, limit, offset)
 }
 
 // User mocks base method.

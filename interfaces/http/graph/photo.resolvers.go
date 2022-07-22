@@ -21,6 +21,11 @@ func (r *photoResolver) Group(ctx context.Context, obj *model.Photo) (*model.Gro
 	panic(fmt.Errorf("not implemented"))
 }
 
+// ImportedAt is the resolver for the importedAt field.
+func (r *photoResolver) ImportedAt(ctx context.Context, obj *model.Photo) (string, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // ExifData is the resolver for the exifData field.
 func (r *photoResolver) ExifData(ctx context.Context, obj *model.Photo) ([]*model.PhotoExif, error) {
 	panic(fmt.Errorf("not implemented"))

@@ -23,7 +23,7 @@ func (b searchBody) MustBuffer() *bytes.Buffer {
 	return buf
 }
 
-type PhotoSearchRequest struct {
+type PhotoSearchQuery struct {
 	Limit   *int64
 	Offset  *int64
 	PhotoID *int64
@@ -32,12 +32,28 @@ type PhotoSearchRequest struct {
 	Name    *string
 }
 
-func (r *PhotoSearchRequest) Body() searchBody {
+func (r *PhotoSearchQuery) Body() searchBody {
 	q := map[string]any{}
+
+	if r == nil {
+		return q
+	}
 
 	if r.Limit != nil {
 		q["size"] = *r.Limit
 	}
 
+	return q
+}
+
+func NewPhotoSearchQuery(id *string, limit, offset int) *PhotoSearchQuery {
+	q := &PhotoSearchQuery{
+		Limit:   nil,
+		Offset:  nil,
+		PhotoID: nil,
+		OwnerID: nil,
+		GroupID: nil,
+		Name:    nil,
+	}
 	return q
 }

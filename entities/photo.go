@@ -11,7 +11,7 @@ import (
 )
 
 type Photo struct {
-	PhotoID      int64
+	PhotoID      int
 	Name         string
 	ImportedAt   time.Time
 	GroupID      string
@@ -40,8 +40,8 @@ func (e Photo) ThumbnailURL() string {
 
 type PhotoList []*Photo
 
-func (l PhotoList) PhotoIDs() []int64 {
-	idList := make([]int64, len(l))
+func (l PhotoList) PhotoIDs() []int {
+	idList := make([]int, len(l))
 	for _, p := range l {
 		idList = append(idList, p.PhotoID)
 	}
@@ -49,8 +49,8 @@ func (l PhotoList) PhotoIDs() []int64 {
 }
 
 type PhotoFile struct {
-	PhotoFileID int64
-	PhotoID     int64
+	PhotoFileID int
+	PhotoID     int
 	FilePath    string
 	ImportedAt  time.Time
 	GroupID     string
@@ -60,7 +60,7 @@ type PhotoFile struct {
 
 type PhotoFileList []*PhotoFile
 
-func (list PhotoFileList) FindFileTypesByPhotoID(photoID int64) []PhotoFileType {
+func (list PhotoFileList) FindFileTypesByPhotoID(photoID int) []PhotoFileType {
 	types := make([]PhotoFileType, 0)
 
 	for _, item := range list {
@@ -73,7 +73,7 @@ func (list PhotoFileList) FindFileTypesByPhotoID(photoID int64) []PhotoFileType 
 	return types
 }
 
-func (list PhotoFileList) FindFileByFileType(photoID int64, fileType PhotoFileType) *PhotoFile {
+func (list PhotoFileList) FindFileByFileType(photoID int, fileType PhotoFileType) *PhotoFile {
 	for _, item := range list {
 		if item.PhotoID != photoID {
 			continue
@@ -110,14 +110,14 @@ const (
 )
 
 type PhotoMetaItem struct {
-	PhotoMetaItemID int64
-	TagID           int64
+	PhotoMetaItemID int
+	TagID           int
 	TagName         string
 	TagType         string
 	ValueString     string
 }
 
-func (i PhotoMetaItem) sortOrder() int64 {
+func (i PhotoMetaItem) sortOrder() int {
 	return i.TagID
 }
 
@@ -128,4 +128,21 @@ func (m PhotoMeta) Sort() PhotoMeta {
 		return m[i].sortOrder() < m[j].sortOrder()
 	})
 	return m
+}
+
+type PhotoSearchResultItem struct {
+	PhotoID          int
+	OwnerID          string
+	GroupID          string
+	FileTypes        []string
+	Name             string
+	ImportedAt       time.Time
+	DateTimeOriginal time.Time
+	PreviewURL       string
+	ThumbnailURL     string
+}
+
+type PhotoSearchResult struct {
+	Items []*PhotoSearchResultItem
+	Total int
 }

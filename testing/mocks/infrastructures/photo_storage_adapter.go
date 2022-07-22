@@ -81,7 +81,7 @@ func (mr *MockPhotoStorageAdapterMockRecorder) ParsePhotoMeta(path interface{}) 
 }
 
 // SavePreview mocks base method.
-func (m *MockPhotoStorageAdapter) SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+func (m *MockPhotoStorageAdapter) SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SavePreview", ctx, photoID, data, groupID, ownerID)
 	ret0, _ := ret[0].(error)
@@ -95,7 +95,7 @@ func (mr *MockPhotoStorageAdapterMockRecorder) SavePreview(ctx, photoID, data, g
 }
 
 // SaveThumbnail mocks base method.
-func (m *MockPhotoStorageAdapter) SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+func (m *MockPhotoStorageAdapter) SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveThumbnail", ctx, photoID, data, groupID, ownerID)
 	ret0, _ := ret[0].(error)

@@ -62,7 +62,14 @@ func (r *queryResolver) Photo(ctx context.Context, id string) (*model.Photo, err
 
 // Photos is the resolver for the photos field.
 func (r *queryResolver) Photos(ctx context.Context, id *string, limit *int, offset *int) (*model.PhotoPagination, error) {
-	panic(fmt.Errorf("not implemented"))
+	dstLimit := pagination.GetLimitOrDefault(limit, 20, 100)
+	dstOffset := pagination.GetOffsetOrDefault(offset)
+	result, err := r.searchUseCase.SearchPhotos(ctx, id, dstLimit, dstOffset)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewPhotoPagination(result, dstLimit, dstOffset), nil
 }
 
 // PhotoFile is the resolver for the photoFile field.

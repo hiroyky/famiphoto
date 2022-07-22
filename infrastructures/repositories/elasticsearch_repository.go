@@ -14,14 +14,16 @@ import (
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 )
 
-func NewElasticSearchRepository(bulkIndexer esutil.BulkIndexer) ElasticSearchRepository {
+func NewElasticSearchRepository(searchClient *elasticsearch.Client, bulkIndexer esutil.BulkIndexer) ElasticSearchRepository {
 	return &elasticSearchRepository{
-		bulkIndexer: bulkIndexer,
+		searchClient: searchClient,
+		bulkIndexer:  bulkIndexer,
 	}
 }
 
 type ElasticSearchRepository interface {
 	BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error)
+	SearchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*models.PhotoResult, error)
 }
 
 type elasticSearchRepository struct {
@@ -29,7 +31,7 @@ type elasticSearchRepository struct {
 	bulkIndexer  esutil.BulkIndexer
 }
 
-func (r *elasticSearchRepository) SearchPhotos(ctx context.Context, query filters.PhotoSearchRequest) (*models.PhotoResult, error) {
+func (r *elasticSearchRepository) SearchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*models.PhotoResult, error) {
 	res, err := r.searchPhotos(ctx, query)
 	if err != nil {
 		fmt.Println(err)
@@ -45,7 +47,7 @@ func (r *elasticSearchRepository) SearchPhotos(ctx context.Context, query filter
 	return r.parsePhotoResult(body)
 }
 
-func (r *elasticSearchRepository) searchPhotos(ctx context.Context, query filters.PhotoSearchRequest) (*esapi.Response, error) {
+func (r *elasticSearchRepository) searchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*esapi.Response, error) {
 	es := r.searchClient
 	return es.Search(
 		es.Search.WithContext(ctx),
@@ -68,7 +70,7 @@ func (r *elasticSearchRepository) parsePhotoResult(body map[string]any) (*models
 	total := body["hits"].(map[string]any)["total"].(map[string]any)["value"].(float64)
 
 	return &models.PhotoResult{
-		Total:  int64(total),
+		Total:  int(total),
 		Photos: photos,
 	}, nil
 }

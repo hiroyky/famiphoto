@@ -35,7 +35,7 @@ func (m *MockPhotoThumbnailRepository) EXPECT() *MockPhotoThumbnailRepositoryMoc
 }
 
 // SavePreview mocks base method.
-func (m *MockPhotoThumbnailRepository) SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+func (m *MockPhotoThumbnailRepository) SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SavePreview", ctx, photoID, data, groupID, ownerID)
 	ret0, _ := ret[0].(error)
@@ -49,7 +49,7 @@ func (mr *MockPhotoThumbnailRepositoryMockRecorder) SavePreview(ctx, photoID, da
 }
 
 // SaveThumbnail mocks base method.
-func (m *MockPhotoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+func (m *MockPhotoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveThumbnail", ctx, photoID, data, groupID, ownerID)
 	ret0, _ := ret[0].(error)

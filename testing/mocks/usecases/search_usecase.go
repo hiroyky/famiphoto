@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	entities "github.com/hiroyky/famiphoto/entities"
 )
 
 // MockSearchUseCase is a mock of SearchUseCase interface.
@@ -46,4 +47,19 @@ func (m *MockSearchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 func (mr *MockSearchUseCaseMockRecorder) AppendAllPhotoDocuments(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendAllPhotoDocuments", reflect.TypeOf((*MockSearchUseCase)(nil).AppendAllPhotoDocuments), ctx)
+}
+
+// SearchPhotos mocks base method.
+func (m *MockSearchUseCase) SearchPhotos(ctx context.Context, id *string, limit, offset int) (*entities.PhotoSearchResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchPhotos", ctx, id, limit, offset)
+	ret0, _ := ret[0].(*entities.PhotoSearchResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchPhotos indicates an expected call of SearchPhotos.
+func (mr *MockSearchUseCaseMockRecorder) SearchPhotos(ctx, id, limit, offset interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPhotos", reflect.TypeOf((*MockSearchUseCase)(nil).SearchPhotos), ctx, id, limit, offset)
 }

@@ -11,6 +11,7 @@ import (
 	esutil "github.com/elastic/go-elasticsearch/v8/esutil"
 	gomock "github.com/golang/mock/gomock"
 	entities "github.com/hiroyky/famiphoto/entities"
+	filters "github.com/hiroyky/famiphoto/infrastructures/filters"
 	models "github.com/hiroyky/famiphoto/infrastructures/models"
 )
 
@@ -50,4 +51,19 @@ func (m *MockElasticSearchRepository) BulkInsertPhotos(ctx context.Context, phot
 func (mr *MockElasticSearchRepositoryMockRecorder) BulkInsertPhotos(ctx, photos, dateTimeOriginal interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkInsertPhotos", reflect.TypeOf((*MockElasticSearchRepository)(nil).BulkInsertPhotos), ctx, photos, dateTimeOriginal)
+}
+
+// SearchPhotos mocks base method.
+func (m *MockElasticSearchRepository) SearchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*models.PhotoResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchPhotos", ctx, query)
+	ret0, _ := ret[0].(*models.PhotoResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchPhotos indicates an expected call of SearchPhotos.
+func (mr *MockElasticSearchRepositoryMockRecorder) SearchPhotos(ctx, query interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPhotos", reflect.TypeOf((*MockElasticSearchRepository)(nil).SearchPhotos), ctx, query)
 }

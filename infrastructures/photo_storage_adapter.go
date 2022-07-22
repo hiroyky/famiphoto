@@ -14,8 +14,8 @@ type PhotoStorageAdapter interface {
 	FindDirContents(dirPath string) ([]*entities.StorageFileInfo, error)
 	LoadContent(path string) (entities.StorageFileData, error)
 	ParsePhotoMeta(path string) (entities.PhotoMeta, error)
-	SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
-	SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error
+	SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
+	SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
 }
 
 func NewPhotoStorageAdapter(
@@ -63,7 +63,7 @@ func (a *photoStorageAdapter) ParsePhotoMeta(path string) (entities.PhotoMeta, e
 
 	photoMeta := array.Map(ifdList, func(t models.IfdEntry) *entities.PhotoMetaItem {
 		return &entities.PhotoMetaItem{
-			TagID:       int64(t.TagId),
+			TagID:       int(t.TagId),
 			TagName:     t.TagName,
 			TagType:     t.TagTypeName,
 			ValueString: t.ValueString,
@@ -73,10 +73,10 @@ func (a *photoStorageAdapter) ParsePhotoMeta(path string) (entities.PhotoMeta, e
 	return photoMeta, err
 }
 
-func (a *photoStorageAdapter) SavePreview(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+func (a *photoStorageAdapter) SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
 	return a.thumbnailRepo.SavePreview(ctx, photoID, data, groupID, ownerID)
 }
 
-func (a *photoStorageAdapter) SaveThumbnail(ctx context.Context, photoID int64, data []byte, groupID, ownerID string) error {
+func (a *photoStorageAdapter) SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
 	return a.thumbnailRepo.SaveThumbnail(ctx, photoID, data, groupID, ownerID)
 }

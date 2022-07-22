@@ -3,11 +3,14 @@ package usecases
 import (
 	"context"
 	"fmt"
+	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/infrastructures"
+	"github.com/hiroyky/famiphoto/infrastructures/filters"
 )
 
 type SearchUseCase interface {
 	AppendAllPhotoDocuments(ctx context.Context) error
+	SearchPhotos(ctx context.Context, id *string, limit, offset int) (*entities.PhotoSearchResult, error)
 }
 
 func NewSearchUseCase(
@@ -31,8 +34,8 @@ func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 		return err
 	}
 
-	limit := int64(500)
-	for offset := int64(0); offset <= total; offset += limit {
+	limit := 500
+	for offset := 0; offset <= total; offset += limit {
 		photos, err := u.photoAdapter.GetPhotos(ctx, limit, offset)
 		if err != nil {
 			return err
@@ -57,4 +60,13 @@ func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (u *searchUseCase) SearchPhotos(ctx context.Context, id *string, limit, offset int) (*entities.PhotoSearchResult, error) {
+	query := filters.NewPhotoSearchQuery(id, limit, offset)
+	res, err := u.searchAdapter.SearchPhotos(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

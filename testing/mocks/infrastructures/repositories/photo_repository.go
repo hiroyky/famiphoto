@@ -36,10 +36,10 @@ func (m *MockPhotoRepository) EXPECT() *MockPhotoRepositoryMockRecorder {
 }
 
 // CountPhotos mocks base method.
-func (m *MockPhotoRepository) CountPhotos(ctx context.Context) (int64, error) {
+func (m *MockPhotoRepository) CountPhotos(ctx context.Context) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CountPhotos", ctx)
-	ret0, _ := ret[0].(int64)
+	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -66,7 +66,7 @@ func (mr *MockPhotoRepositoryMockRecorder) GetPhotoByFilePath(ctx, fileHash inte
 }
 
 // GetPhotos mocks base method.
-func (m *MockPhotoRepository) GetPhotos(ctx context.Context, limit, offset int64) ([]*dbmodels.Photo, error) {
+func (m *MockPhotoRepository) GetPhotos(ctx context.Context, limit, offset int) ([]*dbmodels.Photo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPhotos", ctx, limit, offset)
 	ret0, _ := ret[0].([]*dbmodels.Photo)

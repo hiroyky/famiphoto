@@ -36,7 +36,7 @@ func (m *MockExifRepository) EXPECT() *MockExifRepositoryMockRecorder {
 }
 
 // GetPhotoMetaItemByTagID mocks base method.
-func (m *MockExifRepository) GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int64) (*dbmodels.Exif, error) {
+func (m *MockExifRepository) GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int) (*dbmodels.Exif, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPhotoMetaItemByTagID", ctx, photoID, tagID)
 	ret0, _ := ret[0].(*dbmodels.Exif)

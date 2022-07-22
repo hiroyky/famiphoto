@@ -43,5 +43,5 @@ func TestElasticSearchRepository_searchPhotos_リクエスト(t *testing.T) {
 		bulkIndexer:  nil,
 	}
 
-	_, _ = esRepo.searchPhotos(context.Background(), filters.PhotoSearchRequest{})
+	_, _ = esRepo.searchPhotos(context.Background(), &filters.PhotoSearchQuery{})
 }
