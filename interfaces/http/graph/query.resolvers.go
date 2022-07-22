@@ -5,16 +5,18 @@ package graph
 
 import (
 	"context"
+	"errors"
+	"fmt"
+
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
-	"github.com/hiroyky/famiphoto/errors"
-
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 	"github.com/hiroyky/famiphoto/utils/gql"
 	"github.com/hiroyky/famiphoto/utils/pagination"
 )
 
+// User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	userID, err := gql.DecodeStrID(id)
 	if err != nil {
@@ -27,6 +29,7 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 	return model.NewUser(user), nil
 }
 
+// Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context, id *string, limit *int, offset *int) (*model.UserPagination, error) {
 	userID, err := gql.DecodeStrIDPtr(id)
 	if err != nil {
@@ -39,16 +42,37 @@ func (r *queryResolver) Users(ctx context.Context, id *string, limit *int, offse
 	return model.NewUserPagination(users, total, dstLimit, dstOffset), nil
 }
 
+// Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
 	if !ok {
-		return nil, errors.New(errors.UserUnauthorizedError, nil)
+		return nil, errors.New("")
 	}
 	user, err := r.userUseCase.GetUser(ctx, sess.UserID)
 	if err != nil {
 		return nil, err
 	}
 	return model.NewUser(user), nil
+}
+
+// Photo is the resolver for the photo field.
+func (r *queryResolver) Photo(ctx context.Context, id string) (*model.Photo, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// Photos is the resolver for the photos field.
+func (r *queryResolver) Photos(ctx context.Context, id *string, limit *int, offset *int) (*model.PhotoPagination, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// PhotoFile is the resolver for the photoFile field.
+func (r *queryResolver) PhotoFile(ctx context.Context, id string) (*model.PhotoFile, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// PhotoFiles is the resolver for the photoFiles field.
+func (r *queryResolver) PhotoFiles(ctx context.Context, photoID string) ([]*model.PhotoFile, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 // Query returns generated.QueryResolver implementation.

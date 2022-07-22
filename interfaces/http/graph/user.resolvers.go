@@ -11,10 +11,12 @@ import (
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
 
+// Password is the resolver for the password field.
 func (r *userResolver) Password(ctx context.Context, obj *model.User) (*model.UserPassword, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
+// BelongGroups is the resolver for the belongGroups field.
 func (r *userResolver) BelongGroups(ctx context.Context, obj *model.User) ([]*model.Group, error) {
 	panic(fmt.Errorf("not implemented"))
 }

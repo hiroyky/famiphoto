@@ -13,6 +13,7 @@ import (
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
 
+// CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
 	if err := r.userUseCase.ValidateToCreateUser(ctx, input.UserID, input.Name, input.Password); err != nil {
 		return nil, err
@@ -25,10 +26,12 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 	return model.NewUser(user), nil
 }
 
+// CreateGroup is the resolver for the createGroup field.
 func (r *mutationResolver) CreateGroup(ctx context.Context, input model.CreateGroupInput) (*model.Group, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
+// CreateOauthClient is the resolver for the createOauthClient field.
 func (r *mutationResolver) CreateOauthClient(ctx context.Context, input model.CreateOauthClientInput) (*model.OauthClient, error) {
 	oauthClient, secret, err := r.oauthClientUseCase.CreateOauthClient(ctx, &entities.OauthClient{
 		OauthClientID: input.ClientID,

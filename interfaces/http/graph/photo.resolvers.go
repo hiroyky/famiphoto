@@ -11,11 +11,23 @@ import (
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
 
+// Owner is the resolver for the owner field.
+func (r *photoResolver) Owner(ctx context.Context, obj *model.Photo) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// Group is the resolver for the group field.
 func (r *photoResolver) Group(ctx context.Context, obj *model.Photo) (*model.Group, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *photoResolver) Owner(ctx context.Context, obj *model.Photo) (*model.User, error) {
+// ExifData is the resolver for the exifData field.
+func (r *photoResolver) ExifData(ctx context.Context, obj *model.Photo) ([]*model.PhotoExif, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// Files is the resolver for the files field.
+func (r *photoResolver) Files(ctx context.Context, obj *model.Photo) ([]*model.PhotoFile, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

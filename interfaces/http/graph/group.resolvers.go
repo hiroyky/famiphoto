@@ -11,6 +11,7 @@ import (
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
 
+// UserPagination is the resolver for the userPagination field.
 func (r *groupResolver) UserPagination(ctx context.Context, obj *model.Group) (*model.UserPagination, error) {
 	panic(fmt.Errorf("not implemented"))
 }

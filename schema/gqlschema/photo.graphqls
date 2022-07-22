@@ -1,10 +1,20 @@
 type Photo implements Node {
     id: ID!
-    name: String!
-    filePath: String!
-    importedAt: Timestamp!
-    groupId: ID!
-    group: Group!
     ownerId: ID!
     owner: User!
+    groupId: ID!
+    group: Group!
+    name: String!
+    importedAt: Timestamp!
+    dateTimeOriginal: Timestamp!
+    previewUrl: String!
+    thumbnailUrl: String!
+    exifData: [PhotoExif!]!
+    fileTypes: [String!]!
+    files: [PhotoFile!]!
+}
+
+type PhotoPagination implements Pagination {
+    pageInfo: PaginationInfo!
+    nodes: [Photo!]!
 }

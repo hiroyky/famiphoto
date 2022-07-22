@@ -73,6 +73,41 @@ type PaginationInfo struct {
 	TotalCount       int  `json:"totalCount"`
 }
 
+type PhotoExif struct {
+	ID          string `json:"id"`
+	PhotoID     string `json:"photoId"`
+	Photo       *Photo `json:"photo"`
+	TagID       int    `json:"tagId"`
+	TagType     string `json:"tagType"`
+	ValueString string `json:"valueString"`
+	SortOrder   int    `json:"sortOrder"`
+}
+
+func (PhotoExif) IsNode() {}
+
+type PhotoFile struct {
+	ID          string `json:"id"`
+	PhotoID     string `json:"photoId"`
+	Photo       *Photo `json:"photo"`
+	FileType    string `json:"fileType"`
+	DownloadURL string `json:"downloadUrl"`
+	ImportedAt  string `json:"importedAt"`
+	GroupID     string `json:"groupId"`
+	Group       *Group `json:"group"`
+	OwnerID     string `json:"ownerId"`
+	Owner       *User  `json:"owner"`
+	FileHash    string `json:"fileHash"`
+}
+
+func (PhotoFile) IsNode() {}
+
+type PhotoPagination struct {
+	PageInfo *PaginationInfo `json:"pageInfo"`
+	Nodes    []*Photo        `json:"nodes"`
+}
+
+func (PhotoPagination) IsPagination() {}
+
 type UserEdge struct {
 	Cursor string `json:"cursor"`
 	Node   *User  `json:"node"`
