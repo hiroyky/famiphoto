@@ -11,17 +11,20 @@ import (
 type Resolver struct {
 	userUseCase        usecases.UserUseCase
 	searchUseCase      usecases.SearchUseCase
+	groupUseCase       usecases.GroupUseCase
 	oauthClientUseCase usecases.OauthUseCase
 }
 
 func NewResolver(
 	userUseCase usecases.UserUseCase,
 	searchUseCase usecases.SearchUseCase,
+	groupUseCase usecases.GroupUseCase,
 	oauthClientUseCase usecases.OauthUseCase,
 ) *Resolver {
 	return &Resolver{
 		userUseCase:        userUseCase,
 		searchUseCase:      searchUseCase,
+		groupUseCase:       groupUseCase,
 		oauthClientUseCase: oauthClientUseCase,
 	}
 }

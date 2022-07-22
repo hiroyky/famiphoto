@@ -192,8 +192,6 @@ type PhotoResolver interface {
 
 	Group(ctx context.Context, obj *model.Photo) (*model.Group, error)
 
-	ImportedAt(ctx context.Context, obj *model.Photo) (string, error)
-
 	ExifData(ctx context.Context, obj *model.Photo) ([]*model.PhotoExif, error)
 
 	Files(ctx context.Context, obj *model.Photo) ([]*model.PhotoFile, error)
@@ -2892,7 +2890,7 @@ func (ec *executionContext) _Photo_importedAt(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Photo().ImportedAt(rctx, obj)
+		return obj.ImportedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2913,8 +2911,8 @@ func (ec *executionContext) fieldContext_Photo_importedAt(ctx context.Context, f
 	fc = &graphql.FieldContext{
 		Object:     "Photo",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Timestamp does not have child fields")
 		},
@@ -7894,25 +7892,12 @@ func (ec *executionContext) _Photo(ctx context.Context, sel ast.SelectionSet, ob
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "importedAt":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Photo_importedAt(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Photo_importedAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "dateTimeOriginal":
 
 			out.Values[i] = ec._Photo_dateTimeOriginal(ctx, field, obj)

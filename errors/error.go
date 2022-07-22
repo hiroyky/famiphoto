@@ -31,6 +31,7 @@ const (
 	Unknown                            FamiPhotoErrorCode = "Unknown"
 	InvalidRequestError                FamiPhotoErrorCode = "InvalidRequestError"
 	UserNotFoundError                  FamiPhotoErrorCode = "UserNotFoundError"
+	GroupNotFoundError                 FamiPhotoErrorCode = "GroupNotFoundError"
 	UserCreateFatal                    FamiPhotoErrorCode = "UserCreateFatal"
 	UserAlreadyExists                  FamiPhotoErrorCode = "UserAlreadyExists"
 	UserUnauthorizedError              FamiPhotoErrorCode = "UserUnauthorizedError"

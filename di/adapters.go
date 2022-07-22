@@ -83,3 +83,11 @@ func newUserRepository() repositories.UserRepository {
 func newUserPasswordRepository() repositories.UserPasswordRepository {
 	return repositories.NewUserPasswordRepository(NewMySQLDriver())
 }
+
+func newGroupRepository() repositories.GroupRepository {
+	return repositories.NewGroupRepository(NewMySQLDriver())
+}
+
+func NewGroupAdapter() infrastructures.GroupAdapter {
+	return infrastructures.NewGroupAdapter(newGroupRepository())
+}

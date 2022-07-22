@@ -9,21 +9,34 @@ import (
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/gql"
 )
 
 // Owner is the resolver for the owner field.
 func (r *photoResolver) Owner(ctx context.Context, obj *model.Photo) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	userID, err := gql.DecodeStrID(obj.OwnerID)
+	if err != nil {
+		return nil, err
+	}
+	user, err := r.userUseCase.GetUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewUser(user), nil
 }
 
 // Group is the resolver for the group field.
 func (r *photoResolver) Group(ctx context.Context, obj *model.Photo) (*model.Group, error) {
-	panic(fmt.Errorf("not implemented"))
-}
+	groupID, err := gql.DecodeStrID(obj.GroupID)
+	if err != nil {
+		return nil, err
+	}
+	group, err := r.groupUseCase.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
 
-// ImportedAt is the resolver for the importedAt field.
-func (r *photoResolver) ImportedAt(ctx context.Context, obj *model.Photo) (string, error) {
-	panic(fmt.Errorf("not implemented"))
+	return model.NewGroup(group), nil
 }
 
 // ExifData is the resolver for the exifData field.

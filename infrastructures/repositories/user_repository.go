@@ -36,6 +36,8 @@ func (r *userRepository) GetUser(ctx context.Context, userID string) (*dbmodels.
 	user, err := dbmodels.FindUser(ctx, r.db, userID)
 	if err == sql.ErrNoRows {
 		return nil, errors.New(errors.UserNotFoundError, err)
+	} else if err != nil {
+		return nil, err
 	}
 	return user, nil
 }
