@@ -35,6 +35,21 @@ func (m *MockPhotoUseCase) EXPECT() *MockPhotoUseCaseMockRecorder {
 	return m.recorder
 }
 
+// GetPhotoFileByPhotoFileID mocks base method.
+func (m *MockPhotoUseCase) GetPhotoFileByPhotoFileID(ctx context.Context, photoFileID int) (*entities.PhotoFile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhotoFileByPhotoFileID", ctx, photoFileID)
+	ret0, _ := ret[0].(*entities.PhotoFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPhotoFileByPhotoFileID indicates an expected call of GetPhotoFileByPhotoFileID.
+func (mr *MockPhotoUseCaseMockRecorder) GetPhotoFileByPhotoFileID(ctx, photoFileID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotoFileByPhotoFileID", reflect.TypeOf((*MockPhotoUseCase)(nil).GetPhotoFileByPhotoFileID), ctx, photoFileID)
+}
+
 // GetPhotoFilesByPhotoID mocks base method.
 func (m *MockPhotoUseCase) GetPhotoFilesByPhotoID(ctx context.Context, photoID int) (entities.PhotoFileList, error) {
 	m.ctrl.T.Helper()

@@ -49,3 +49,18 @@ func (mr *MockGroupAdapterMockRecorder) GetGroup(ctx, groupID interface{}) *gomo
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroup", reflect.TypeOf((*MockGroupAdapter)(nil).GetGroup), ctx, groupID)
 }
+
+// GetGroupsByUserID mocks base method.
+func (m *MockGroupAdapter) GetGroupsByUserID(ctx context.Context, userID string) ([]*entities.Group, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGroupsByUserID", ctx, userID)
+	ret0, _ := ret[0].([]*entities.Group)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGroupsByUserID indicates an expected call of GetGroupsByUserID.
+func (mr *MockGroupAdapterMockRecorder) GetGroupsByUserID(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupsByUserID", reflect.TypeOf((*MockGroupAdapter)(nil).GetGroupsByUserID), ctx, userID)
+}

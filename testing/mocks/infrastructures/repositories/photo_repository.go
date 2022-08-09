@@ -50,6 +50,21 @@ func (mr *MockPhotoRepositoryMockRecorder) CountPhotos(ctx interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountPhotos", reflect.TypeOf((*MockPhotoRepository)(nil).CountPhotos), ctx)
 }
 
+// GetPhoto mocks base method.
+func (m *MockPhotoRepository) GetPhoto(ctx context.Context, photoID int) (*dbmodels.Photo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhoto", ctx, photoID)
+	ret0, _ := ret[0].(*dbmodels.Photo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPhoto indicates an expected call of GetPhoto.
+func (mr *MockPhotoRepositoryMockRecorder) GetPhoto(ctx, photoID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhoto", reflect.TypeOf((*MockPhotoRepository)(nil).GetPhoto), ctx, photoID)
+}
+
 // GetPhotoByFilePath mocks base method.
 func (m *MockPhotoRepository) GetPhotoByFilePath(ctx context.Context, fileHash string) (*dbmodels.Photo, error) {
 	m.ctrl.T.Helper()

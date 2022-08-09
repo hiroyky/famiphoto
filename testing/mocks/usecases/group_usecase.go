@@ -49,3 +49,18 @@ func (mr *MockGroupUseCaseMockRecorder) GetGroup(ctx, groupID interface{}) *gomo
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroup", reflect.TypeOf((*MockGroupUseCase)(nil).GetGroup), ctx, groupID)
 }
+
+// GetUserBelongingGroups mocks base method.
+func (m *MockGroupUseCase) GetUserBelongingGroups(ctx context.Context, userID string) ([]*entities.Group, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserBelongingGroups", ctx, userID)
+	ret0, _ := ret[0].([]*entities.Group)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserBelongingGroups indicates an expected call of GetUserBelongingGroups.
+func (mr *MockGroupUseCaseMockRecorder) GetUserBelongingGroups(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBelongingGroups", reflect.TypeOf((*MockGroupUseCase)(nil).GetUserBelongingGroups), ctx, userID)
+}

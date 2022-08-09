@@ -49,8 +49,23 @@ func (mr *MockSearchUseCaseMockRecorder) AppendAllPhotoDocuments(ctx interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendAllPhotoDocuments", reflect.TypeOf((*MockSearchUseCase)(nil).AppendAllPhotoDocuments), ctx)
 }
 
+// SearchPhotoByPhotoID mocks base method.
+func (m *MockSearchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int) (*entities.PhotoSearchResultItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchPhotoByPhotoID", ctx, id)
+	ret0, _ := ret[0].(*entities.PhotoSearchResultItem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchPhotoByPhotoID indicates an expected call of SearchPhotoByPhotoID.
+func (mr *MockSearchUseCaseMockRecorder) SearchPhotoByPhotoID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPhotoByPhotoID", reflect.TypeOf((*MockSearchUseCase)(nil).SearchPhotoByPhotoID), ctx, id)
+}
+
 // SearchPhotos mocks base method.
-func (m *MockSearchUseCase) SearchPhotos(ctx context.Context, id *string, limit, offset int) (*entities.PhotoSearchResult, error) {
+func (m *MockSearchUseCase) SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchPhotos", ctx, id, limit, offset)
 	ret0, _ := ret[0].(*entities.PhotoSearchResult)

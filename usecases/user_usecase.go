@@ -15,6 +15,7 @@ type UserUseCase interface {
 	CreateUser(ctx context.Context, userID, name string, password string, now time.Time) (*entities.User, error)
 	GetUser(ctx context.Context, userID string) (*entities.User, error)
 	GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error)
+	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
 }
 
 func NewUserUseCase(
@@ -80,4 +81,13 @@ func (u *userUseCase) GetUsers(ctx context.Context, userID *string, limit, offse
 		return nil, 0, err
 	}
 	return users, total, nil
+}
+
+func (u *userUseCase) GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error) {
+	p, err := u.userAdapter.GetUserPassword(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	p.Password = ""
+	return p, nil
 }

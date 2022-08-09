@@ -66,6 +66,21 @@ func (mr *MockUserUseCaseMockRecorder) GetUser(ctx, userID interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockUserUseCase)(nil).GetUser), ctx, userID)
 }
 
+// GetUserPassword mocks base method.
+func (m *MockUserUseCase) GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserPassword", ctx, userID)
+	ret0, _ := ret[0].(*entities.UserPassword)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserPassword indicates an expected call of GetUserPassword.
+func (mr *MockUserUseCaseMockRecorder) GetUserPassword(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPassword", reflect.TypeOf((*MockUserUseCase)(nil).GetUserPassword), ctx, userID)
+}
+
 // GetUsers mocks base method.
 func (m *MockUserUseCase) GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error) {
 	m.ctrl.T.Helper()

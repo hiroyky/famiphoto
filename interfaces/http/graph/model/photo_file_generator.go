@@ -10,10 +10,10 @@ import (
 const PhotoFileName = "PhotoFile"
 
 func NewPhotoFiles(l entities.PhotoFileList) []*PhotoFile {
-	return array.Map(l, newPhotoFile)
+	return array.Map(l, NewPhotoFile)
 }
 
-func newPhotoFile(e *entities.PhotoFile) *PhotoFile {
+func NewPhotoFile(e *entities.PhotoFile) *PhotoFile {
 	return &PhotoFile{
 		ID:          gql.EncodeIntID(PhotoFileName, e.PhotoFileID),
 		PhotoID:     gql.EncodeIntID(PhotoName, e.PhotoID),

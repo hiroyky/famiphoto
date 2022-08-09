@@ -6,8 +6,6 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
-
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
@@ -86,12 +84,28 @@ func (r *queryResolver) Photos(ctx context.Context, id *string, limit *int, offs
 
 // PhotoFile is the resolver for the photoFile field.
 func (r *queryResolver) PhotoFile(ctx context.Context, id string) (*model.PhotoFile, error) {
-	panic(fmt.Errorf("not implemented"))
+	decodedID, err := gql.DecodeIntID(id)
+	if err != nil {
+		return nil, err
+	}
+	photoFile, err := r.photoUseCase.GetPhotoFileByPhotoFileID(ctx, decodedID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewPhotoFile(photoFile), nil
 }
 
 // PhotoFiles is the resolver for the photoFiles field.
 func (r *queryResolver) PhotoFiles(ctx context.Context, photoID string) ([]*model.PhotoFile, error) {
-	panic(fmt.Errorf("not implemented"))
+	decodedID, err := gql.DecodeIntID(photoID)
+	if err != nil {
+		return nil, err
+	}
+	photoFiles, err := r.photoUseCase.GetPhotoFilesByPhotoID(ctx, decodedID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewPhotoFiles(photoFiles), nil
 }
 
 // Query returns generated.QueryResolver implementation.

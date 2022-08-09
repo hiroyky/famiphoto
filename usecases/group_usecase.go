@@ -8,6 +8,7 @@ import (
 
 type GroupUseCase interface {
 	GetGroup(ctx context.Context, groupID string) (*entities.Group, error)
+	GetUserBelongingGroups(ctx context.Context, userID string) ([]*entities.Group, error)
 }
 
 func NewGroupUseCase(groupAdapter infrastructures.GroupAdapter) GroupUseCase {
@@ -20,4 +21,8 @@ type groupUseCase struct {
 
 func (u *groupUseCase) GetGroup(ctx context.Context, groupID string) (*entities.Group, error) {
 	return u.groupAdapter.GetGroup(ctx, groupID)
+}
+
+func (u *groupUseCase) GetUserBelongingGroups(ctx context.Context, userID string) ([]*entities.Group, error) {
+	return u.groupAdapter.GetGroupsByUserID(ctx, userID)
 }

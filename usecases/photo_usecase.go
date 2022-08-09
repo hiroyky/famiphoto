@@ -8,8 +8,8 @@ import (
 
 type PhotoUseCase interface {
 	GetPhotoMetaByPhotoID(ctx context.Context, photoID int) (entities.PhotoMeta, error)
+	GetPhotoFileByPhotoFileID(ctx context.Context, photoFileID int) (*entities.PhotoFile, error)
 	GetPhotoFilesByPhotoID(ctx context.Context, photoID int) (entities.PhotoFileList, error)
-	GetPhotoByPhotoID(ctx context.Context, photoID int) (*entities.Photo, error)
 }
 
 func NewPhotoUseCase(photoAdapter infrastructures.PhotoAdapter) PhotoUseCase {
@@ -26,10 +26,10 @@ func (u *photoUseCase) GetPhotoMetaByPhotoID(ctx context.Context, photoID int) (
 	return u.photoAdapter.GetPhotoMetaByPhotoID(ctx, photoID)
 }
 
-func (u *photoUseCase) GetPhotoFilesByPhotoID(ctx context.Context, photoID int) (entities.PhotoFileList, error) {
-	return u.photoAdapter.GetPhotoFilesByPhotoID(ctx, photoID)
+func (u *photoUseCase) GetPhotoFileByPhotoFileID(ctx context.Context, photoFileID int) (*entities.PhotoFile, error) {
+	return u.photoAdapter.GetPhotoFileByPhotoFileID(ctx, photoFileID)
 }
 
-func (u *photoUseCase) GetPhotoByPhotoID(ctx context.Context, photoID int) (*entities.Photo, error) {
-	return u.photoAdapter.GetPhotoByPhotoID(ctx, photoID)
+func (u *photoUseCase) GetPhotoFilesByPhotoID(ctx context.Context, photoID int) (entities.PhotoFileList, error) {
+	return u.photoAdapter.GetPhotoFilesByPhotoID(ctx, photoID)
 }

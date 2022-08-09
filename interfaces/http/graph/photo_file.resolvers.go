@@ -5,7 +5,7 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"github.com/hiroyky/famiphoto/utils/gql"
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
@@ -13,17 +13,41 @@ import (
 
 // Photo is the resolver for the photo field.
 func (r *photoFileResolver) Photo(ctx context.Context, obj *model.PhotoFile) (*model.Photo, error) {
-	panic(fmt.Errorf("not implemented"))
+	photoID, err := gql.DecodeIntID(obj.PhotoID)
+	if err != nil {
+		return nil, err
+	}
+	photo, err := r.searchUseCase.SearchPhotoByPhotoID(ctx, photoID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewPhoto(photo), nil
 }
 
 // Group is the resolver for the group field.
 func (r *photoFileResolver) Group(ctx context.Context, obj *model.PhotoFile) (*model.Group, error) {
-	panic(fmt.Errorf("not implemented"))
+	groupID, err := gql.DecodeStrID(obj.GroupID)
+	if err != nil {
+		return nil, err
+	}
+	group, err := r.groupUseCase.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewGroup(group), nil
 }
 
 // Owner is the resolver for the owner field.
 func (r *photoFileResolver) Owner(ctx context.Context, obj *model.PhotoFile) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	userID, err := gql.DecodeStrID(obj.OwnerID)
+	if err != nil {
+		return nil, err
+	}
+	user, err := r.userUseCase.GetUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewUser(user), nil
 }
 
 // PhotoFile returns generated.PhotoFileResolver implementation.

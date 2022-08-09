@@ -13,6 +13,7 @@ type PhotoAdapter interface {
 	GetPhotoMetaByPhotoID(ctx context.Context, photoID int) (entities.PhotoMeta, error)
 	GetPhotoByPhotoID(ctx context.Context, photoID int) (*entities.Photo, error)
 	GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error)
+	GetPhotoFileByPhotoFileID(ctx context.Context, photoFileID int) (*entities.PhotoFile, error)
 	GetPhotoFilesByPhotoID(ctx context.Context, photoID int) ([]*entities.PhotoFile, error)
 	CountPhotos(ctx context.Context) (int, error)
 	UpsertPhotoByFilePath(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
@@ -74,6 +75,14 @@ func (a *photoAdapter) GetPhotos(ctx context.Context, limit, offset int) (entiti
 
 func (a *photoAdapter) CountPhotos(ctx context.Context) (int, error) {
 	return a.photoRepo.CountPhotos(ctx)
+}
+
+func (a *photoAdapter) GetPhotoFileByPhotoFileID(ctx context.Context, photoFileID int) (*entities.PhotoFile, error) {
+	photoFile, err := a.photoFileRepo.GetPhotoFileByPhotoFileID(ctx, photoFileID)
+	if err != nil {
+		return nil, err
+	}
+	return a.toPhotoFileEntity(photoFile), err
 }
 
 func (a *photoAdapter) GetPhotoFilesByPhotoID(ctx context.Context, photoID int) ([]*entities.PhotoFile, error) {
