@@ -24,9 +24,9 @@ func (b searchBody) MustBuffer() *bytes.Buffer {
 }
 
 type PhotoSearchQuery struct {
-	Limit   *int64
-	Offset  *int64
-	PhotoID *int64
+	Limit   *int
+	Offset  *int
+	PhotoID *int
 	OwnerID *string
 	GroupID *string
 	Name    *string
@@ -46,7 +46,7 @@ func (r *PhotoSearchQuery) Body() searchBody {
 	return q
 }
 
-func NewPhotoSearchQuery(id *string, limit, offset int) *PhotoSearchQuery {
+func NewPhotoSearchQuery(id *int, limit, offset int) *PhotoSearchQuery {
 	q := &PhotoSearchQuery{
 		Limit:   nil,
 		Offset:  nil,

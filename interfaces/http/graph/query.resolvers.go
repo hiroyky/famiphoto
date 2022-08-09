@@ -61,7 +61,7 @@ func (r *queryResolver) Photo(ctx context.Context, id string) (*model.Photo, err
 	if err != nil {
 		return nil, err
 	}
-	photo, err := r.photoUseCase.GetPhotoByPhotoID(ctx, photoID)
+	photo, err := r.searchUseCase.SearchPhotoByPhotoID(ctx, photoID)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,11 @@ func (r *queryResolver) Photo(ctx context.Context, id string) (*model.Photo, err
 func (r *queryResolver) Photos(ctx context.Context, id *string, limit *int, offset *int) (*model.PhotoPagination, error) {
 	dstLimit := pagination.GetLimitOrDefault(limit, 20, 100)
 	dstOffset := pagination.GetOffsetOrDefault(offset)
-	result, err := r.searchUseCase.SearchPhotos(ctx, id, dstLimit, dstOffset)
+	decodedID, err := gql.DecodeIntIDPtr(id)
+	if err != nil {
+		return nil, err
+	}
+	result, err := r.searchUseCase.SearchPhotos(ctx, decodedID, dstLimit, dstOffset)
 	if err != nil {
 		return nil, err
 	}

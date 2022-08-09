@@ -10,7 +10,8 @@ import (
 
 type SearchUseCase interface {
 	AppendAllPhotoDocuments(ctx context.Context) error
-	SearchPhotos(ctx context.Context, id *string, limit, offset int) (*entities.PhotoSearchResult, error)
+	SearchPhotoByPhotoID(ctx context.Context, id int) (*entities.PhotoSearchResultItem, error)
+	SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error)
 }
 
 func NewSearchUseCase(
@@ -62,7 +63,11 @@ func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 	return nil
 }
 
-func (u *searchUseCase) SearchPhotos(ctx context.Context, id *string, limit, offset int) (*entities.PhotoSearchResult, error) {
+func (u *searchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int) (*entities.PhotoSearchResultItem, error) {
+	panic("")
+}
+
+func (u *searchUseCase) SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error) {
 	query := filters.NewPhotoSearchQuery(id, limit, offset)
 	res, err := u.searchAdapter.SearchPhotos(ctx, query)
 	if err != nil {

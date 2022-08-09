@@ -11,7 +11,7 @@ const PhotoName = "Photo"
 
 func NewPhotoPagination(result *entities.PhotoSearchResult, limit, offset int) *PhotoPagination {
 	pageInfo := newPaginationInfo(result.Total, len(result.Items), limit, offset)
-	nodes := cast.Array(result.Items, newPhoto)
+	nodes := cast.Array(result.Items, NewPhoto)
 
 	return &PhotoPagination{
 		PageInfo: pageInfo,
@@ -19,7 +19,7 @@ func NewPhotoPagination(result *entities.PhotoSearchResult, limit, offset int) *
 	}
 }
 
-func newPhoto(p *entities.PhotoSearchResultItem) *Photo {
+func NewPhoto(p *entities.PhotoSearchResultItem) *Photo {
 	return &Photo{
 		ID:               gql.EncodeIntID(PhotoName, p.PhotoID),
 		OwnerID:          gql.EncodeStrID(UserName, p.OwnerID),
@@ -30,19 +30,5 @@ func newPhoto(p *entities.PhotoSearchResultItem) *Photo {
 		PreviewURL:       p.PreviewURL,
 		ThumbnailURL:     p.ThumbnailURL,
 		FileTypes:        p.FileTypes,
-	}
-}
-
-func NewPhoto(p *entities.Photo) *Photo {
-	return &Photo{
-		ID:               gql.EncodeIntID(PhotoName, p.PhotoID),
-		OwnerID:          gql.EncodeStrID(UserName, p.OwnerID),
-		GroupID:          gql.EncodeStrID(GroupName, p.GroupID),
-		Name:             p.Name,
-		ImportedAt:       p.ImportedAt.Format(time.RFC3339),
-		DateTimeOriginal: "", // TODO
-		PreviewURL:       p.PreviewURL(),
-		ThumbnailURL:     p.ThumbnailURL(),
-		FileTypes:        nil,
 	}
 }
