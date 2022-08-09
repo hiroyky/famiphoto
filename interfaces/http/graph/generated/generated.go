@@ -40,6 +40,7 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	OauthClient() OauthClientResolver
 	Photo() PhotoResolver
+	PhotoFile() PhotoFileResolver
 	Query() QueryResolver
 	User() UserResolver
 }
@@ -114,9 +115,6 @@ type ComplexityRoot struct {
 
 	PhotoExif struct {
 		ID          func(childComplexity int) int
-		Photo       func(childComplexity int) int
-		PhotoID     func(childComplexity int) int
-		SortOrder   func(childComplexity int) int
 		TagID       func(childComplexity int) int
 		TagType     func(childComplexity int) int
 		ValueString func(childComplexity int) int
@@ -195,6 +193,13 @@ type PhotoResolver interface {
 	ExifData(ctx context.Context, obj *model.Photo) ([]*model.PhotoExif, error)
 
 	Files(ctx context.Context, obj *model.Photo) ([]*model.PhotoFile, error)
+}
+type PhotoFileResolver interface {
+	Photo(ctx context.Context, obj *model.PhotoFile) (*model.Photo, error)
+
+	Group(ctx context.Context, obj *model.PhotoFile) (*model.Group, error)
+
+	Owner(ctx context.Context, obj *model.PhotoFile) (*model.User, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
@@ -526,27 +531,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PhotoExif.ID(childComplexity), true
-
-	case "PhotoExif.photo":
-		if e.complexity.PhotoExif.Photo == nil {
-			break
-		}
-
-		return e.complexity.PhotoExif.Photo(childComplexity), true
-
-	case "PhotoExif.photoId":
-		if e.complexity.PhotoExif.PhotoID == nil {
-			break
-		}
-
-		return e.complexity.PhotoExif.PhotoID(childComplexity), true
-
-	case "PhotoExif.sortOrder":
-		if e.complexity.PhotoExif.SortOrder == nil {
-			break
-		}
-
-		return e.complexity.PhotoExif.SortOrder(childComplexity), true
 
 	case "PhotoExif.tagId":
 		if e.complexity.PhotoExif.TagID == nil {
@@ -1018,12 +1002,9 @@ type PhotoPagination implements Pagination {
 }`, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/photo_exif.graphqls", Input: `type PhotoExif implements Node {
     id: ID!
-    photoId: ID!
-    photo: Photo!
     tagId: Int!
     tagType: String!
     valueString: String!
-    sortOrder: Int!
 }`, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/photo_file.graphqls", Input: `type PhotoFile implements Node {
     id: ID!
@@ -3093,18 +3074,12 @@ func (ec *executionContext) fieldContext_Photo_exifData(ctx context.Context, fie
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_PhotoExif_id(ctx, field)
-			case "photoId":
-				return ec.fieldContext_PhotoExif_photoId(ctx, field)
-			case "photo":
-				return ec.fieldContext_PhotoExif_photo(ctx, field)
 			case "tagId":
 				return ec.fieldContext_PhotoExif_tagId(ctx, field)
 			case "tagType":
 				return ec.fieldContext_PhotoExif_tagType(ctx, field)
 			case "valueString":
 				return ec.fieldContext_PhotoExif_valueString(ctx, field)
-			case "sortOrder":
-				return ec.fieldContext_PhotoExif_sortOrder(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PhotoExif", field.Name)
 		},
@@ -3268,122 +3243,6 @@ func (ec *executionContext) fieldContext_PhotoExif_id(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _PhotoExif_photoId(ctx context.Context, field graphql.CollectedField, obj *model.PhotoExif) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PhotoExif_photoId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PhotoID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PhotoExif_photoId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PhotoExif",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PhotoExif_photo(ctx context.Context, field graphql.CollectedField, obj *model.PhotoExif) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PhotoExif_photo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Photo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Photo)
-	fc.Result = res
-	return ec.marshalNPhoto2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐPhoto(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PhotoExif_photo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PhotoExif",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Photo_id(ctx, field)
-			case "ownerId":
-				return ec.fieldContext_Photo_ownerId(ctx, field)
-			case "owner":
-				return ec.fieldContext_Photo_owner(ctx, field)
-			case "groupId":
-				return ec.fieldContext_Photo_groupId(ctx, field)
-			case "group":
-				return ec.fieldContext_Photo_group(ctx, field)
-			case "name":
-				return ec.fieldContext_Photo_name(ctx, field)
-			case "importedAt":
-				return ec.fieldContext_Photo_importedAt(ctx, field)
-			case "dateTimeOriginal":
-				return ec.fieldContext_Photo_dateTimeOriginal(ctx, field)
-			case "previewUrl":
-				return ec.fieldContext_Photo_previewUrl(ctx, field)
-			case "thumbnailUrl":
-				return ec.fieldContext_Photo_thumbnailUrl(ctx, field)
-			case "exifData":
-				return ec.fieldContext_Photo_exifData(ctx, field)
-			case "fileTypes":
-				return ec.fieldContext_Photo_fileTypes(ctx, field)
-			case "files":
-				return ec.fieldContext_Photo_files(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Photo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _PhotoExif_tagId(ctx context.Context, field graphql.CollectedField, obj *model.PhotoExif) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PhotoExif_tagId(ctx, field)
 	if err != nil {
@@ -3516,50 +3375,6 @@ func (ec *executionContext) fieldContext_PhotoExif_valueString(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _PhotoExif_sortOrder(ctx context.Context, field graphql.CollectedField, obj *model.PhotoExif) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PhotoExif_sortOrder(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SortOrder, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PhotoExif_sortOrder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PhotoExif",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _PhotoFile_id(ctx context.Context, field graphql.CollectedField, obj *model.PhotoFile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PhotoFile_id(ctx, field)
 	if err != nil {
@@ -3662,7 +3477,7 @@ func (ec *executionContext) _PhotoFile_photo(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Photo, nil
+		return ec.resolvers.PhotoFile().Photo(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3683,8 +3498,8 @@ func (ec *executionContext) fieldContext_PhotoFile_photo(ctx context.Context, fi
 	fc = &graphql.FieldContext{
 		Object:     "PhotoFile",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -3910,7 +3725,7 @@ func (ec *executionContext) _PhotoFile_group(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Group, nil
+		return ec.resolvers.PhotoFile().Group(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3931,8 +3746,8 @@ func (ec *executionContext) fieldContext_PhotoFile_group(ctx context.Context, fi
 	fc = &graphql.FieldContext{
 		Object:     "PhotoFile",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -4006,7 +3821,7 @@ func (ec *executionContext) _PhotoFile_owner(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Owner, nil
+		return ec.resolvers.PhotoFile().Owner(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4027,8 +3842,8 @@ func (ec *executionContext) fieldContext_PhotoFile_owner(ctx context.Context, fi
 	fc = &graphql.FieldContext{
 		Object:     "PhotoFile",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -7994,20 +7809,6 @@ func (ec *executionContext) _PhotoExif(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "photoId":
-
-			out.Values[i] = ec._PhotoExif_photoId(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "photo":
-
-			out.Values[i] = ec._PhotoExif_photo(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "tagId":
 
 			out.Values[i] = ec._PhotoExif_tagId(ctx, field, obj)
@@ -8025,13 +7826,6 @@ func (ec *executionContext) _PhotoExif(ctx context.Context, sel ast.SelectionSet
 		case "valueString":
 
 			out.Values[i] = ec._PhotoExif_valueString(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "sortOrder":
-
-			out.Values[i] = ec._PhotoExif_sortOrder(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -8062,77 +7856,116 @@ func (ec *executionContext) _PhotoFile(ctx context.Context, sel ast.SelectionSet
 			out.Values[i] = ec._PhotoFile_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "photoId":
 
 			out.Values[i] = ec._PhotoFile_photoId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "photo":
+			field := field
 
-			out.Values[i] = ec._PhotoFile_photo(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PhotoFile_photo(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "fileType":
 
 			out.Values[i] = ec._PhotoFile_fileType(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "downloadUrl":
 
 			out.Values[i] = ec._PhotoFile_downloadUrl(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "importedAt":
 
 			out.Values[i] = ec._PhotoFile_importedAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "groupId":
 
 			out.Values[i] = ec._PhotoFile_groupId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "group":
+			field := field
 
-			out.Values[i] = ec._PhotoFile_group(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PhotoFile_group(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "ownerId":
 
 			out.Values[i] = ec._PhotoFile_ownerId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "owner":
+			field := field
 
-			out.Values[i] = ec._PhotoFile_owner(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PhotoFile_owner(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "fileHash":
 
 			out.Values[i] = ec._PhotoFile_fileHash(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -9055,6 +8888,10 @@ func (ec *executionContext) marshalNPaginationInfo2ᚖgithubᚗcomᚋhiroykyᚋf
 		return graphql.Null
 	}
 	return ec._PaginationInfo(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPhoto2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐPhoto(ctx context.Context, sel ast.SelectionSet, v model.Photo) graphql.Marshaler {
+	return ec._Photo(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNPhoto2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐPhotoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Photo) graphql.Marshaler {

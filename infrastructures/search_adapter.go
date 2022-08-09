@@ -39,7 +39,7 @@ func (a *searchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.Ph
 			}),
 			Name:             photo.Name,
 			ImportedAt:       photo.ImportedAt.Unix(),
-			DateTimeOriginal: a.nowFunc().Unix(),
+			DateTimeOriginal: a.nowFunc().Unix(), // TODO
 			PreviewURL:       photo.PreviewURL(),
 			ThumbnailURL:     photo.ThumbnailURL(),
 		}

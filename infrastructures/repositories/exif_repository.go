@@ -11,6 +11,7 @@ import (
 )
 
 type ExifRepository interface {
+	GetPhotoMetaDataByPhotoID(ctx context.Context, photoID int) (dbmodels.ExifSlice, error)
 	GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int) (*dbmodels.Exif, error)
 	InsertPhotoMetaItem(ctx context.Context, exif *dbmodels.Exif) (*dbmodels.Exif, error)
 	UpdatePhotoMetaItem(ctx context.Context, exif *dbmodels.Exif) (*dbmodels.Exif, error)
@@ -22,6 +23,10 @@ func NewExifRepository(db mysql.SQLExecutor) ExifRepository {
 
 type exifRepository struct {
 	db mysql.SQLExecutor
+}
+
+func (r *exifRepository) GetPhotoMetaDataByPhotoID(ctx context.Context, photoID int) (dbmodels.ExifSlice, error) {
+	return dbmodels.Exifs(qm.Where("photo_id = ?", photoID)).All(ctx, r.db)
 }
 
 func (r *exifRepository) GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int) (*dbmodels.Exif, error) {

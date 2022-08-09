@@ -21,3 +21,7 @@ func NewUserUseCase() usecases.UserUseCase {
 func NewGroupUseCase() usecases.GroupUseCase {
 	return usecases.NewGroupUseCase(NewGroupAdapter())
 }
+
+func NewPhotoUseCase() usecases.PhotoUseCase {
+	return usecases.NewPhotoUseCase(NewPhotoAdapter())
+}

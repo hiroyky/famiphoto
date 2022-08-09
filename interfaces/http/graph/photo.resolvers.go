@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
@@ -41,12 +40,31 @@ func (r *photoResolver) Group(ctx context.Context, obj *model.Photo) (*model.Gro
 
 // ExifData is the resolver for the exifData field.
 func (r *photoResolver) ExifData(ctx context.Context, obj *model.Photo) ([]*model.PhotoExif, error) {
-	panic(fmt.Errorf("not implemented"))
+	photoID, err := gql.DecodeIntID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	meta, err := r.photoUseCase.GetPhotoMetaByPhotoID(ctx, photoID)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewPhotoExifData(meta), nil
 }
 
 // Files is the resolver for the files field.
 func (r *photoResolver) Files(ctx context.Context, obj *model.Photo) ([]*model.PhotoFile, error) {
-	panic(fmt.Errorf("not implemented"))
+	photoID, err := gql.DecodeIntID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	files, err := r.photoUseCase.GetPhotoFilesByPhotoID(ctx, photoID)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewPhotoFiles(files), nil
 }
 
 // Photo returns generated.PhotoResolver implementation.

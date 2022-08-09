@@ -57,7 +57,15 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 
 // Photo is the resolver for the photo field.
 func (r *queryResolver) Photo(ctx context.Context, id string) (*model.Photo, error) {
-	panic(fmt.Errorf("not implemented"))
+	photoID, err := gql.DecodeIntID(id)
+	if err != nil {
+		return nil, err
+	}
+	photo, err := r.photoUseCase.GetPhotoByPhotoID(ctx, photoID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewPhoto(photo), nil
 }
 
 // Photos is the resolver for the photos field.

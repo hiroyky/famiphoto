@@ -32,3 +32,17 @@ func newPhoto(p *entities.PhotoSearchResultItem) *Photo {
 		FileTypes:        p.FileTypes,
 	}
 }
+
+func NewPhoto(p *entities.Photo) *Photo {
+	return &Photo{
+		ID:               gql.EncodeIntID(PhotoName, p.PhotoID),
+		OwnerID:          gql.EncodeStrID(UserName, p.OwnerID),
+		GroupID:          gql.EncodeStrID(GroupName, p.GroupID),
+		Name:             p.Name,
+		ImportedAt:       p.ImportedAt.Format(time.RFC3339),
+		DateTimeOriginal: "", // TODO
+		PreviewURL:       p.PreviewURL(),
+		ThumbnailURL:     p.ThumbnailURL(),
+		FileTypes:        nil,
+	}
+}

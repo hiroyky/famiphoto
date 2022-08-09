@@ -50,6 +50,36 @@ func (mr *MockPhotoAdapterMockRecorder) CountPhotos(ctx interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountPhotos", reflect.TypeOf((*MockPhotoAdapter)(nil).CountPhotos), ctx)
 }
 
+// GetPhotoFilesByPhotoID mocks base method.
+func (m *MockPhotoAdapter) GetPhotoFilesByPhotoID(ctx context.Context, photoID int) ([]*entities.PhotoFile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhotoFilesByPhotoID", ctx, photoID)
+	ret0, _ := ret[0].([]*entities.PhotoFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPhotoFilesByPhotoID indicates an expected call of GetPhotoFilesByPhotoID.
+func (mr *MockPhotoAdapterMockRecorder) GetPhotoFilesByPhotoID(ctx, photoID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotoFilesByPhotoID", reflect.TypeOf((*MockPhotoAdapter)(nil).GetPhotoFilesByPhotoID), ctx, photoID)
+}
+
+// GetPhotoMetaByPhotoID mocks base method.
+func (m *MockPhotoAdapter) GetPhotoMetaByPhotoID(ctx context.Context, photoID int) (entities.PhotoMeta, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhotoMetaByPhotoID", ctx, photoID)
+	ret0, _ := ret[0].(entities.PhotoMeta)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPhotoMetaByPhotoID indicates an expected call of GetPhotoMetaByPhotoID.
+func (mr *MockPhotoAdapterMockRecorder) GetPhotoMetaByPhotoID(ctx, photoID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotoMetaByPhotoID", reflect.TypeOf((*MockPhotoAdapter)(nil).GetPhotoMetaByPhotoID), ctx, photoID)
+}
+
 // GetPhotos mocks base method.
 func (m *MockPhotoAdapter) GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error) {
 	m.ctrl.T.Helper()

@@ -10,7 +10,10 @@ import (
 )
 
 type PhotoAdapter interface {
+	GetPhotoMetaByPhotoID(ctx context.Context, photoID int) (entities.PhotoMeta, error)
+	GetPhotoByPhotoID(ctx context.Context, photoID int) (*entities.Photo, error)
 	GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error)
+	GetPhotoFilesByPhotoID(ctx context.Context, photoID int) ([]*entities.PhotoFile, error)
 	CountPhotos(ctx context.Context) (int, error)
 	UpsertPhotoByFilePath(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
 	UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
@@ -34,6 +37,19 @@ type photoAdapter struct {
 	exifRepo      repositories.ExifRepository
 }
 
+func (a *photoAdapter) GetPhotoByPhotoID(ctx context.Context, photoID int) (*entities.Photo, error) {
+	p, err := a.photoRepo.GetPhoto(ctx, photoID)
+	if err != nil {
+		return nil, err
+	}
+	files, err := a.photoFileRepo.GetPhotoFilesByPhotoID(ctx, p.PhotoID)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.toPhotoEntity(p, files), nil
+}
+
 func (a *photoAdapter) GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error) {
 	photos, err := a.photoRepo.GetPhotos(ctx, limit, offset)
 	if err != nil {
@@ -44,7 +60,7 @@ func (a *photoAdapter) GetPhotos(ctx context.Context, limit, offset int) (entiti
 		return p.PhotoID
 	})
 
-	files, err := a.photoFileRepo.GetPhotoFilesByPhotoID(ctx, photoIDs)
+	files, err := a.photoFileRepo.GetPhotoFilesByPhotoIDs(ctx, photoIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -58,6 +74,14 @@ func (a *photoAdapter) GetPhotos(ctx context.Context, limit, offset int) (entiti
 
 func (a *photoAdapter) CountPhotos(ctx context.Context) (int, error) {
 	return a.photoRepo.CountPhotos(ctx)
+}
+
+func (a *photoAdapter) GetPhotoFilesByPhotoID(ctx context.Context, photoID int) ([]*entities.PhotoFile, error) {
+	photoFiles, err := a.photoFileRepo.GetPhotoFilesByPhotoID(ctx, photoID)
+	if err != nil {
+		return nil, err
+	}
+	return array.Map(photoFiles, a.toPhotoFileEntity), nil
 }
 
 func (a *photoAdapter) UpsertPhotoByFilePath(ctx context.Context, photo *entities.Photo) (*entities.Photo, error) {
@@ -120,17 +144,7 @@ func (a *photoAdapter) toPhotoEntity(photo *dbmodels.Photo, files []*dbmodels.Ph
 	photoFiles := array.Filter(files, func(t *dbmodels.PhotoFile) bool {
 		return t.PhotoID == photo.PhotoID
 	})
-	photoFileEntities := array.Map(photoFiles, func(t *dbmodels.PhotoFile) *entities.PhotoFile {
-		return &entities.PhotoFile{
-			PhotoFileID: t.PhotoFileID,
-			PhotoID:     t.PhotoID,
-			FilePath:    t.FilePath,
-			ImportedAt:  t.ImportedAt,
-			GroupID:     t.GroupID,
-			OwnerID:     t.OwnerID,
-			FileHash:    t.FileHash,
-		}
-	})
+	photoFileEntities := array.Map(photoFiles, a.toPhotoFileEntity)
 
 	return &entities.Photo{
 		PhotoID:      photo.PhotoID,
@@ -141,6 +155,26 @@ func (a *photoAdapter) toPhotoEntity(photo *dbmodels.Photo, files []*dbmodels.Ph
 		FileNameHash: photo.FileNameHash,
 		Files:        photoFileEntities,
 	}
+}
+
+func (a *photoAdapter) toPhotoFileEntity(t *dbmodels.PhotoFile) *entities.PhotoFile {
+	return &entities.PhotoFile{
+		PhotoFileID: t.PhotoFileID,
+		PhotoID:     t.PhotoID,
+		FilePath:    t.FilePath,
+		ImportedAt:  t.ImportedAt,
+		GroupID:     t.GroupID,
+		OwnerID:     t.OwnerID,
+		FileHash:    t.FileHash,
+	}
+}
+
+func (a *photoAdapter) GetPhotoMetaByPhotoID(ctx context.Context, photoID int) (entities.PhotoMeta, error) {
+	exifSlice, err := a.exifRepo.GetPhotoMetaDataByPhotoID(ctx, photoID)
+	if err != nil {
+		return nil, err
+	}
+	return array.Map(exifSlice, a.toPhotoMetaItemEntity), nil
 }
 
 func (a *photoAdapter) UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error) {

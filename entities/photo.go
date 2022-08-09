@@ -58,6 +58,17 @@ type PhotoFile struct {
 	FileHash    string
 }
 
+func (f PhotoFile) FileType() PhotoFileType {
+	ext := filepath.Ext(f.FilePath)
+	switch strings.ToLower(ext) {
+	case ".jpg":
+		return PhotoFileTypeJPEG
+	case ".arw":
+		return PhotoFileTypeRAW
+	}
+	return PhotoFileTypeUnknown
+}
+
 type PhotoFileList []*PhotoFile
 
 func (list PhotoFileList) FindFileTypesByPhotoID(photoID int) []PhotoFileType {
@@ -86,21 +97,28 @@ func (list PhotoFileList) FindFileByFileType(photoID int, fileType PhotoFileType
 	return nil
 }
 
-func (f PhotoFile) FileType() PhotoFileType {
-	ext := filepath.Ext(f.FilePath)
-	switch strings.ToLower(ext) {
-	case ".jpg":
-		return PhotoFileTypeJPEG
-	case ".arw":
-		return PhotoFileTypeRAW
+func (list PhotoFileList) FileTypes() []PhotoFileType {
+	dst := make([]PhotoFileType, len(list))
+	for i, v := range list {
+		dst[i] = v.FileType()
 	}
-	return PhotoFileTypeUnknown
+	return dst
 }
 
 type PhotoFileType string
 
 func (t PhotoFileType) ToString() string {
 	return string(t)
+}
+
+type PhotoFileTypeList []PhotoFileType
+
+func (l PhotoFileTypeList) ToStrings() []string {
+	dst := make([]string, len(l))
+	for i, v := range l {
+		dst[i] = v.ToString()
+	}
+	return dst
 }
 
 const (

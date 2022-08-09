@@ -11,6 +11,7 @@ import (
 )
 
 type PhotoRepository interface {
+	GetPhoto(ctx context.Context, photoID int) (*dbmodels.Photo, error)
 	GetPhotos(ctx context.Context, limit, offset int) ([]*dbmodels.Photo, error)
 	CountPhotos(ctx context.Context) (int, error)
 	GetPhotoByFilePath(ctx context.Context, fileHash string) (*dbmodels.Photo, error)
@@ -24,6 +25,14 @@ func NewPhotoRepository(db mysql.SQLExecutor) PhotoRepository {
 
 type photoRepository struct {
 	db mysql.SQLExecutor
+}
+
+func (r *photoRepository) GetPhoto(ctx context.Context, photoID int) (*dbmodels.Photo, error) {
+	p, err := dbmodels.FindPhoto(ctx, r.db, photoID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.New(errors.DBColumnNotFoundError, err)
+	}
+	return p, nil
 }
 
 func (r *photoRepository) GetPhotos(ctx context.Context, limit, offset int) ([]*dbmodels.Photo, error) {
