@@ -12,6 +12,8 @@ import (
 type GroupRepository interface {
 	GetGroup(ctx context.Context, groupID string) (*dbmodels.Group, error)
 	GetGroupsByUserID(ctx context.Context, userID string) (dbmodels.GroupSlice, error)
+	GetUsersByGroupID(ctx context.Context, groupID string, limit, offset int) (dbmodels.UserSlice, error)
+	CountUsersByGroupID(ctx context.Context, groupID string) (int, error)
 }
 
 func NewGroupRepository(db mysql.SQLExecutor) GroupRepository {
@@ -50,4 +52,30 @@ func (r *groupRepository) GetGroupsByUserID(ctx context.Context, userID string) 
 	}
 
 	return groups, nil
+}
+
+func (r *groupRepository) GetUsersByGroupID(ctx context.Context, groupID string, limit, offset int) (dbmodels.UserSlice, error) {
+	userGroups, err := dbmodels.GroupUsers(
+		qm.Load(qm.Rels(dbmodels.GroupUserRels.User)),
+		qm.Where("group_id = ?", groupID),
+		qm.Limit(limit),
+		qm.Offset(offset),
+	).All(ctx, r.db)
+	if err != nil {
+		return nil, err
+	}
+
+	users := make(dbmodels.UserSlice, len(userGroups))
+	for i, ug := range userGroups {
+		users[i] = ug.R.User
+	}
+	return users, nil
+}
+
+func (r *groupRepository) CountUsersByGroupID(ctx context.Context, groupID string) (int, error) {
+	val, err := dbmodels.GroupUsers(qm.Where("group_id = ?", groupID)).Count(ctx, r.db)
+	if err != nil {
+		return 0, err
+	}
+	return int(val), nil
 }

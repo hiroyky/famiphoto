@@ -38,6 +38,9 @@ func (r *queryResolver) Users(ctx context.Context, id *string, limit *int, offse
 	dstLimit := pagination.GetLimitOrDefault(limit, 20, 100)
 	dstOffset := pagination.GetOffsetOrDefault(offset)
 	users, total, err := r.userUseCase.GetUsers(ctx, userID, dstLimit, dstOffset)
+	if err != nil {
+		return nil, err
+	}
 	return model.NewUserPagination(users, total, dstLimit, dstOffset), nil
 }
 

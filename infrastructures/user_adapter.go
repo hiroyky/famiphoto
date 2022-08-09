@@ -16,19 +16,23 @@ type UserAdapter interface {
 	GetUsers(ctx context.Context, filter *filters.UserFilter, limit, offset int) (entities.UserList, error)
 	CountUsers(ctx context.Context, filter *filters.UserFilter) (int, error)
 	ExistUser(ctx context.Context, userID string) (bool, error)
+	GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, error)
+	CountUsersBelongingGroup(ctx context.Context, groupID string) (int, error)
 	CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error)
 	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
 }
 
-func NewUserAdapter(userRepo repositories.UserRepository, userPasswordRepo repositories.UserPasswordRepository) UserAdapter {
+func NewUserAdapter(userRepo repositories.UserRepository, groupRepo repositories.GroupRepository, userPasswordRepo repositories.UserPasswordRepository) UserAdapter {
 	return &userAdapter{
 		userRepo:         userRepo,
+		groupRepo:        groupRepo,
 		userPasswordRepo: userPasswordRepo,
 	}
 }
 
 type userAdapter struct {
 	userRepo         repositories.UserRepository
+	groupRepo        repositories.GroupRepository
 	userPasswordRepo repositories.UserPasswordRepository
 }
 
@@ -54,6 +58,18 @@ func (a *userAdapter) CountUsers(ctx context.Context, filter *filters.UserFilter
 
 func (a *userAdapter) ExistUser(ctx context.Context, userID string) (bool, error) {
 	return a.userRepo.ExistUser(ctx, userID)
+}
+
+func (a *userAdapter) GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, error) {
+	dbUsers, err := a.groupRepo.GetUsersByGroupID(ctx, groupID, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	return array.Map(dbUsers, a.toUserEntity), nil
+}
+
+func (a *userAdapter) CountUsersBelongingGroup(ctx context.Context, groupID string) (int, error) {
+	return a.groupRepo.CountUsersByGroupID(ctx, groupID)
 }
 
 func (a *userAdapter) CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error) {
