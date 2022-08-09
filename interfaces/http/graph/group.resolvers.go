@@ -12,7 +12,7 @@ import (
 )
 
 // UserPagination is the resolver for the userPagination field.
-func (r *groupResolver) UserPagination(ctx context.Context, obj *model.Group) (*model.UserPagination, error) {
+func (r *groupResolver) UserPagination(ctx context.Context, obj *model.Group, limit *int, offset *int) (*model.UserPagination, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

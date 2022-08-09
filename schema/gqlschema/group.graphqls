@@ -1,7 +1,7 @@
 type Group implements Node {
     id: ID!
     name: String!
-    userPagination: UserPagination!
+    userPagination(limit: Int, offset: Int): UserPagination!
 }
 
 type GroupEdge implements Edge {

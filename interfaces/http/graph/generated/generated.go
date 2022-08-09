@@ -52,7 +52,7 @@ type ComplexityRoot struct {
 	Group struct {
 		ID             func(childComplexity int) int
 		Name           func(childComplexity int) int
-		UserPagination func(childComplexity int) int
+		UserPagination func(childComplexity int, limit *int, offset *int) int
 	}
 
 	GroupEdge struct {
@@ -175,7 +175,7 @@ type ComplexityRoot struct {
 }
 
 type GroupResolver interface {
-	UserPagination(ctx context.Context, obj *model.Group) (*model.UserPagination, error)
+	UserPagination(ctx context.Context, obj *model.Group, limit *int, offset *int) (*model.UserPagination, error)
 }
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error)
@@ -249,7 +249,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Group.UserPagination(childComplexity), true
+		args, err := ec.field_Group_userPagination_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Group.UserPagination(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
 	case "GroupEdge.cursor":
 		if e.complexity.GroupEdge.Cursor == nil {
@@ -922,7 +927,7 @@ type PageInfo {
 	{Name: "../../../../schema/gqlschema/group.graphqls", Input: `type Group implements Node {
     id: ID!
     name: String!
-    userPagination: UserPagination!
+    userPagination(limit: Int, offset: Int): UserPagination!
 }
 
 type GroupEdge implements Edge {
@@ -1064,6 +1069,30 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Group_userPagination_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1391,7 +1420,7 @@ func (ec *executionContext) _Group_userPagination(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Group().UserPagination(rctx, obj)
+		return ec.resolvers.Group().UserPagination(rctx, obj, fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1423,6 +1452,17 @@ func (ec *executionContext) fieldContext_Group_userPagination(ctx context.Contex
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserPagination", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Group_userPagination_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
