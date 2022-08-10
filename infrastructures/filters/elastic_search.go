@@ -48,9 +48,22 @@ func (r *PhotoSearchQuery) Body() searchBody {
 
 func NewPhotoSearchQuery(id *int, limit, offset int) *PhotoSearchQuery {
 	q := &PhotoSearchQuery{
-		Limit:   nil,
+		Limit:   &limit,
+		Offset:  &offset,
+		PhotoID: id,
+		OwnerID: nil,
+		GroupID: nil,
+		Name:    nil,
+	}
+	return q
+}
+
+func NewSinglePhotoSearchQuery(id int) *PhotoSearchQuery {
+	limit := 1
+	q := &PhotoSearchQuery{
+		Limit:   &limit,
 		Offset:  nil,
-		PhotoID: nil,
+		PhotoID: &id,
 		OwnerID: nil,
 		GroupID: nil,
 		Name:    nil,

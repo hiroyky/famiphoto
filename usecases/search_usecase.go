@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/infrastructures/filters"
 )
@@ -64,7 +65,15 @@ func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 }
 
 func (u *searchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int) (*entities.PhotoSearchResultItem, error) {
-	panic("")
+	query := filters.NewSinglePhotoSearchQuery(id)
+	res, err := u.searchAdapter.SearchPhotos(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	if len(res.Items) == 0 {
+		return nil, errors.New(errors.DBColumnNotFoundError, nil)
+	}
+	return res.Items[0], nil
 }
 
 func (u *searchUseCase) SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error) {
