@@ -71,14 +71,22 @@ func (r *queryResolver) Photo(ctx context.Context, id string) (*model.Photo, err
 }
 
 // Photos is the resolver for the photos field.
-func (r *queryResolver) Photos(ctx context.Context, id *string, limit *int, offset *int) (*model.PhotoPagination, error) {
+func (r *queryResolver) Photos(ctx context.Context, id *string, ownerID *string, groupID *string, limit *int, offset *int) (*model.PhotoPagination, error) {
 	dstLimit := pagination.GetLimitOrDefault(limit, 20, 100)
 	dstOffset := pagination.GetOffsetOrDefault(offset)
 	decodedID, err := gql.DecodeIntIDPtr(id)
 	if err != nil {
 		return nil, err
 	}
-	result, err := r.searchUseCase.SearchPhotos(ctx, decodedID, dstLimit, dstOffset)
+	ownerDecodedID, err := gql.DecodeStrIDPtr(ownerID)
+	if err != nil {
+		return nil, err
+	}
+	groupDecodedID, err := gql.DecodeStrIDPtr(groupID)
+	if err != nil {
+		return nil, err
+	}
+	result, err := r.searchUseCase.SearchPhotos(ctx, decodedID, ownerDecodedID, groupDecodedID, dstLimit, dstOffset)
 	if err != nil {
 		return nil, err
 	}

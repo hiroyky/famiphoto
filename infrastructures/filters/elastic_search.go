@@ -63,13 +63,13 @@ func (r *PhotoSearchQuery) Body() searchBody {
 	return q
 }
 
-func NewPhotoSearchQuery(id *int, limit, offset int) *PhotoSearchQuery {
+func NewPhotoSearchQuery(id *int, ownerID, groupID *string, limit, offset int) *PhotoSearchQuery {
 	q := &PhotoSearchQuery{
 		Limit:   &limit,
 		Offset:  &offset,
 		PhotoID: id,
-		OwnerID: nil,
-		GroupID: nil,
+		OwnerID: ownerID,
+		GroupID: groupID,
 		Name:    nil,
 	}
 	return q

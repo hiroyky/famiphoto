@@ -144,7 +144,7 @@ type ComplexityRoot struct {
 		Photo      func(childComplexity int, id string) int
 		PhotoFile  func(childComplexity int, id string) int
 		PhotoFiles func(childComplexity int, photoID string) int
-		Photos     func(childComplexity int, id *string, limit *int, offset *int) int
+		Photos     func(childComplexity int, id *string, ownerID *string, groupID *string, limit *int, offset *int) int
 		User       func(childComplexity int, id string) int
 		Users      func(childComplexity int, id *string, limit *int, offset *int) int
 	}
@@ -206,7 +206,7 @@ type QueryResolver interface {
 	Users(ctx context.Context, id *string, limit *int, offset *int) (*model.UserPagination, error)
 	Me(ctx context.Context) (*model.User, error)
 	Photo(ctx context.Context, id string) (*model.Photo, error)
-	Photos(ctx context.Context, id *string, limit *int, offset *int) (*model.PhotoPagination, error)
+	Photos(ctx context.Context, id *string, ownerID *string, groupID *string, limit *int, offset *int) (*model.PhotoPagination, error)
 	PhotoFile(ctx context.Context, id string) (*model.PhotoFile, error)
 	PhotoFiles(ctx context.Context, photoID string) ([]*model.PhotoFile, error)
 }
@@ -702,7 +702,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Photos(childComplexity, args["id"].(*string), args["limit"].(*int), args["offset"].(*int)), true
+		return e.complexity.Query.Photos(childComplexity, args["id"].(*string), args["ownerId"].(*string), args["groupId"].(*string), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -1041,7 +1041,13 @@ type PhotoPagination implements Pagination {
     users(id: ID, limit: Int, offset: Int): UserPagination!
     me: User
     photo(id: ID!): Photo
-    photos(id: ID, limit: Int, offset: Int): PhotoPagination!
+    photos(
+        id: ID,
+        ownerId: ID,
+        groupId: ID,
+        limit: Int,
+        offset: Int
+    ): PhotoPagination!
     photoFile(id: ID!): PhotoFile
     photoFiles(photoId: ID!): [PhotoFile!]!
 }
@@ -1223,24 +1229,42 @@ func (ec *executionContext) field_Query_photos_args(ctx context.Context, rawArgs
 		}
 	}
 	args["id"] = arg0
-	var arg1 *int
+	var arg1 *string
+	if tmp, ok := rawArgs["ownerId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId"))
+		arg1, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["ownerId"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["groupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+		arg2, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["groupId"] = arg2
+	var arg3 *int
 	if tmp, ok := rawArgs["limit"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["limit"] = arg1
-	var arg2 *int
+	args["limit"] = arg3
+	var arg4 *int
 	if tmp, ok := rawArgs["offset"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg4, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["offset"] = arg2
+	args["offset"] = arg4
 	return args, nil
 }
 
@@ -4361,7 +4385,7 @@ func (ec *executionContext) _Query_photos(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Photos(rctx, fc.Args["id"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Query().Photos(rctx, fc.Args["id"].(*string), fc.Args["ownerId"].(*string), fc.Args["groupId"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
