@@ -15,6 +15,16 @@ input CreateGroupInput {
     name: String!
 }
 
+input AlterGroupInput {
+    name: String!
+}
+
+input AlterGroupMembersInput {
+    groupId: ID!
+    appendUserIds: [ID!]
+    removeUserIds: [ID!]
+}
+
 input CreateOauthClientInput {
     clientId: String!
     name: String!

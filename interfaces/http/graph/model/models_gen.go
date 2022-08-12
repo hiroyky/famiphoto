@@ -24,6 +24,16 @@ type Pagination interface {
 	IsPagination()
 }
 
+type AlterGroupInput struct {
+	Name string `json:"name"`
+}
+
+type AlterGroupMembersInput struct {
+	GroupID       string   `json:"groupId"`
+	AppendUserIds []string `json:"appendUserIds"`
+	RemoveUserIds []string `json:"removeUserIds"`
+}
+
 type CreateGroupInput struct {
 	GroupID string `json:"groupId"`
 	Name    string `json:"name"`

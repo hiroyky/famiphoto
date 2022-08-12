@@ -5,11 +5,11 @@ package graph
 
 import (
 	"context"
-	"github.com/hiroyky/famiphoto/utils/gql"
-	"github.com/hiroyky/famiphoto/utils/pagination"
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/gql"
+	"github.com/hiroyky/famiphoto/utils/pagination"
 )
 
 // UserPagination is the resolver for the userPagination field.
