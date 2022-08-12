@@ -43,6 +43,23 @@ func (r *PhotoSearchQuery) Body() searchBody {
 		q["size"] = *r.Limit
 	}
 
+	mustMatches := make([]map[string]any, 0)
+	if r.PhotoID != nil {
+		mustMatches = append(mustMatches, map[string]any{"match": map[string]any{"photo_id": *r.PhotoID}})
+	}
+	if r.OwnerID != nil {
+		mustMatches = append(mustMatches, map[string]any{"match": map[string]any{"owner_id": *r.OwnerID}})
+	}
+	if r.GroupID != nil {
+		mustMatches = append(mustMatches, map[string]any{"match": map[string]any{"group_id": *r.GroupID}})
+	}
+
+	q["query"] = map[string]any{
+		"bool": map[string]any{
+			"must": mustMatches,
+		},
+	}
+
 	return q
 }
 

@@ -8,6 +8,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/filters"
@@ -48,6 +49,10 @@ func (r *elasticSearchRepository) SearchPhotos(ctx context.Context, query *filte
 }
 
 func (r *elasticSearchRepository) searchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*esapi.Response, error) {
+	if config.Env.IsDebug() {
+		fmt.Println(query.Body().MustBuffer())
+	}
+
 	es := r.searchClient
 	return es.Search(
 		es.Search.WithContext(ctx),
