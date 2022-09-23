@@ -48,7 +48,7 @@ func (r *queryResolver) Users(ctx context.Context, id *string, limit *int, offse
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
 	if !ok {
-		return nil, errors.New("")
+		return nil, errors.New("invalid session")
 	}
 	user, err := r.userUseCase.GetUser(ctx, sess.UserID)
 	if err != nil {
