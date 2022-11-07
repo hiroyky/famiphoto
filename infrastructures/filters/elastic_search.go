@@ -42,6 +42,9 @@ func (r *PhotoSearchQuery) Body() searchBody {
 	if r.Limit != nil {
 		q["size"] = *r.Limit
 	}
+	if r.Offset != nil {
+		q["from"] = *r.Offset
+	}
 
 	mustMatches := make([]map[string]any, 0)
 	if r.PhotoID != nil {
