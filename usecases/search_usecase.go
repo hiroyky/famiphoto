@@ -45,7 +45,7 @@ func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 			return err
 		}
 
-		stats, err := u.searchAdapter.BulkInsertPhotos(ctx, photos, nil)
+		stats, err := u.searchAdapter.BulkInsertPhotos(ctx, photos)
 		if err != nil {
 			return err
 		}

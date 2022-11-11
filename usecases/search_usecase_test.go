@@ -30,11 +30,11 @@ func TestSearchUseCase_AppendAllPhotoDocuments(t *testing.T) {
 	photoAdapter.EXPECT().GetPhotos(gomock.Any(), 500, 1500).Return(photos4, nil)
 	photoAdapter.EXPECT().GetPhotos(gomock.Any(), 500, 2000).Return(photos5, nil)
 	searchAdapter := mock_infrastructures.NewMockSearchAdapter(ctrl)
-	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos1, nil).Return(status, nil)
-	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos2, nil).Return(status, nil)
-	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos3, nil).Return(status, nil)
-	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos4, nil).Return(status, nil)
-	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos5, nil).Return(status, nil)
+	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos1).Return(status, nil)
+	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos2).Return(status, nil)
+	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos3).Return(status, nil)
+	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos4).Return(status, nil)
+	searchAdapter.EXPECT().BulkInsertPhotos(gomock.Any(), photos5).Return(status, nil)
 
 	uc := &searchUseCase{
 		searchAdapter:  searchAdapter,

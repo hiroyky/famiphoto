@@ -65,7 +65,7 @@ func newPhotoStorageRepository() repositories.PhotoStorageRepository {
 }
 
 func NewSearchAdapter() infrastructures.SearchAdapter {
-	return infrastructures.NewSearchAdapter(newElasticSearchRepo())
+	return infrastructures.NewSearchAdapter(newElasticSearchRepo(), newExifRepository())
 }
 
 func newElasticSearchRepo() repositories.ElasticSearchRepository {

@@ -9,7 +9,6 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/hiroyky/famiphoto/config"
-	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/filters"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
@@ -23,7 +22,7 @@ func NewElasticSearchRepository(searchClient *elasticsearch.Client, newBulkIndex
 }
 
 type ElasticSearchRepository interface {
-	BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error)
+	BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex) (*esutil.BulkIndexerStats, error)
 	SearchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*models.PhotoResult, error)
 }
 
@@ -80,7 +79,7 @@ func (r *elasticSearchRepository) parsePhotoResult(body map[string]any) (*models
 	}, nil
 }
 
-func (r *elasticSearchRepository) BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error) {
+func (r *elasticSearchRepository) BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex) (*esutil.BulkIndexerStats, error) {
 	bulkIndexer := r.newBulkIndexerFunc()
 	for _, p := range photos {
 		data, err := json.Marshal(p)

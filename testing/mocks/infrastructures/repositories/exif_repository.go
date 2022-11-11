@@ -65,6 +65,21 @@ func (mr *MockExifRepositoryMockRecorder) GetPhotoMetaItemByTagID(ctx, photoID, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotoMetaItemByTagID", reflect.TypeOf((*MockExifRepository)(nil).GetPhotoMetaItemByTagID), ctx, photoID, tagID)
 }
 
+// GetPhotoMetaItemsByPhotoIDsTagID mocks base method.
+func (m *MockExifRepository) GetPhotoMetaItemsByPhotoIDsTagID(ctx context.Context, photoIDs []int, tagID int) (dbmodels.ExifSlice, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhotoMetaItemsByPhotoIDsTagID", ctx, photoIDs, tagID)
+	ret0, _ := ret[0].(dbmodels.ExifSlice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPhotoMetaItemsByPhotoIDsTagID indicates an expected call of GetPhotoMetaItemsByPhotoIDsTagID.
+func (mr *MockExifRepositoryMockRecorder) GetPhotoMetaItemsByPhotoIDsTagID(ctx, photoIDs, tagID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotoMetaItemsByPhotoIDsTagID", reflect.TypeOf((*MockExifRepository)(nil).GetPhotoMetaItemsByPhotoIDsTagID), ctx, photoIDs, tagID)
+}
+
 // InsertPhotoMetaItem mocks base method.
 func (m *MockExifRepository) InsertPhotoMetaItem(ctx context.Context, exif *dbmodels.Exif) (*dbmodels.Exif, error) {
 	m.ctrl.T.Helper()

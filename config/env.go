@@ -22,6 +22,7 @@ type FamiPhotoEnv struct {
 	AccessTokenHashedPrefix    string   `envconfig:"ACCESS_TOKEN_HASHED_PREFIX"`
 	ElasticsearchAddresses     []string `envconfig:"ELASTICSEARCH_ADDRESSES"`
 	AssetBaseURL               string   `envconfig:"ASSET_BASE_URL"`
+	ExifTimezone               string   `envconfig:"EXIF_TIMEZONE"`
 }
 
 var Env FamiPhotoEnv

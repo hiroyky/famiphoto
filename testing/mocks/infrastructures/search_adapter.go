@@ -38,18 +38,18 @@ func (m *MockSearchAdapter) EXPECT() *MockSearchAdapterMockRecorder {
 }
 
 // BulkInsertPhotos mocks base method.
-func (m *MockSearchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.PhotoList, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error) {
+func (m *MockSearchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.PhotoList) (*esutil.BulkIndexerStats, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BulkInsertPhotos", ctx, photos, dateTimeOriginal)
+	ret := m.ctrl.Call(m, "BulkInsertPhotos", ctx, photos)
 	ret0, _ := ret[0].(*esutil.BulkIndexerStats)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // BulkInsertPhotos indicates an expected call of BulkInsertPhotos.
-func (mr *MockSearchAdapterMockRecorder) BulkInsertPhotos(ctx, photos, dateTimeOriginal interface{}) *gomock.Call {
+func (mr *MockSearchAdapterMockRecorder) BulkInsertPhotos(ctx, photos interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkInsertPhotos", reflect.TypeOf((*MockSearchAdapter)(nil).BulkInsertPhotos), ctx, photos, dateTimeOriginal)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkInsertPhotos", reflect.TypeOf((*MockSearchAdapter)(nil).BulkInsertPhotos), ctx, photos)
 }
 
 // SearchPhotos mocks base method.
