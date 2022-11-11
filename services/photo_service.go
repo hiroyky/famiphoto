@@ -5,7 +5,6 @@ import (
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/utils"
-	"path/filepath"
 	"time"
 )
 
@@ -35,7 +34,7 @@ func (s *photoService) RegisterPhoto(ctx context.Context, filePath, fileHash, ow
 		ImportedAt:   now,
 		GroupID:      groupID,
 		OwnerID:      ownerID,
-		FileNameHash: filepath.Base(filePath),
+		FileNameHash: utils.MD5(utils.FileNameExceptExt(filePath)),
 		Files: []*entities.PhotoFile{
 			{
 				FilePath:   filePath,
