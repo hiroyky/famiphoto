@@ -158,18 +158,18 @@ func (m *MockGroupResolver) EXPECT() *MockGroupResolverMockRecorder {
 }
 
 // UserPagination mocks base method.
-func (m *MockGroupResolver) UserPagination(ctx context.Context, obj *model.Group) (*model.UserPagination, error) {
+func (m *MockGroupResolver) UserPagination(ctx context.Context, obj *model.Group, limit, offset *int) (*model.UserPagination, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UserPagination", ctx, obj)
+	ret := m.ctrl.Call(m, "UserPagination", ctx, obj, limit, offset)
 	ret0, _ := ret[0].(*model.UserPagination)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UserPagination indicates an expected call of UserPagination.
-func (mr *MockGroupResolverMockRecorder) UserPagination(ctx, obj interface{}) *gomock.Call {
+func (mr *MockGroupResolverMockRecorder) UserPagination(ctx, obj, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserPagination", reflect.TypeOf((*MockGroupResolver)(nil).UserPagination), ctx, obj)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserPagination", reflect.TypeOf((*MockGroupResolver)(nil).UserPagination), ctx, obj, limit, offset)
 }
 
 // MockMutationResolver is a mock of MutationResolver interface.
@@ -513,18 +513,18 @@ func (mr *MockQueryResolverMockRecorder) PhotoFiles(ctx, photoID interface{}) *g
 }
 
 // Photos mocks base method.
-func (m *MockQueryResolver) Photos(ctx context.Context, id *string, limit, offset *int) (*model.PhotoPagination, error) {
+func (m *MockQueryResolver) Photos(ctx context.Context, id, ownerID, groupID *string, limit, offset *int) (*model.PhotoPagination, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Photos", ctx, id, limit, offset)
+	ret := m.ctrl.Call(m, "Photos", ctx, id, ownerID, groupID, limit, offset)
 	ret0, _ := ret[0].(*model.PhotoPagination)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Photos indicates an expected call of Photos.
-func (mr *MockQueryResolverMockRecorder) Photos(ctx, id, limit, offset interface{}) *gomock.Call {
+func (mr *MockQueryResolverMockRecorder) Photos(ctx, id, ownerID, groupID, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Photos", reflect.TypeOf((*MockQueryResolver)(nil).Photos), ctx, id, limit, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Photos", reflect.TypeOf((*MockQueryResolver)(nil).Photos), ctx, id, ownerID, groupID, limit, offset)
 }
 
 // User mocks base method.

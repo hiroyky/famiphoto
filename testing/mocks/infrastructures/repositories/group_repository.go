@@ -35,6 +35,21 @@ func (m *MockGroupRepository) EXPECT() *MockGroupRepositoryMockRecorder {
 	return m.recorder
 }
 
+// CountUsersByGroupID mocks base method.
+func (m *MockGroupRepository) CountUsersByGroupID(ctx context.Context, groupID string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountUsersByGroupID", ctx, groupID)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountUsersByGroupID indicates an expected call of CountUsersByGroupID.
+func (mr *MockGroupRepositoryMockRecorder) CountUsersByGroupID(ctx, groupID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountUsersByGroupID", reflect.TypeOf((*MockGroupRepository)(nil).CountUsersByGroupID), ctx, groupID)
+}
+
 // GetGroup mocks base method.
 func (m *MockGroupRepository) GetGroup(ctx context.Context, groupID string) (*dbmodels.Group, error) {
 	m.ctrl.T.Helper()
@@ -63,4 +78,19 @@ func (m *MockGroupRepository) GetGroupsByUserID(ctx context.Context, userID stri
 func (mr *MockGroupRepositoryMockRecorder) GetGroupsByUserID(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupsByUserID", reflect.TypeOf((*MockGroupRepository)(nil).GetGroupsByUserID), ctx, userID)
+}
+
+// GetUsersByGroupID mocks base method.
+func (m *MockGroupRepository) GetUsersByGroupID(ctx context.Context, groupID string, limit, offset int) (dbmodels.UserSlice, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsersByGroupID", ctx, groupID, limit, offset)
+	ret0, _ := ret[0].(dbmodels.UserSlice)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsersByGroupID indicates an expected call of GetUsersByGroupID.
+func (mr *MockGroupRepositoryMockRecorder) GetUsersByGroupID(ctx, groupID, limit, offset interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersByGroupID", reflect.TypeOf((*MockGroupRepository)(nil).GetUsersByGroupID), ctx, groupID, limit, offset)
 }

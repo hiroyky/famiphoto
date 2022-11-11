@@ -15,10 +15,10 @@ import (
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 )
 
-func NewElasticSearchRepository(searchClient *elasticsearch.Client, bulkIndexer esutil.BulkIndexer) ElasticSearchRepository {
+func NewElasticSearchRepository(searchClient *elasticsearch.Client, newBulkIndexerFunc func() esutil.BulkIndexer) ElasticSearchRepository {
 	return &elasticSearchRepository{
-		searchClient: searchClient,
-		bulkIndexer:  bulkIndexer,
+		searchClient:       searchClient,
+		newBulkIndexerFunc: newBulkIndexerFunc,
 	}
 }
 
@@ -28,8 +28,8 @@ type ElasticSearchRepository interface {
 }
 
 type elasticSearchRepository struct {
-	searchClient *elasticsearch.Client
-	bulkIndexer  esutil.BulkIndexer
+	searchClient       *elasticsearch.Client
+	newBulkIndexerFunc func() esutil.BulkIndexer
 }
 
 func (r *elasticSearchRepository) SearchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*models.PhotoResult, error) {
@@ -81,13 +81,14 @@ func (r *elasticSearchRepository) parsePhotoResult(body map[string]any) (*models
 }
 
 func (r *elasticSearchRepository) BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex, dateTimeOriginal *entities.PhotoMetaItem) (*esutil.BulkIndexerStats, error) {
+	bulkIndexer := r.newBulkIndexerFunc()
 	for _, p := range photos {
 		data, err := json.Marshal(p)
 		if err != nil {
 			return nil, err
 		}
 
-		if err := r.bulkIndexer.Add(ctx, esutil.BulkIndexerItem{
+		if err := bulkIndexer.Add(ctx, esutil.BulkIndexerItem{
 			Action:     "index",
 			DocumentID: p.PhotoIndexID(),
 			Body:       bytes.NewReader(data),
@@ -97,11 +98,11 @@ func (r *elasticSearchRepository) BulkInsertPhotos(ctx context.Context, photos [
 			return nil, err
 		}
 	}
-	if err := r.bulkIndexer.Close(ctx); err != nil {
+	if err := bulkIndexer.Close(ctx); err != nil {
 		return nil, err
 	}
 
-	stats := r.bulkIndexer.Stats()
+	stats := bulkIndexer.Stats()
 
 	return &stats, nil
 }

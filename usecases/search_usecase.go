@@ -20,14 +20,16 @@ func NewSearchUseCase(
 	photoAdapter infrastructures.PhotoAdapter,
 ) SearchUseCase {
 	return &searchUseCase{
-		searchAdapter: searchAdapter,
-		photoAdapter:  photoAdapter,
+		searchAdapter:  searchAdapter,
+		photoAdapter:   photoAdapter,
+		appendBulkUnit: 500,
 	}
 }
 
 type searchUseCase struct {
-	searchAdapter infrastructures.SearchAdapter
-	photoAdapter  infrastructures.PhotoAdapter
+	searchAdapter  infrastructures.SearchAdapter
+	photoAdapter   infrastructures.PhotoAdapter
+	appendBulkUnit int
 }
 
 func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
@@ -36,7 +38,7 @@ func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 		return err
 	}
 
-	limit := 500
+	limit := u.appendBulkUnit
 	for offset := 0; offset <= total; offset += limit {
 		photos, err := u.photoAdapter.GetPhotos(ctx, limit, offset)
 		if err != nil {
@@ -49,7 +51,7 @@ func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 		}
 
 		fmt.Printf(
-			"NumAdded: %d, NumFlushed: %d, NumFailed: %d, NumIndex:%d, NumCreated: %d, NumUpdated:%d, NumDeleted: %d, NumRequest:%d",
+			"NumAdded: %d, NumFlushed: %d, NumFailed: %d, NumIndex:%d, NumCreated: %d, NumUpdated:%d, NumDeleted: %d, NumRequest:%d\n",
 			stats.NumAdded,
 			stats.NumFlushed,
 			stats.NumFailed,

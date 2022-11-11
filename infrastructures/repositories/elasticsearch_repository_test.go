@@ -40,7 +40,6 @@ func TestElasticSearchRepository_searchPhotos_リクエスト(t *testing.T) {
 
 	esRepo := &elasticSearchRepository{
 		searchClient: esClient,
-		bulkIndexer:  nil,
 	}
 
 	_, _ = esRepo.searchPhotos(context.Background(), &filters.PhotoSearchQuery{})
