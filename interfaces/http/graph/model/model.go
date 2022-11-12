@@ -17,14 +17,13 @@ type Photo struct {
 func (Photo) IsNode() {}
 
 type PhotoFile struct {
-	ID          string `json:"id"`
-	PhotoID     string `json:"photoId"`
-	FileType    string `json:"fileType"`
-	DownloadURL string `json:"downloadUrl"`
-	ImportedAt  string `json:"importedAt"`
-	GroupID     string `json:"groupId"`
-	OwnerID     string `json:"ownerId"`
-	FileHash    string `json:"fileHash"`
+	ID         string `json:"id"`
+	PhotoID    string `json:"photoId"`
+	FileType   string `json:"fileType"`
+	ImportedAt string `json:"importedAt"`
+	GroupID    string `json:"groupId"`
+	OwnerID    string `json:"ownerId"`
+	FileHash   string `json:"fileHash"`
 }
 
 func (PhotoFile) IsNode() {}

@@ -3,7 +3,6 @@ type PhotoFile implements Node {
     photoId: ID!
     photo: Photo!
     fileType: String!
-    downloadUrl: String!
     importedAt: Timestamp!
     groupId: ID!
     group: Group!

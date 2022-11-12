@@ -15,13 +15,12 @@ func NewPhotoFiles(l entities.PhotoFileList) []*PhotoFile {
 
 func NewPhotoFile(e *entities.PhotoFile) *PhotoFile {
 	return &PhotoFile{
-		ID:          gql.EncodeIntID(PhotoFileName, e.PhotoFileID),
-		PhotoID:     gql.EncodeIntID(PhotoName, e.PhotoID),
-		FileType:    e.FileType().ToString(),
-		DownloadURL: "",
-		ImportedAt:  e.ImportedAt.Format(time.RFC3339),
-		GroupID:     gql.EncodeStrID(GroupName, e.GroupID),
-		OwnerID:     gql.EncodeStrID(UserName, e.OwnerID),
-		FileHash:    e.FileHash,
+		ID:         gql.EncodeIntID(PhotoFileName, e.PhotoFileID),
+		PhotoID:    gql.EncodeIntID(PhotoName, e.PhotoID),
+		FileType:   e.FileType().ToString(),
+		ImportedAt: e.ImportedAt.Format(time.RFC3339),
+		GroupID:    gql.EncodeStrID(GroupName, e.GroupID),
+		OwnerID:    gql.EncodeStrID(UserName, e.OwnerID),
+		FileHash:   e.FileHash,
 	}
 }

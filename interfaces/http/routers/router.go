@@ -49,5 +49,7 @@ func New() *echo.Echo {
 
 	e.Group("assets").Use(middleware.StaticWithConfig(middleware.StaticConfig{Root: "assets"}))
 
+	downloadController := di.NewDownloadController()
+	e.GET("/download/files/:file_id", downloadController.GetFileDownload)
 	return e
 }

@@ -69,6 +69,17 @@ func (f PhotoFile) FileType() PhotoFileType {
 	return PhotoFileTypeUnknown
 }
 
+func (f PhotoFile) MimeType() string {
+	switch f.FileType() {
+	case PhotoFileTypeJPEG:
+		return "image/jpeg"
+	case PhotoFileTypeRAW:
+		return "image/x-dcraw"
+	default:
+		return "application/octet-stream"
+	}
+}
+
 type PhotoFileList []*PhotoFile
 
 func (list PhotoFileList) FindFileTypesByPhotoID(photoID int) []PhotoFileType {

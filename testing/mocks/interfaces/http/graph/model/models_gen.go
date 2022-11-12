@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	model "github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
 
 // MockConnection is a mock of Connection interface.
@@ -31,6 +32,48 @@ func NewMockConnection(ctrl *gomock.Controller) *MockConnection {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockConnection) EXPECT() *MockConnectionMockRecorder {
 	return m.recorder
+}
+
+// GetEdges mocks base method.
+func (m *MockConnection) GetEdges() []model.Edge {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetEdges")
+	ret0, _ := ret[0].([]model.Edge)
+	return ret0
+}
+
+// GetEdges indicates an expected call of GetEdges.
+func (mr *MockConnectionMockRecorder) GetEdges() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEdges", reflect.TypeOf((*MockConnection)(nil).GetEdges))
+}
+
+// GetNodes mocks base method.
+func (m *MockConnection) GetNodes() []model.Node {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNodes")
+	ret0, _ := ret[0].([]model.Node)
+	return ret0
+}
+
+// GetNodes indicates an expected call of GetNodes.
+func (mr *MockConnectionMockRecorder) GetNodes() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNodes", reflect.TypeOf((*MockConnection)(nil).GetNodes))
+}
+
+// GetPageInfo mocks base method.
+func (m *MockConnection) GetPageInfo() *model.PageInfo {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPageInfo")
+	ret0, _ := ret[0].(*model.PageInfo)
+	return ret0
+}
+
+// GetPageInfo indicates an expected call of GetPageInfo.
+func (mr *MockConnectionMockRecorder) GetPageInfo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPageInfo", reflect.TypeOf((*MockConnection)(nil).GetPageInfo))
 }
 
 // IsConnection mocks base method.
@@ -68,6 +111,34 @@ func (m *MockEdge) EXPECT() *MockEdgeMockRecorder {
 	return m.recorder
 }
 
+// GetCursor mocks base method.
+func (m *MockEdge) GetCursor() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCursor")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetCursor indicates an expected call of GetCursor.
+func (mr *MockEdgeMockRecorder) GetCursor() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCursor", reflect.TypeOf((*MockEdge)(nil).GetCursor))
+}
+
+// GetNode mocks base method.
+func (m *MockEdge) GetNode() model.Node {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNode")
+	ret0, _ := ret[0].(model.Node)
+	return ret0
+}
+
+// GetNode indicates an expected call of GetNode.
+func (mr *MockEdgeMockRecorder) GetNode() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNode", reflect.TypeOf((*MockEdge)(nil).GetNode))
+}
+
 // IsEdge mocks base method.
 func (m *MockEdge) IsEdge() {
 	m.ctrl.T.Helper()
@@ -103,6 +174,20 @@ func (m *MockNode) EXPECT() *MockNodeMockRecorder {
 	return m.recorder
 }
 
+// GetID mocks base method.
+func (m *MockNode) GetID() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetID")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetID indicates an expected call of GetID.
+func (mr *MockNodeMockRecorder) GetID() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetID", reflect.TypeOf((*MockNode)(nil).GetID))
+}
+
 // IsNode mocks base method.
 func (m *MockNode) IsNode() {
 	m.ctrl.T.Helper()
@@ -136,6 +221,34 @@ func NewMockPagination(ctrl *gomock.Controller) *MockPagination {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockPagination) EXPECT() *MockPaginationMockRecorder {
 	return m.recorder
+}
+
+// GetNodes mocks base method.
+func (m *MockPagination) GetNodes() []model.Node {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNodes")
+	ret0, _ := ret[0].([]model.Node)
+	return ret0
+}
+
+// GetNodes indicates an expected call of GetNodes.
+func (mr *MockPaginationMockRecorder) GetNodes() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNodes", reflect.TypeOf((*MockPagination)(nil).GetNodes))
+}
+
+// GetPageInfo mocks base method.
+func (m *MockPagination) GetPageInfo() *model.PaginationInfo {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPageInfo")
+	ret0, _ := ret[0].(*model.PaginationInfo)
+	return ret0
+}
+
+// GetPageInfo indicates an expected call of GetPageInfo.
+func (mr *MockPaginationMockRecorder) GetPageInfo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPageInfo", reflect.TypeOf((*MockPagination)(nil).GetPageInfo))
 }
 
 // IsPagination mocks base method.
