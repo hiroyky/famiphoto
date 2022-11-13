@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/99designs/gqlgen v0.17.13
 	github.com/cenkalti/backoff/v4 v4.1.3
+	github.com/disintegration/imaging v1.6.2
 	github.com/dsoprea/go-exif v0.0.0-20210625224831-a6301f85c82b
 	github.com/dsoprea/go-logging v0.0.0-20190624164917-c4f10aab7696
 	github.com/elastic/go-elasticsearch/v8 v8.2.0
@@ -24,7 +25,7 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.8.6
 	github.com/volatiletech/strmangle v0.0.2
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
+	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8
 	gopkg.in/DataDog/dd-trace-go.v1 v1.37.0
 )
 

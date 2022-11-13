@@ -6,6 +6,7 @@ import (
 	"github.com/hiroyky/famiphoto/utils"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -144,6 +145,14 @@ type PhotoMetaItem struct {
 	TagName         string
 	TagType         string
 	ValueString     string
+}
+
+func (i PhotoMetaItem) ValueInt() int {
+	val, err := strconv.Atoi(i.ValueString)
+	if err != nil {
+		return 0
+	}
+	return val
 }
 
 func (i PhotoMetaItem) sortOrder() int {
