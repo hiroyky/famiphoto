@@ -31,6 +31,7 @@ const (
 	Unknown                            FamiPhotoErrorCode = "Unknown"
 	InvalidRequestError                FamiPhotoErrorCode = "InvalidRequestError"
 	UserNotFoundError                  FamiPhotoErrorCode = "UserNotFoundError"
+	GroupNotFoundError                 FamiPhotoErrorCode = "GroupNotFoundError"
 	UserCreateFatal                    FamiPhotoErrorCode = "UserCreateFatal"
 	UserAlreadyExists                  FamiPhotoErrorCode = "UserAlreadyExists"
 	UserUnauthorizedError              FamiPhotoErrorCode = "UserUnauthorizedError"
@@ -64,6 +65,8 @@ const (
 	SambaDeleteAllFatal                FamiPhotoErrorCode = "SambaDeleteAllFatal"
 	SambaReadDirFatal                  FamiPhotoErrorCode = "SambaReadDirFatal"
 	SambaGlobFatal                     FamiPhotoErrorCode = "SambaGlobFatal"
+	ElasticSearchFatal                 FamiPhotoErrorCode = "ElasticSearchFatal"
+	InvalidTimezoneFatal               FamiPhotoErrorCode = "InvalidTimezoneFatal"
 )
 
 func New(errCode FamiPhotoErrorCode, baseError error) error {

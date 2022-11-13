@@ -5,14 +5,28 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/gql"
+	"github.com/hiroyky/famiphoto/utils/pagination"
 )
 
-func (r *groupResolver) UserPagination(ctx context.Context, obj *model.Group) (*model.UserPagination, error) {
-	panic(fmt.Errorf("not implemented"))
+// UserPagination is the resolver for the userPagination field.
+func (r *groupResolver) UserPagination(ctx context.Context, obj *model.Group, limit *int, offset *int) (*model.UserPagination, error) {
+	groupID, err := gql.DecodeStrID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	dstLimit := pagination.GetLimitOrDefault(limit, 20, 100)
+	dstOffset := pagination.GetOffsetOrDefault(offset)
+
+	users, total, err := r.userUseCase.GetUsersBelongingGroup(ctx, groupID, dstLimit, dstOffset)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewUserPagination(users, total, dstLimit, dstOffset), nil
 }
 
 // Group returns generated.GroupResolver implementation.

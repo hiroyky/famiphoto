@@ -11,7 +11,9 @@ import (
 )
 
 type ExifRepository interface {
-	GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int64) (*dbmodels.Exif, error)
+	GetPhotoMetaDataByPhotoID(ctx context.Context, photoID int) (dbmodels.ExifSlice, error)
+	GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int) (*dbmodels.Exif, error)
+	GetPhotoMetaItemsByPhotoIDsTagID(ctx context.Context, photoIDs []int, tagID int) (dbmodels.ExifSlice, error)
 	InsertPhotoMetaItem(ctx context.Context, exif *dbmodels.Exif) (*dbmodels.Exif, error)
 	UpdatePhotoMetaItem(ctx context.Context, exif *dbmodels.Exif) (*dbmodels.Exif, error)
 }
@@ -24,7 +26,11 @@ type exifRepository struct {
 	db mysql.SQLExecutor
 }
 
-func (r *exifRepository) GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int64) (*dbmodels.Exif, error) {
+func (r *exifRepository) GetPhotoMetaDataByPhotoID(ctx context.Context, photoID int) (dbmodels.ExifSlice, error) {
+	return dbmodels.Exifs(qm.Where("photo_id = ?", photoID)).All(ctx, r.db)
+}
+
+func (r *exifRepository) GetPhotoMetaItemByTagID(ctx context.Context, photoID, tagID int) (*dbmodels.Exif, error) {
 	m, err := dbmodels.Exifs(qm.Where("photo_id = ?", photoID), qm.Where("tag_id = ?", tagID)).One(ctx, r.db)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -33,6 +39,13 @@ func (r *exifRepository) GetPhotoMetaItemByTagID(ctx context.Context, photoID, t
 		return nil, err
 	}
 	return m, err
+}
+
+func (r *exifRepository) GetPhotoMetaItemsByPhotoIDsTagID(ctx context.Context, photoIDs []int, tagID int) (dbmodels.ExifSlice, error) {
+	return dbmodels.Exifs(
+		qm.WhereIn("photo_id in ?", toInterfaceSlice(photoIDs)...),
+		qm.Where("tag_id = ?", tagID),
+	).All(ctx, r.db)
 }
 
 func (r *exifRepository) InsertPhotoMetaItem(ctx context.Context, exif *dbmodels.Exif) (*dbmodels.Exif, error) {

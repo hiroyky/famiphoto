@@ -57,6 +57,7 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 		if err := u.registerPhoto(ctx, file, ownerID, groupID); err != nil {
 			return err
 		}
+		fmt.Println(file.Path)
 	}
 
 	return nil

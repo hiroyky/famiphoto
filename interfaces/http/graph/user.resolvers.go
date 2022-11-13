@@ -5,18 +5,36 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/gql"
 )
 
+// Password is the resolver for the password field.
 func (r *userResolver) Password(ctx context.Context, obj *model.User) (*model.UserPassword, error) {
-	panic(fmt.Errorf("not implemented"))
+	userID, err := gql.DecodeStrID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	password, err := r.userUseCase.GetUserPassword(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewUserPassword(password), nil
 }
 
+// BelongGroups is the resolver for the belongGroups field.
 func (r *userResolver) BelongGroups(ctx context.Context, obj *model.User) ([]*model.Group, error) {
-	panic(fmt.Errorf("not implemented"))
+	groupID, err := gql.DecodeStrID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	groups, err := r.groupUseCase.GetUserBelongingGroups(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewGroups(groups), nil
 }
 
 // User returns generated.UserResolver implementation.

@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/golang/mock/gomock"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
-	mock_repositories "github.com/hiroyky/famiphoto/testing/mocks/infrastructures/repositories"
+	mock_redis "github.com/hiroyky/famiphoto/testing/mocks/drivers/redis"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -17,13 +17,14 @@ func TestOauthAccessTokenRepository_SetClientCredentialAccessToken(t *testing.T)
 	clientID := "client_id1"
 	accessToken := "access_token"
 	expireIn := int64(1000)
-	content, _ := (&models.OauthAccessToken{
+	token := &models.OauthAccessToken{
 		ClientID:   clientID,
 		ClientType: models.OauthClientTypeClientCredential,
 		Scope:      models.OauthScopeAdmin,
-	}).String()
+	}
+	content, _ := (token).String()
 
-	redisAdapter := mock_repositories.NewMockRedisAdapter(ctrl)
+	redisAdapter := mock_redis.NewMockDriver(ctrl)
 	redisAdapter.EXPECT().SetEx(gomock.Any(), gomock.Any(), content, time.Duration(expireIn)*time.Second)
 
 	repo := oauthAccessTokenRepository{
@@ -31,6 +32,6 @@ func TestOauthAccessTokenRepository_SetClientCredentialAccessToken(t *testing.T)
 		prefix: "prefix_",
 	}
 
-	err := repo.SetClientCredentialAccessToken(context.Background(), clientID, accessToken, expireIn)
+	err := repo.SetClientCredentialAccessToken(context.Background(), token, accessToken, expireIn)
 	assert.NoError(t, err)
 }

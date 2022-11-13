@@ -63,3 +63,14 @@ func DecodeStrIDPtr(graphID *string) (*string, error) {
 	}
 	return &dst, nil
 }
+
+func DecodeIntIDPtr(graphID *string) (*int, error) {
+	if graphID == nil {
+		return nil, nil
+	}
+	dst, err := DecodeIntID(*graphID)
+	if err != nil {
+		return nil, err
+	}
+	return &dst, nil
+}

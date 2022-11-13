@@ -2,4 +2,14 @@ type Query {
     user(id: ID!): User
     users(id: ID, limit: Int, offset: Int): UserPagination!
     me: User
+    photo(id: ID!): Photo
+    photos(
+        id: ID,
+        ownerId: ID,
+        groupId: ID,
+        limit: Int,
+        offset: Int
+    ): PhotoPagination!
+    photoFile(id: ID!): PhotoFile
+    photoFiles(photoId: ID!): [PhotoFile!]!
 }

@@ -17,3 +17,15 @@ func NewSearchUseCase() usecases.SearchUseCase {
 func NewUserUseCase() usecases.UserUseCase {
 	return usecases.NewUserUseCase(NewUserAdapter(), newPasswordService())
 }
+
+func NewGroupUseCase() usecases.GroupUseCase {
+	return usecases.NewGroupUseCase(NewGroupAdapter())
+}
+
+func NewPhotoUseCase() usecases.PhotoUseCase {
+	return usecases.NewPhotoUseCase(NewPhotoAdapter())
+}
+
+func NewDownloadUseCase() usecases.DownloadUseCase {
+	return usecases.NewDownloadUseCase(NewPhotoAdapter(), NewPhotoStorageAdapter())
+}

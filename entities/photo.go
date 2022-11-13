@@ -11,7 +11,7 @@ import (
 )
 
 type Photo struct {
-	PhotoID      int64
+	PhotoID      int
 	Name         string
 	ImportedAt   time.Time
 	GroupID      string
@@ -40,8 +40,8 @@ func (e Photo) ThumbnailURL() string {
 
 type PhotoList []*Photo
 
-func (l PhotoList) PhotoIDs() []int64 {
-	idList := make([]int64, len(l))
+func (l PhotoList) PhotoIDs() []int {
+	idList := make([]int, len(l))
 	for _, p := range l {
 		idList = append(idList, p.PhotoID)
 	}
@@ -49,41 +49,13 @@ func (l PhotoList) PhotoIDs() []int64 {
 }
 
 type PhotoFile struct {
-	PhotoFileID int64
-	PhotoID     int64
+	PhotoFileID int
+	PhotoID     int
 	FilePath    string
 	ImportedAt  time.Time
 	GroupID     string
 	OwnerID     string
 	FileHash    string
-}
-
-type PhotoFileList []*PhotoFile
-
-func (list PhotoFileList) FindFileTypesByPhotoID(photoID int64) []PhotoFileType {
-	types := make([]PhotoFileType, 0)
-
-	for _, item := range list {
-		if item.PhotoID != photoID {
-			continue
-		}
-		types = append(types, item.FileType())
-	}
-
-	return types
-}
-
-func (list PhotoFileList) FindFileByFileType(photoID int64, fileType PhotoFileType) *PhotoFile {
-	for _, item := range list {
-		if item.PhotoID != photoID {
-			continue
-		}
-		if item.FileType() != fileType {
-			continue
-		}
-		return item
-	}
-	return nil
 }
 
 func (f PhotoFile) FileType() PhotoFileType {
@@ -97,10 +69,67 @@ func (f PhotoFile) FileType() PhotoFileType {
 	return PhotoFileTypeUnknown
 }
 
+func (f PhotoFile) MimeType() string {
+	switch f.FileType() {
+	case PhotoFileTypeJPEG:
+		return "image/jpeg"
+	case PhotoFileTypeRAW:
+		return "image/x-dcraw"
+	default:
+		return "application/octet-stream"
+	}
+}
+
+type PhotoFileList []*PhotoFile
+
+func (list PhotoFileList) FindFileTypesByPhotoID(photoID int) []PhotoFileType {
+	types := make([]PhotoFileType, 0)
+
+	for _, item := range list {
+		if item.PhotoID != photoID {
+			continue
+		}
+		types = append(types, item.FileType())
+	}
+
+	return types
+}
+
+func (list PhotoFileList) FindFileByFileType(photoID int, fileType PhotoFileType) *PhotoFile {
+	for _, item := range list {
+		if item.PhotoID != photoID {
+			continue
+		}
+		if item.FileType() != fileType {
+			continue
+		}
+		return item
+	}
+	return nil
+}
+
+func (list PhotoFileList) FileTypes() []PhotoFileType {
+	dst := make([]PhotoFileType, len(list))
+	for i, v := range list {
+		dst[i] = v.FileType()
+	}
+	return dst
+}
+
 type PhotoFileType string
 
 func (t PhotoFileType) ToString() string {
 	return string(t)
+}
+
+type PhotoFileTypeList []PhotoFileType
+
+func (l PhotoFileTypeList) ToStrings() []string {
+	dst := make([]string, len(l))
+	for i, v := range l {
+		dst[i] = v.ToString()
+	}
+	return dst
 }
 
 const (
@@ -110,14 +139,14 @@ const (
 )
 
 type PhotoMetaItem struct {
-	PhotoMetaItemID int64
-	TagID           int64
+	PhotoMetaItemID int
+	TagID           int
 	TagName         string
 	TagType         string
 	ValueString     string
 }
 
-func (i PhotoMetaItem) sortOrder() int64 {
+func (i PhotoMetaItem) sortOrder() int {
 	return i.TagID
 }
 
@@ -128,4 +157,21 @@ func (m PhotoMeta) Sort() PhotoMeta {
 		return m[i].sortOrder() < m[j].sortOrder()
 	})
 	return m
+}
+
+type PhotoSearchResultItem struct {
+	PhotoID          int
+	OwnerID          string
+	GroupID          string
+	FileTypes        []string
+	Name             string
+	ImportedAt       time.Time
+	DateTimeOriginal time.Time
+	PreviewURL       string
+	ThumbnailURL     string
+}
+
+type PhotoSearchResult struct {
+	Items []*PhotoSearchResultItem
+	Total int
 }

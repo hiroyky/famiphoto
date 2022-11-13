@@ -1,7 +1,7 @@
 package di
 
 import (
-	"github.com/hiroyky/famiphoto/drivers/elasticsearch"
+	"github.com/hiroyky/famiphoto/drivers/es"
 	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 )
@@ -53,23 +53,27 @@ func newExifRepository() repositories.ExifRepository {
 }
 
 func NewPhotoStorageAdapter() infrastructures.PhotoStorageAdapter {
-	return infrastructures.NewPhotoStorageAdapter(newPhotoStorageRepository())
+	return infrastructures.NewPhotoStorageAdapter(newPhotoStorageRepository(), newPhotoThumbnailRepository())
+}
+
+func newPhotoThumbnailRepository() repositories.PhotoThumbnailRepository {
+	return repositories.NewPhotoThumbnailRepository(NewPhotoThumbnailStorageDriver(), NewMySQLDriver())
 }
 
 func newPhotoStorageRepository() repositories.PhotoStorageRepository {
-	return repositories.NewPhotoStorageRepository(NewPhotoThumbnailStorageDriver())
+	return repositories.NewPhotoStorageRepository(NewMediaSambaStorageDriver())
 }
 
 func NewSearchAdapter() infrastructures.SearchAdapter {
-	return infrastructures.NewSearchAdapter(newElasticSearchRepo())
+	return infrastructures.NewSearchAdapter(newElasticSearchRepo(), newExifRepository())
 }
 
 func newElasticSearchRepo() repositories.ElasticSearchRepository {
-	return repositories.NewElasticSearchRepository(elasticsearch.NewBulkClient())
+	return repositories.NewElasticSearchRepository(es.NewSearchClient(), es.NewBulkClient)
 }
 
 func NewUserAdapter() infrastructures.UserAdapter {
-	return infrastructures.NewUserAdapter(newUserRepository(), newUserPasswordRepository())
+	return infrastructures.NewUserAdapter(newUserRepository(), newGroupRepository(), newUserPasswordRepository())
 }
 
 func newUserRepository() repositories.UserRepository {
@@ -78,4 +82,12 @@ func newUserRepository() repositories.UserRepository {
 
 func newUserPasswordRepository() repositories.UserPasswordRepository {
 	return repositories.NewUserPasswordRepository(NewMySQLDriver())
+}
+
+func newGroupRepository() repositories.GroupRepository {
+	return repositories.NewGroupRepository(NewMySQLDriver())
+}
+
+func NewGroupAdapter() infrastructures.GroupAdapter {
+	return infrastructures.NewGroupAdapter(newGroupRepository())
 }

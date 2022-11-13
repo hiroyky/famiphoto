@@ -13,6 +13,7 @@ import (
 	"github.com/hiroyky/famiphoto/utils/gql"
 )
 
+// RedirectUrls is the resolver for the redirectUrls field.
 func (r *oauthClientResolver) RedirectUrls(ctx context.Context, obj *model.OauthClient) ([]string, error) {
 	clientID, err := gql.DecodeStrID(obj.ID)
 	if err != nil {

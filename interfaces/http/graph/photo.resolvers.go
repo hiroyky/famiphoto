@@ -5,18 +5,66 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/gql"
 )
 
-func (r *photoResolver) Group(ctx context.Context, obj *model.Photo) (*model.Group, error) {
-	panic(fmt.Errorf("not implemented"))
+// Owner is the resolver for the owner field.
+func (r *photoResolver) Owner(ctx context.Context, obj *model.Photo) (*model.User, error) {
+	userID, err := gql.DecodeStrID(obj.OwnerID)
+	if err != nil {
+		return nil, err
+	}
+	user, err := r.userUseCase.GetUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewUser(user), nil
 }
 
-func (r *photoResolver) Owner(ctx context.Context, obj *model.Photo) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+// Group is the resolver for the group field.
+func (r *photoResolver) Group(ctx context.Context, obj *model.Photo) (*model.Group, error) {
+	groupID, err := gql.DecodeStrID(obj.GroupID)
+	if err != nil {
+		return nil, err
+	}
+	group, err := r.groupUseCase.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewGroup(group), nil
+}
+
+// ExifData is the resolver for the exifData field.
+func (r *photoResolver) ExifData(ctx context.Context, obj *model.Photo) ([]*model.PhotoExif, error) {
+	photoID, err := gql.DecodeIntID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	meta, err := r.photoUseCase.GetPhotoMetaByPhotoID(ctx, photoID)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewPhotoExifData(meta), nil
+}
+
+// Files is the resolver for the files field.
+func (r *photoResolver) Files(ctx context.Context, obj *model.Photo) ([]*model.PhotoFile, error) {
+	photoID, err := gql.DecodeIntID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	files, err := r.photoUseCase.GetPhotoFilesByPhotoID(ctx, photoID)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewPhotoFiles(files), nil
 }
 
 // Photo returns generated.PhotoResolver implementation.

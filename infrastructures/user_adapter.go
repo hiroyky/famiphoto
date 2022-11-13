@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
+	"github.com/hiroyky/famiphoto/infrastructures/filters"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 	"github.com/hiroyky/famiphoto/utils/array"
 	"github.com/hiroyky/famiphoto/utils/cast"
@@ -12,32 +13,26 @@ import (
 
 type UserAdapter interface {
 	GetUser(ctx context.Context, userID string) (*entities.User, error)
-	GetUsers(ctx context.Context, filter *UserFilter, limit, offset int) (entities.UserList, error)
-	CountUsers(ctx context.Context, filter *UserFilter) (int, error)
+	GetUsers(ctx context.Context, filter *filters.UserFilter, limit, offset int) (entities.UserList, error)
+	CountUsers(ctx context.Context, filter *filters.UserFilter) (int, error)
 	ExistUser(ctx context.Context, userID string) (bool, error)
+	GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, error)
+	CountUsersBelongingGroup(ctx context.Context, groupID string) (int, error)
 	CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error)
 	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
 }
 
-type UserFilter repositories.UserFilter
-
-func (f *UserFilter) toRepositoryFilter() *repositories.UserFilter {
-	if f == nil {
-		return nil
-	}
-	v := repositories.UserFilter(*f)
-	return &v
-}
-
-func NewUserAdapter(userRepo repositories.UserRepository, userPasswordRepo repositories.UserPasswordRepository) UserAdapter {
+func NewUserAdapter(userRepo repositories.UserRepository, groupRepo repositories.GroupRepository, userPasswordRepo repositories.UserPasswordRepository) UserAdapter {
 	return &userAdapter{
 		userRepo:         userRepo,
+		groupRepo:        groupRepo,
 		userPasswordRepo: userPasswordRepo,
 	}
 }
 
 type userAdapter struct {
 	userRepo         repositories.UserRepository
+	groupRepo        repositories.GroupRepository
 	userPasswordRepo repositories.UserPasswordRepository
 }
 
@@ -49,20 +44,32 @@ func (a *userAdapter) GetUser(ctx context.Context, userID string) (*entities.Use
 	return a.toUserEntity(dbUser), nil
 }
 
-func (a *userAdapter) GetUsers(ctx context.Context, filter *UserFilter, limit, offset int) (entities.UserList, error) {
-	dbUsers, err := a.userRepo.GetUsers(ctx, filter.toRepositoryFilter(), limit, offset)
+func (a *userAdapter) GetUsers(ctx context.Context, filter *filters.UserFilter, limit, offset int) (entities.UserList, error) {
+	dbUsers, err := a.userRepo.GetUsers(ctx, filter, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	return array.Map(dbUsers, a.toUserEntity), nil
 }
 
-func (a *userAdapter) CountUsers(ctx context.Context, filter *UserFilter) (int, error) {
-	return a.userRepo.CountUsers(ctx, filter.toRepositoryFilter())
+func (a *userAdapter) CountUsers(ctx context.Context, filter *filters.UserFilter) (int, error) {
+	return a.userRepo.CountUsers(ctx, filter)
 }
 
 func (a *userAdapter) ExistUser(ctx context.Context, userID string) (bool, error) {
 	return a.userRepo.ExistUser(ctx, userID)
+}
+
+func (a *userAdapter) GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, error) {
+	dbUsers, err := a.groupRepo.GetUsersByGroupID(ctx, groupID, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	return array.Map(dbUsers, a.toUserEntity), nil
+}
+
+func (a *userAdapter) CountUsersBelongingGroup(ctx context.Context, groupID string) (int, error) {
+	return a.groupRepo.CountUsersByGroupID(ctx, groupID)
 }
 
 func (a *userAdapter) CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error) {

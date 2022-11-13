@@ -1,0 +1,6 @@
+type PhotoExif implements Node {
+    id: ID!
+    tagId: Int!
+    tagType: String!
+    valueString: String!
+}

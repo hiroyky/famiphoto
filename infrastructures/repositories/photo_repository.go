@@ -11,8 +11,9 @@ import (
 )
 
 type PhotoRepository interface {
-	GetPhotos(ctx context.Context, limit, offset int64) ([]*dbmodels.Photo, error)
-	CountPhotos(ctx context.Context) (int64, error)
+	GetPhoto(ctx context.Context, photoID int) (*dbmodels.Photo, error)
+	GetPhotos(ctx context.Context, limit, offset int) ([]*dbmodels.Photo, error)
+	CountPhotos(ctx context.Context) (int, error)
 	GetPhotoByFilePath(ctx context.Context, fileHash string) (*dbmodels.Photo, error)
 	InsertPhoto(ctx context.Context, photo *dbmodels.Photo) (*dbmodels.Photo, error)
 	UpdatePhoto(ctx context.Context, photo *dbmodels.Photo) (*dbmodels.Photo, error)
@@ -26,12 +27,24 @@ type photoRepository struct {
 	db mysql.SQLExecutor
 }
 
-func (r *photoRepository) GetPhotos(ctx context.Context, limit, offset int64) ([]*dbmodels.Photo, error) {
-	return dbmodels.Photos(qm.Limit(int(limit)), qm.Offset(int(offset))).All(ctx, r.db)
+func (r *photoRepository) GetPhoto(ctx context.Context, photoID int) (*dbmodels.Photo, error) {
+	p, err := dbmodels.FindPhoto(ctx, r.db, photoID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.New(errors.DBColumnNotFoundError, err)
+	}
+	return p, nil
 }
 
-func (r *photoRepository) CountPhotos(ctx context.Context) (int64, error) {
-	return dbmodels.Photos().Count(ctx, r.db)
+func (r *photoRepository) GetPhotos(ctx context.Context, limit, offset int) ([]*dbmodels.Photo, error) {
+	return dbmodels.Photos(qm.Limit(limit), qm.Offset(offset)).All(ctx, r.db)
+}
+
+func (r *photoRepository) CountPhotos(ctx context.Context) (int, error) {
+	cnt, err := dbmodels.Photos().Count(ctx, r.db)
+	if err != nil {
+		return 0, err
+	}
+	return int(cnt), nil
 }
 
 func (r *photoRepository) GetPhotoByFilePath(ctx context.Context, fileHash string) (*dbmodels.Photo, error) {
