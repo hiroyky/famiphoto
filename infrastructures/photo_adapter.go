@@ -11,6 +11,7 @@ import (
 
 type PhotoAdapter interface {
 	GetPhotoMetaByPhotoID(ctx context.Context, photoID int) (entities.PhotoMeta, error)
+	GetPhotoMetaItemByPhotoIDTagID(ctx context.Context, photoID, tagID int) (*entities.PhotoMetaItem, error)
 	GetPhotoByPhotoID(ctx context.Context, photoID int) (*entities.Photo, error)
 	GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error)
 	GetPhotoFileByPhotoFileID(ctx context.Context, photoFileID int) (*entities.PhotoFile, error)
@@ -184,6 +185,14 @@ func (a *photoAdapter) GetPhotoMetaByPhotoID(ctx context.Context, photoID int) (
 		return nil, err
 	}
 	return array.Map(exifSlice, a.toPhotoMetaItemEntity), nil
+}
+
+func (a *photoAdapter) GetPhotoMetaItemByPhotoIDTagID(ctx context.Context, photoID, tagID int) (*entities.PhotoMetaItem, error) {
+	exif, err := a.exifRepo.GetPhotoMetaItemByTagID(ctx, photoID, tagID)
+	if err != nil {
+		return nil, err
+	}
+	return a.toPhotoMetaItemEntity(exif), nil
 }
 
 func (a *photoAdapter) UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error) {

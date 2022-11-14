@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"fmt"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
@@ -17,11 +18,13 @@ type PhotoImportUseCase interface {
 func NewPhotoImportUseCase(
 	photoService services.PhotoService,
 	imageProcessService services.ImageProcessService,
+	photoAdapter infrastructures.PhotoAdapter,
 	storage infrastructures.PhotoStorageAdapter,
 ) PhotoImportUseCase {
 	return &photoImportUseCase{
 		photoService:        photoService,
 		imageProcessService: imageProcessService,
+		photoAdapter:        photoAdapter,
 		storage:             storage,
 	}
 }
@@ -29,6 +32,7 @@ func NewPhotoImportUseCase(
 type photoImportUseCase struct {
 	photoService        services.PhotoService
 	imageProcessService services.ImageProcessService
+	photoAdapter        infrastructures.PhotoAdapter
 	storage             infrastructures.PhotoStorageAdapter
 }
 
@@ -85,9 +89,16 @@ func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.S
 		return err
 	}
 
+	var orientation = config.ExifOrientationNone
+	orientationMeta, err := u.photoAdapter.GetPhotoMetaItemByPhotoIDTagID(ctx, photo.PhotoID, config.ExifTagOrientation)
+	if err == nil {
+		fmt.Println(photo.Name, orientationMeta.ValueString)
+		orientation = orientationMeta.ValueInt()
+	}
+
 	for _, photoFile := range photo.Files {
 		if photoFile.FileType() == entities.PhotoFileTypeJPEG {
-			if err := u.imageProcessService.CreateThumbnails(ctx, photoFile, data); err != nil {
+			if err := u.imageProcessService.CreateThumbnails(ctx, photoFile, data, orientation); err != nil {
 				return err
 			}
 		}
