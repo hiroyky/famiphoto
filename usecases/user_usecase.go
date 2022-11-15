@@ -15,6 +15,7 @@ type UserUseCase interface {
 	CreateUser(ctx context.Context, userID, name string, password string, now time.Time) (*entities.User, error)
 	GetUser(ctx context.Context, userID string) (*entities.User, error)
 	GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error)
+	ExistUser(ctx context.Context, userID string) (bool, error)
 	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
 	GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, int, error)
 }
@@ -82,6 +83,16 @@ func (u *userUseCase) GetUsers(ctx context.Context, userID *string, limit, offse
 		return nil, 0, err
 	}
 	return users, total, nil
+}
+
+func (u *userUseCase) ExistUser(ctx context.Context, userID string) (bool, error) {
+	if _, err := u.userAdapter.GetUser(ctx, userID); err != nil {
+		if errors.IsErrCode(err, errors.UserNotFoundError) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func (u *userUseCase) GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error) {

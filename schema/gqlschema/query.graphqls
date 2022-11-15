@@ -1,6 +1,7 @@
 type Query {
     user(id: ID!): User
     users(id: ID, limit: Int, offset: Int): UserPagination!
+    existUserId(id: String!): Boolean!
     me: User
     photo(id: ID!): Photo
     photos(

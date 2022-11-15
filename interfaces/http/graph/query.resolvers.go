@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"errors"
-
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
@@ -42,6 +41,11 @@ func (r *queryResolver) Users(ctx context.Context, id *string, limit *int, offse
 		return nil, err
 	}
 	return model.NewUserPagination(users, total, dstLimit, dstOffset), nil
+}
+
+// ExistUserID is the resolver for the existUserId field.
+func (r *queryResolver) ExistUserID(ctx context.Context, id string) (bool, error) {
+	return r.userUseCase.ExistUser(ctx, id)
 }
 
 // Me is the resolver for the me field.

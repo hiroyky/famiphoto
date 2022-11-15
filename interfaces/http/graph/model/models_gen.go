@@ -10,18 +10,26 @@ import (
 
 type Connection interface {
 	IsConnection()
+	GetPageInfo() *PageInfo
+	GetEdges() []Edge
+	GetNodes() []Node
 }
 
 type Edge interface {
 	IsEdge()
+	GetCursor() string
+	GetNode() Node
 }
 
 type Node interface {
 	IsNode()
+	GetID() string
 }
 
 type Pagination interface {
 	IsPagination()
+	GetPageInfo() *PaginationInfo
+	GetNodes() []Node
 }
 
 type AlterGroupInput struct {
@@ -58,14 +66,27 @@ type GroupEdge struct {
 	Node   *Group `json:"node"`
 }
 
-func (GroupEdge) IsEdge() {}
+func (GroupEdge) IsEdge()                {}
+func (this GroupEdge) GetCursor() string { return this.Cursor }
+func (this GroupEdge) GetNode() Node     { return *this.Node }
 
 type GroupPagination struct {
 	PageInfo *PaginationInfo `json:"pageInfo"`
 	Nodes    []*Group        `json:"nodes"`
 }
 
-func (GroupPagination) IsPagination() {}
+func (GroupPagination) IsPagination()                     {}
+func (this GroupPagination) GetPageInfo() *PaginationInfo { return this.PageInfo }
+func (this GroupPagination) GetNodes() []Node {
+	if this.Nodes == nil {
+		return nil
+	}
+	interfaceSlice := make([]Node, 0, len(this.Nodes))
+	for _, concrete := range this.Nodes {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`
@@ -90,28 +111,53 @@ type PhotoExif struct {
 	ValueString string `json:"valueString"`
 }
 
-func (PhotoExif) IsNode() {}
+func (PhotoExif) IsNode()            {}
+func (this PhotoExif) GetID() string { return this.ID }
 
 type PhotoPagination struct {
 	PageInfo *PaginationInfo `json:"pageInfo"`
 	Nodes    []*Photo        `json:"nodes"`
 }
 
-func (PhotoPagination) IsPagination() {}
+func (PhotoPagination) IsPagination()                     {}
+func (this PhotoPagination) GetPageInfo() *PaginationInfo { return this.PageInfo }
+func (this PhotoPagination) GetNodes() []Node {
+	if this.Nodes == nil {
+		return nil
+	}
+	interfaceSlice := make([]Node, 0, len(this.Nodes))
+	for _, concrete := range this.Nodes {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 type UserEdge struct {
 	Cursor string `json:"cursor"`
 	Node   *User  `json:"node"`
 }
 
-func (UserEdge) IsEdge() {}
+func (UserEdge) IsEdge()                {}
+func (this UserEdge) GetCursor() string { return this.Cursor }
+func (this UserEdge) GetNode() Node     { return *this.Node }
 
 type UserPagination struct {
 	PageInfo *PaginationInfo `json:"pageInfo"`
 	Nodes    []*User         `json:"nodes"`
 }
 
-func (UserPagination) IsPagination() {}
+func (UserPagination) IsPagination()                     {}
+func (this UserPagination) GetPageInfo() *PaginationInfo { return this.PageInfo }
+func (this UserPagination) GetNodes() []Node {
+	if this.Nodes == nil {
+		return nil
+	}
+	interfaceSlice := make([]Node, 0, len(this.Nodes))
+	for _, concrete := range this.Nodes {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 type UserPassword struct {
 	ID            string `json:"id"`
@@ -119,7 +165,8 @@ type UserPassword struct {
 	IsInitialized bool   `json:"isInitialized"`
 }
 
-func (UserPassword) IsNode() {}
+func (UserPassword) IsNode()            {}
+func (this UserPassword) GetID() string { return this.ID }
 
 type OauthClientScope string
 
