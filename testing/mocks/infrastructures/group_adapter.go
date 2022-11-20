@@ -79,3 +79,18 @@ func (mr *MockGroupAdapterMockRecorder) GetGroupsByUserID(ctx, userID interface{
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupsByUserID", reflect.TypeOf((*MockGroupAdapter)(nil).GetGroupsByUserID), ctx, userID)
 }
+
+// IsBelongGroupUser mocks base method.
+func (m *MockGroupAdapter) IsBelongGroupUser(ctx context.Context, groupID, userID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsBelongGroupUser", ctx, groupID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsBelongGroupUser indicates an expected call of IsBelongGroupUser.
+func (mr *MockGroupAdapterMockRecorder) IsBelongGroupUser(ctx, groupID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsBelongGroupUser", reflect.TypeOf((*MockGroupAdapter)(nil).IsBelongGroupUser), ctx, groupID, userID)
+}

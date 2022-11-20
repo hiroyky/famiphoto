@@ -27,5 +27,5 @@ func NewPhotoUseCase() usecases.PhotoUseCase {
 }
 
 func NewDownloadUseCase() usecases.DownloadUseCase {
-	return usecases.NewDownloadUseCase(NewPhotoAdapter(), NewPhotoStorageAdapter())
+	return usecases.NewDownloadUseCase(NewPhotoAdapter(), NewGroupAdapter(), NewPhotoStorageAdapter())
 }

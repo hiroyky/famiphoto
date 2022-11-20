@@ -90,3 +90,31 @@ func (mr *MockAuthMiddlewareMockRecorder) MustVerifyAdminClient(next interface{}
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MustVerifyAdminClient", reflect.TypeOf((*MockAuthMiddleware)(nil).MustVerifyAdminClient), next)
 }
+
+// VerifyClient mocks base method.
+func (m *MockAuthMiddleware) VerifyClient() func(http.Handler) http.Handler {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyClient")
+	ret0, _ := ret[0].(func(http.Handler) http.Handler)
+	return ret0
+}
+
+// VerifyClient indicates an expected call of VerifyClient.
+func (mr *MockAuthMiddlewareMockRecorder) VerifyClient() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyClient", reflect.TypeOf((*MockAuthMiddleware)(nil).VerifyClient))
+}
+
+// VerifyFileDownloadPermission mocks base method.
+func (m *MockAuthMiddleware) VerifyFileDownloadPermission(next echo.HandlerFunc) echo.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyFileDownloadPermission", next)
+	ret0, _ := ret[0].(echo.HandlerFunc)
+	return ret0
+}
+
+// VerifyFileDownloadPermission indicates an expected call of VerifyFileDownloadPermission.
+func (mr *MockAuthMiddlewareMockRecorder) VerifyFileDownloadPermission(next interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyFileDownloadPermission", reflect.TypeOf((*MockAuthMiddleware)(nil).VerifyFileDownloadPermission), next)
+}

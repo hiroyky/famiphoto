@@ -12,6 +12,7 @@ type GroupAdapter interface {
 	GetGroup(ctx context.Context, groupID string) (*entities.Group, error)
 	ExistGroup(ctx context.Context, groupID string) (bool, error)
 	GetGroupsByUserID(ctx context.Context, userID string) ([]*entities.Group, error)
+	IsBelongGroupUser(ctx context.Context, groupID, userID string) (bool, error)
 }
 
 func NewGroupAdapter(groupRepo repositories.GroupRepository) GroupAdapter {
@@ -40,6 +41,10 @@ func (a *groupAdapter) GetGroupsByUserID(ctx context.Context, userID string) ([]
 		return nil, err
 	}
 	return array.Map(dbGroups, a.toGroupEntity), nil
+}
+
+func (a *groupAdapter) IsBelongGroupUser(ctx context.Context, groupID, userID string) (bool, error) {
+	return a.groupRepo.ExistGroupUser(ctx, groupID, userID)
 }
 
 func (a *groupAdapter) toGroupEntity(group *dbmodels.Group) *entities.Group {

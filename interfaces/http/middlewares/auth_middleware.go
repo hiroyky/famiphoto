@@ -5,9 +5,11 @@ import (
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
+	"github.com/hiroyky/famiphoto/interfaces/http/requests"
 	"github.com/hiroyky/famiphoto/interfaces/http/responses"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/hiroyky/famiphoto/utils"
+	"github.com/hiroyky/famiphoto/utils/gql"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -18,16 +20,19 @@ type AuthMiddleware interface {
 	AuthClientSecret() func(handler http.Handler) http.Handler
 	AuthAccessToken() func(handler http.Handler) http.Handler
 	VerifyClient() func(handler http.Handler) http.Handler
+	VerifyFileDownloadPermission(next echo.HandlerFunc) echo.HandlerFunc
 }
 
-func NewAuthMiddleware(oauthUseCase usecases.OauthUseCase) AuthMiddleware {
+func NewAuthMiddleware(oauthUseCase usecases.OauthUseCase, downloadUseCase usecases.DownloadUseCase) AuthMiddleware {
 	return &authMiddleware{
-		oauthUseCase: oauthUseCase,
+		oauthUseCase:    oauthUseCase,
+		downloadUseCase: downloadUseCase,
 	}
 }
 
 type authMiddleware struct {
-	oauthUseCase usecases.OauthUseCase
+	oauthUseCase    usecases.OauthUseCase
+	downloadUseCase usecases.DownloadUseCase
 }
 
 func (m *authMiddleware) MustAuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc {
@@ -110,7 +115,7 @@ func (m *authMiddleware) AuthAccessToken() func(handler http.Handler) http.Handl
 }
 
 // VerifyClient クライアント情報が確認できなければエラーとする、APIにアクセスさせない。
-func (m *authMiddleware) VerifyClient() func(hander http.Handler) http.Handler {
+func (m *authMiddleware) VerifyClient() func(handler http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 			ctx := req.Context()
@@ -121,5 +126,30 @@ func (m *authMiddleware) VerifyClient() func(hander http.Handler) http.Handler {
 			}
 			next.ServeHTTP(writer, req)
 		})
+	}
+}
+
+func (m *authMiddleware) VerifyFileDownloadPermission(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+		if !ok {
+			return errors.New(errors.UserUnauthorizedError, nil)
+		}
+
+		var req requests.FileDownloadRequest
+		if err := req.Bind(c); err != nil {
+			return err
+		}
+		fileID, err := gql.DecodeIntID(req.FileID)
+		if err != nil {
+			return errors.New(errors.FileNotFoundError, err)
+		}
+
+		if err := m.downloadUseCase.VerifyDownloadPermission(ctx, fileID, sess.UserID); err != nil {
+			return err
+		}
+
+		return next(c)
 	}
 }

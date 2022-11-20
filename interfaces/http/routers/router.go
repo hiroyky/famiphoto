@@ -23,8 +23,11 @@ func New() *echo.Echo {
 	e.Use(echotrace.Middleware())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-
+	e.Renderer = responses.NewHtmlTemplateRenderer()
 	authMiddleware := di.NewAuthMiddleware()
+	authController := di.NewAuthController()
+	downloadController := di.NewDownloadController()
+	oauthController := di.NewOAuthController()
 
 	e.GET("/status.html", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "ok")
@@ -46,17 +49,16 @@ func New() *echo.Echo {
 		e.GET("/debug/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql")))
 	}
 
-	e.Renderer = responses.NewHtmlTemplateRenderer()
-
-	authController := di.NewAuthController()
 	e.POST("/auth/login", authController.Login, authMiddleware.MustAuthClientSecret, authMiddleware.MustVerifyAdminClient)
 
-	oauthController := di.NewOAuthController()
 	e.POST("/oauth/v2/token", oauthController.PostToken, authMiddleware.MustAuthClientSecret)
 
 	e.Group("assets").Use(middleware.StaticWithConfig(middleware.StaticConfig{Root: "assets"}))
-
-	downloadController := di.NewDownloadController()
-	e.GET("/download/files/:file_id", downloadController.GetFileDownload)
+	download := e.Group("/download",
+		echo.WrapMiddleware(authMiddleware.AuthClientSecret()),
+		echo.WrapMiddleware(authMiddleware.AuthAccessToken()),
+		echo.WrapMiddleware(authMiddleware.VerifyClient()),
+	)
+	download.GET("/files/:file_id", downloadController.GetFileDownload, authMiddleware.VerifyFileDownloadPermission)
 	return e
 }
