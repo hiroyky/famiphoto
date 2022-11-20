@@ -30,7 +30,7 @@ func (r *photoStorageRepository) ReadDir(dirPath string) ([]os.FileInfo, error) 
 
 func (r *photoStorageRepository) LoadContent(path string) ([]byte, error) {
 	if exist := r.driver.Exist(path); !exist {
-		return nil, errors.New(errors.FileNotFound, fmt.Errorf(path))
+		return nil, errors.New(errors.FileNotFoundError, fmt.Errorf(path))
 	}
 	return r.driver.ReadFile(path)
 }

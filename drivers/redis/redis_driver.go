@@ -28,7 +28,7 @@ func (r *redisDB) Get(ctx context.Context, key string) (string, error) {
 		return val, nil
 	}
 	if err == native.Nil {
-		return "", errors.New(errors.RedisKeyNotFound, err)
+		return "", errors.New(errors.RedisKeyNotFoundError, err)
 	}
 	return val, errors.New(errors.RedisFatal, err)
 }
@@ -39,7 +39,7 @@ func (r *redisDB) GetDel(ctx context.Context, key string) (string, error) {
 		return val, nil
 	}
 	if err == native.Nil {
-		return "", errors.New(errors.RedisKeyNotFound, err)
+		return "", errors.New(errors.RedisKeyNotFoundError, err)
 	}
 	return val, nil
 }
@@ -58,7 +58,7 @@ func (r *redisDB) Del(ctx context.Context, key string) error {
 		return nil
 	}
 	if err == native.Nil {
-		return errors.New(errors.RedisKeyNotFound, err)
+		return errors.New(errors.RedisKeyNotFoundError, err)
 	}
 	return errors.New(errors.RedisFatal, err)
 }
@@ -73,7 +73,7 @@ func (r *redisDB) SMembers(ctx context.Context, key string) ([]string, error) {
 		return values, nil
 	}
 	if err == native.Nil {
-		return nil, errors.New(errors.RedisKeyNotFound, err)
+		return nil, errors.New(errors.RedisKeyNotFoundError, err)
 	}
 	return nil, err
 }
@@ -84,7 +84,7 @@ func (r *redisDB) SRem(ctx context.Context, key string, members ...string) error
 		return nil
 	}
 	if err == native.Nil {
-		return errors.New(errors.RedisKeyNotFound, err)
+		return errors.New(errors.RedisKeyNotFoundError, err)
 	}
 	return err
 }
