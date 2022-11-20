@@ -16,7 +16,7 @@ type OauthUseCase interface {
 	Oauth2ClientCredential(ctx context.Context, client *entities.OauthClient) (*entities.Oauth2ClientCredential, error)
 	Oauth2AuthorizationCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string, now time.Time) (*entities.Oauth2AuthorizationCode, error)
 	Oauth2RefreshToken(ctx context.Context, client *entities.OauthClient, refreshToken string) (*entities.Oauth2AuthorizationCode, error)
-	AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error)
+	AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, *entities.OauthClient, error)
 }
 
 func NewOauthUseCase(
@@ -144,6 +144,14 @@ func (u *oauthUseCase) Oauth2RefreshToken(ctx context.Context, client *entities.
 	}, nil
 }
 
-func (u *oauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
-	return u.authService.GetSession(ctx, accessToken)
+func (u *oauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, *entities.OauthClient, error) {
+	sess, err := u.authService.GetSession(ctx, accessToken)
+	if err != nil {
+		return nil, nil, err
+	}
+	client, err := u.authService.GetUserClient(ctx, sess.ClientID)
+	if err != nil {
+		return nil, nil, err
+	}
+	return sess, client, nil
 }

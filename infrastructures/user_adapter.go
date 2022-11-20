@@ -18,7 +18,7 @@ type UserAdapter interface {
 	ExistUser(ctx context.Context, userID string) (bool, error)
 	GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, error)
 	CountUsersBelongingGroup(ctx context.Context, groupID string) (int, error)
-	CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error)
+	CreateUser(ctx context.Context, user *entities.User, groupName, password string, isInitializedPassword bool, now time.Time) (*entities.User, error)
 	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
 }
 
@@ -72,19 +72,29 @@ func (a *userAdapter) CountUsersBelongingGroup(ctx context.Context, groupID stri
 	return a.groupRepo.CountUsersByGroupID(ctx, groupID)
 }
 
-func (a *userAdapter) CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error) {
+func (a *userAdapter) CreateUser(ctx context.Context, user *entities.User, groupName, password string, isInitializedPassword bool, now time.Time) (*entities.User, error) {
 	dbUser := &dbmodels.User{
 		UserID: user.UserID,
 		Name:   user.Name,
 		Status: a.toDBUserStatus(user.Status),
 	}
+	dbPassword := &dbmodels.UserPassword{
+		UserID:         user.UserID,
+		Password:       password,
+		LastModifiedAt: now,
+		IsInitialized:  cast.BoolToInt8(isInitializedPassword),
+	}
+	dbGroup := &dbmodels.Group{
+		GroupID: user.UserID,
+		Name:    groupName,
+	}
 
-	dbUser, err := a.userRepo.CreateUser(ctx, dbUser, password, isInitializedPassword, now)
+	dstDBUser, err := a.userRepo.CreateUser(ctx, dbUser, dbGroup, dbPassword)
 	if err != nil {
 		return nil, err
 	}
 
-	return a.toUserEntity(dbUser), nil
+	return a.toUserEntity(dstDBUser), nil
 }
 
 func (a *userAdapter) GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error) {

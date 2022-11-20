@@ -15,6 +15,7 @@ import (
 type AuthMiddleware interface {
 	MustAuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc
 	MustVerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc
+	AuthClientSecret() func(handler http.Handler) http.Handler
 	AuthAccessToken() func(handler http.Handler) http.Handler
 }
 
@@ -57,6 +58,28 @@ func (m *authMiddleware) MustVerifyAdminClient(next echo.HandlerFunc) echo.Handl
 	}
 }
 
+func (m *authMiddleware) AuthClientSecret() func(handler http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+			ctx := req.Context()
+			clientID, clientSecret, ok := req.BasicAuth()
+			if !ok {
+				next.ServeHTTP(writer, req)
+				return
+			}
+			oauthClient, err := m.oauthUseCase.AuthClientSecret(ctx, clientID, clientSecret)
+			if err != nil {
+				code := responses.GetStatusCode(responses.ConvertIfNotFatal(err, errors.UnauthorizedError))
+				http.Error(writer, http.StatusText(code), code)
+				return
+			}
+			ctx = context.WithValue(ctx, config.OauthClientKey, oauthClient)
+			req = req.WithContext(ctx)
+			next.ServeHTTP(writer, req)
+		})
+	}
+}
+
 func (m *authMiddleware) AuthAccessToken() func(handler http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
@@ -67,7 +90,7 @@ func (m *authMiddleware) AuthAccessToken() func(handler http.Handler) http.Handl
 				return
 			}
 
-			sess, err := m.oauthUseCase.AuthAccessToken(ctx, token)
+			sess, client, err := m.oauthUseCase.AuthAccessToken(ctx, token)
 			if err != nil {
 				code := responses.GetStatusCode(responses.ConvertIfNotFatal(err, errors.UnauthorizedError))
 				http.Error(writer, http.StatusText(code), code)
@@ -78,6 +101,7 @@ func (m *authMiddleware) AuthAccessToken() func(handler http.Handler) http.Handl
 				return
 			}
 			ctx = context.WithValue(ctx, config.ClientSessionKey, sess)
+			ctx = context.WithValue(ctx, config.OauthClientKey, client)
 			req = req.WithContext(ctx)
 			next.ServeHTTP(writer, req)
 		})

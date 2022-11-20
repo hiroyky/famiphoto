@@ -15,7 +15,7 @@ func NewSearchUseCase() usecases.SearchUseCase {
 }
 
 func NewUserUseCase() usecases.UserUseCase {
-	return usecases.NewUserUseCase(NewUserAdapter(), NewUserService(), NewAuthService(), newPasswordService())
+	return usecases.NewUserUseCase(NewUserAdapter(), NewGroupAdapter(), NewUserService(), NewAuthService(), newPasswordService())
 }
 
 func NewGroupUseCase() usecases.GroupUseCase {

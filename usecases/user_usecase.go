@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
@@ -23,12 +24,14 @@ type UserUseCase interface {
 
 func NewUserUseCase(
 	userAdapter infrastructures.UserAdapter,
+	groupAdapter infrastructures.GroupAdapter,
 	userService services.UserService,
 	authService services.OAuthService,
 	passwordService services.PasswordService,
 ) UserUseCase {
 	return &userUseCase{
 		userAdapter:     userAdapter,
+		groupAdapter:    groupAdapter,
 		userService:     userService,
 		authService:     authService,
 		passwordService: passwordService,
@@ -37,6 +40,7 @@ func NewUserUseCase(
 
 type userUseCase struct {
 	userAdapter     infrastructures.UserAdapter
+	groupAdapter    infrastructures.GroupAdapter
 	userService     services.UserService
 	authService     services.OAuthService
 	passwordService services.PasswordService
@@ -57,17 +61,29 @@ func (u *userUseCase) ValidateToCreateUser(ctx context.Context, userID, name str
 }
 
 func (u *userUseCase) CreateUser(ctx context.Context, userID, name string, password string, now time.Time) (*entities.User, error) {
+	if exist, err := u.userAdapter.ExistUser(ctx, userID); err != nil {
+		return nil, err
+	} else if exist {
+		return nil, errors.New(errors.UserAlreadyExists, nil)
+	}
+	if exist, err := u.groupAdapter.ExistGroup(ctx, userID); err != nil {
+		return nil, err
+	} else if exist {
+		return nil, errors.New(errors.GroupAlreadyExistError, nil)
+	}
+
 	user := &entities.User{
 		UserID: userID,
 		Name:   name,
 		Status: entities.UserStatusActive,
 	}
+	groupName := fmt.Sprintf("%s (%s)", name, userID)
 
 	encPassword, err := u.passwordService.HashPassword(password)
 	if err != nil {
 		return nil, err
 	}
-	createdUser, err := u.userAdapter.CreateUser(ctx, user, encPassword, true, now)
+	createdUser, err := u.userAdapter.CreateUser(ctx, user, groupName, encPassword, true, now)
 	if err != nil {
 		return nil, err
 	}

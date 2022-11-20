@@ -32,6 +32,7 @@ const (
 	InvalidRequestError                FamiPhotoErrorCode = "InvalidRequestError"
 	UserNotFoundError                  FamiPhotoErrorCode = "UserNotFoundError"
 	GroupNotFoundError                 FamiPhotoErrorCode = "GroupNotFoundError"
+	GroupAlreadyExistError             FamiPhotoErrorCode = "GroupAlreadyExistError"
 	UserCreateFatal                    FamiPhotoErrorCode = "UserCreateFatal"
 	UserAlreadyExists                  FamiPhotoErrorCode = "UserAlreadyExists"
 	UserUnauthorizedError              FamiPhotoErrorCode = "UserUnauthorizedError"

@@ -10,6 +10,7 @@ import (
 
 type GroupAdapter interface {
 	GetGroup(ctx context.Context, groupID string) (*entities.Group, error)
+	ExistGroup(ctx context.Context, groupID string) (bool, error)
 	GetGroupsByUserID(ctx context.Context, userID string) ([]*entities.Group, error)
 }
 
@@ -27,6 +28,10 @@ func (a *groupAdapter) GetGroup(ctx context.Context, groupID string) (*entities.
 		return nil, err
 	}
 	return a.toGroupEntity(dbGroup), nil
+}
+
+func (a *groupAdapter) ExistGroup(ctx context.Context, groupID string) (bool, error) {
+	return a.groupRepo.ExistGroup(ctx, groupID)
 }
 
 func (a *groupAdapter) GetGroupsByUserID(ctx context.Context, userID string) ([]*entities.Group, error) {

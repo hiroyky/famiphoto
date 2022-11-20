@@ -34,7 +34,7 @@ func New() *echo.Echo {
 	e.POST("/graphql", func(ctx echo.Context) error {
 		srv.ServeHTTP(ctx.Response(), ctx.Request())
 		return nil
-	}, echo.WrapMiddleware(authMiddleware.AuthAccessToken()))
+	}, echo.WrapMiddleware(authMiddleware.AuthClientSecret()), echo.WrapMiddleware(authMiddleware.AuthAccessToken()))
 
 	if config.Env.IsDebug() {
 		e.GET("/debug/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql")))

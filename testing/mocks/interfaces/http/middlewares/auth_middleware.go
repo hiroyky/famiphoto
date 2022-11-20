@@ -49,6 +49,20 @@ func (mr *MockAuthMiddlewareMockRecorder) AuthAccessToken() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthAccessToken", reflect.TypeOf((*MockAuthMiddleware)(nil).AuthAccessToken))
 }
 
+// AuthClientSecret mocks base method.
+func (m *MockAuthMiddleware) AuthClientSecret() func(http.Handler) http.Handler {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AuthClientSecret")
+	ret0, _ := ret[0].(func(http.Handler) http.Handler)
+	return ret0
+}
+
+// AuthClientSecret indicates an expected call of AuthClientSecret.
+func (mr *MockAuthMiddlewareMockRecorder) AuthClientSecret() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthClientSecret", reflect.TypeOf((*MockAuthMiddleware)(nil).AuthClientSecret))
+}
+
 // MustAuthClientSecret mocks base method.
 func (m *MockAuthMiddleware) MustAuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc {
 	m.ctrl.T.Helper()

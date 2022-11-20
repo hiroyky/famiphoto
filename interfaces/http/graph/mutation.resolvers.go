@@ -6,10 +6,28 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/errors"
+	"time"
+
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
+
+// CreateUser is the resolver for the createUser field.
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
+	client, ok := ctx.Value(config.OauthClientKey).(*entities.OauthClient)
+	if !ok || client.Scope != entities.OauthScopeAdmin {
+		return nil, errors.New(errors.ForbiddenError, nil)
+	}
+
+	user, err := r.userUseCase.CreateUser(ctx, input.UserID, input.Name, input.Password, time.Now())
+	if err != nil {
+		return nil, err
+	}
+	return model.NewUser(user), nil
+}
 
 // CreateGroup is the resolver for the createGroup field.
 func (r *mutationResolver) CreateGroup(ctx context.Context, input model.CreateGroupInput) (*model.Group, error) {
