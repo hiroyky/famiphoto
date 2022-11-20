@@ -49,30 +49,30 @@ func (mr *MockAuthMiddlewareMockRecorder) AuthAccessToken() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthAccessToken", reflect.TypeOf((*MockAuthMiddleware)(nil).AuthAccessToken))
 }
 
-// AuthClientSecret mocks base method.
-func (m *MockAuthMiddleware) AuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc {
+// MustAuthClientSecret mocks base method.
+func (m *MockAuthMiddleware) MustAuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AuthClientSecret", next)
+	ret := m.ctrl.Call(m, "MustAuthClientSecret", next)
 	ret0, _ := ret[0].(echo.HandlerFunc)
 	return ret0
 }
 
-// AuthClientSecret indicates an expected call of AuthClientSecret.
-func (mr *MockAuthMiddlewareMockRecorder) AuthClientSecret(next interface{}) *gomock.Call {
+// MustAuthClientSecret indicates an expected call of MustAuthClientSecret.
+func (mr *MockAuthMiddlewareMockRecorder) MustAuthClientSecret(next interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthClientSecret", reflect.TypeOf((*MockAuthMiddleware)(nil).AuthClientSecret), next)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MustAuthClientSecret", reflect.TypeOf((*MockAuthMiddleware)(nil).MustAuthClientSecret), next)
 }
 
-// VerifyAdminClient mocks base method.
-func (m *MockAuthMiddleware) VerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc {
+// MustVerifyAdminClient mocks base method.
+func (m *MockAuthMiddleware) MustVerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VerifyAdminClient", next)
+	ret := m.ctrl.Call(m, "MustVerifyAdminClient", next)
 	ret0, _ := ret[0].(echo.HandlerFunc)
 	return ret0
 }
 
-// VerifyAdminClient indicates an expected call of VerifyAdminClient.
-func (mr *MockAuthMiddlewareMockRecorder) VerifyAdminClient(next interface{}) *gomock.Call {
+// MustVerifyAdminClient indicates an expected call of MustVerifyAdminClient.
+func (mr *MockAuthMiddlewareMockRecorder) MustVerifyAdminClient(next interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyAdminClient", reflect.TypeOf((*MockAuthMiddleware)(nil).VerifyAdminClient), next)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MustVerifyAdminClient", reflect.TypeOf((*MockAuthMiddleware)(nil).MustVerifyAdminClient), next)
 }

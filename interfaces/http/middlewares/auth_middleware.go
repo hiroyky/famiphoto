@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"context"
-	"fmt"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
@@ -14,8 +13,8 @@ import (
 )
 
 type AuthMiddleware interface {
-	AuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc
-	VerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc
+	MustAuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc
+	MustVerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc
 	AuthAccessToken() func(handler http.Handler) http.Handler
 }
 
@@ -29,7 +28,7 @@ type authMiddleware struct {
 	oauthUseCase usecases.OauthUseCase
 }
 
-func (m *authMiddleware) AuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc {
+func (m *authMiddleware) MustAuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		clientID, clientSecret, ok := c.Request().BasicAuth()
@@ -45,7 +44,7 @@ func (m *authMiddleware) AuthClientSecret(next echo.HandlerFunc) echo.HandlerFun
 	}
 }
 
-func (m *authMiddleware) VerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc {
+func (m *authMiddleware) MustVerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		client, ok := c.Get(config.OauthClientKey).(*entities.OauthClient)
 		if !ok {
@@ -62,7 +61,6 @@ func (m *authMiddleware) AuthAccessToken() func(handler http.Handler) http.Handl
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 			ctx := req.Context()
-			fmt.Println("auth header", req.Header.Get("authorization"))
 			token, ok := utils.ParseAuthHeader(req.Header.Get("authorization"), "Bearer")
 			if !ok {
 				next.ServeHTTP(writer, req)

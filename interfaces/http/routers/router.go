@@ -43,10 +43,10 @@ func New() *echo.Echo {
 	e.Renderer = responses.NewHtmlTemplateRenderer()
 
 	authController := di.NewAuthController()
-	e.POST("/auth/login", authController.Login, authMiddleware.AuthClientSecret, authMiddleware.VerifyAdminClient)
+	e.POST("/auth/login", authController.Login, authMiddleware.MustAuthClientSecret, authMiddleware.MustVerifyAdminClient)
 
 	oauthController := di.NewOAuthController()
-	e.POST("/oauth/v2/token", oauthController.PostToken, authMiddleware.AuthClientSecret)
+	e.POST("/oauth/v2/token", oauthController.PostToken, authMiddleware.MustAuthClientSecret)
 
 	e.Group("assets").Use(middleware.StaticWithConfig(middleware.StaticConfig{Root: "assets"}))
 
