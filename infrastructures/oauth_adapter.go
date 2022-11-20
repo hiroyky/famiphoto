@@ -3,6 +3,7 @@ package infrastructures
 import (
 	"context"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
@@ -134,7 +135,14 @@ func (a *oauthAdapter) SetUserAccessToken(ctx context.Context, clientID, userID,
 	return a.oauthAccessTokenRepo.SetClientCredentialAccessToken(ctx, m, accessToken, expireIn)
 }
 func (a *oauthAdapter) GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
-	return a.oauthAccessTokenRepo.GetSession(ctx, accessToken)
+	val, err := a.oauthAccessTokenRepo.GetSession(ctx, accessToken)
+	if err != nil {
+		if errors.IsErrCode(err, errors.OAuthAccessTokenNotFoundError) {
+			return nil, errors.New(errors.UserUnauthorizedError, err)
+		}
+		return nil, err
+	}
+	return val, nil
 }
 
 func (a *oauthAdapter) SetCode(ctx context.Context, code *entities.OAuthCode) error {
