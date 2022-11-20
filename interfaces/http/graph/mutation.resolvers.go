@@ -6,11 +6,11 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/hiroyky/famiphoto/config"
-	"github.com/hiroyky/famiphoto/errors"
 	"time"
 
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
+	fperrors "github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
@@ -19,7 +19,7 @@ import (
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
 	client, ok := ctx.Value(config.OauthClientKey).(*entities.OauthClient)
 	if !ok || client.Scope != entities.OauthScopeAdmin {
-		return nil, errors.New(errors.ForbiddenError, nil)
+		return nil, fperrors.New(fperrors.ForbiddenError, nil)
 	}
 
 	user, err := r.userUseCase.CreateUser(ctx, input.UserID, input.Name, input.Password, time.Now())

@@ -10,8 +10,9 @@ const GroupName = "Group"
 
 func NewGroup(g *entities.Group) *Group {
 	return &Group{
-		ID:   gql.EncodeStrID(GroupName, g.GroupID),
-		Name: g.Name,
+		ID:      gql.EncodeStrID(GroupName, g.GroupID),
+		GroupID: g.GroupID,
+		Name:    g.Name,
 	}
 }
 

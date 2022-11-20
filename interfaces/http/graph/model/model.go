@@ -32,6 +32,7 @@ func (m PhotoFile) GetID() string { return m.GetID() }
 
 type User struct {
 	ID     string     `json:"id"`
+	UserID string     `json:"userId"`
 	Name   string     `json:"name"`
 	Status UserStatus `json:"status"`
 }
@@ -40,8 +41,9 @@ func (User) IsNode()         {}
 func (m User) GetID() string { return m.GetID() }
 
 type Group struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID      string `json:"id"`
+	GroupID string `json:"groupId"`
+	Name    string `json:"name"`
 }
 
 func (Group) IsNode()         {}

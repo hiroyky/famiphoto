@@ -19,6 +19,7 @@ func NewUser(u *entities.User) *User {
 
 	return &User{
 		ID:     gql.EncodeStrID(UserName, u.UserID),
+		UserID: u.UserID,
 		Name:   u.Name,
 		Status: st,
 	}

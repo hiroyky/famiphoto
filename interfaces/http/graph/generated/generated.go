@@ -50,6 +50,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Group struct {
+		GroupID        func(childComplexity int) int
 		ID             func(childComplexity int) int
 		Name           func(childComplexity int) int
 		UserPagination func(childComplexity int, limit *int, offset *int) int
@@ -139,14 +140,16 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ExistUserID func(childComplexity int, id string) int
-		Me          func(childComplexity int) int
-		Photo       func(childComplexity int, id string) int
-		PhotoFile   func(childComplexity int, id string) int
-		PhotoFiles  func(childComplexity int, photoID string) int
-		Photos      func(childComplexity int, id *string, ownerID *string, groupID *string, limit *int, offset *int) int
-		User        func(childComplexity int, id string) int
-		Users       func(childComplexity int, id *string, limit *int, offset *int) int
+		ExistGroupID func(childComplexity int, id string) int
+		ExistUserID  func(childComplexity int, id string) int
+		Group        func(childComplexity int, id string) int
+		Me           func(childComplexity int) int
+		Photo        func(childComplexity int, id string) int
+		PhotoFile    func(childComplexity int, id string) int
+		PhotoFiles   func(childComplexity int, photoID string) int
+		Photos       func(childComplexity int, id *string, ownerID *string, groupID *string, limit *int, offset *int) int
+		User         func(childComplexity int, id string) int
+		Users        func(childComplexity int, id *string, limit *int, offset *int) int
 	}
 
 	User struct {
@@ -155,6 +158,7 @@ type ComplexityRoot struct {
 		Name         func(childComplexity int) int
 		Password     func(childComplexity int) int
 		Status       func(childComplexity int) int
+		UserID       func(childComplexity int) int
 	}
 
 	UserEdge struct {
@@ -205,6 +209,8 @@ type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
 	Users(ctx context.Context, id *string, limit *int, offset *int) (*model.UserPagination, error)
 	ExistUserID(ctx context.Context, id string) (bool, error)
+	Group(ctx context.Context, id string) (*model.Group, error)
+	ExistGroupID(ctx context.Context, id string) (bool, error)
 	Me(ctx context.Context) (*model.User, error)
 	Photo(ctx context.Context, id string) (*model.Photo, error)
 	Photos(ctx context.Context, id *string, ownerID *string, groupID *string, limit *int, offset *int) (*model.PhotoPagination, error)
@@ -230,6 +236,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Group.groupId":
+		if e.complexity.Group.GroupID == nil {
+			break
+		}
+
+		return e.complexity.Group.GroupID(childComplexity), true
 
 	case "Group.id":
 		if e.complexity.Group.ID == nil {
@@ -643,6 +656,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PhotoPagination.PageInfo(childComplexity), true
 
+	case "Query.existGroupId":
+		if e.complexity.Query.ExistGroupID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_existGroupId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ExistGroupID(childComplexity, args["id"].(string)), true
+
 	case "Query.existUserId":
 		if e.complexity.Query.ExistUserID == nil {
 			break
@@ -654,6 +679,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.ExistUserID(childComplexity, args["id"].(string)), true
+
+	case "Query.group":
+		if e.complexity.Query.Group == nil {
+			break
+		}
+
+		args, err := ec.field_Query_group_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Group(childComplexity, args["id"].(string)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -768,6 +805,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Status(childComplexity), true
+
+	case "User.userId":
+		if e.complexity.User.UserID == nil {
+			break
+		}
+
+		return e.complexity.User.UserID(childComplexity), true
 
 	case "UserEdge.cursor":
 		if e.complexity.UserEdge.Cursor == nil {
@@ -934,6 +978,7 @@ type PageInfo {
 `, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/group.graphqls", Input: `type Group implements Node {
     id: ID!
+    groupId: String!
     name: String!
     userPagination(limit: Int, offset: Int): UserPagination!
 }
@@ -1045,6 +1090,8 @@ type PhotoPagination implements Pagination {
     user(id: ID!): User
     users(id: ID, limit: Int, offset: Int): UserPagination!
     existUserId(id: String!): Boolean!
+    group(id: ID!): Group
+    existGroupId(id: String!): Boolean!
     me: User
     photo(id: ID!): Photo
     photos(
@@ -1060,6 +1107,7 @@ type PhotoPagination implements Pagination {
 `, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/user.graphqls", Input: `type User implements Node {
     id: ID!
+    userId: ID!
     name: String!
     status: UserStatus!
     password: UserPassword
@@ -1178,6 +1226,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_existGroupId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_existUserId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1185,6 +1248,21 @@ func (ec *executionContext) field_Query_existUserId_args(ctx context.Context, ra
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_group_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1419,6 +1497,50 @@ func (ec *executionContext) fieldContext_Group_id(ctx context.Context, field gra
 	return fc, nil
 }
 
+func (ec *executionContext) _Group_groupId(ctx context.Context, field graphql.CollectedField, obj *model.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_groupId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GroupID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_groupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Group_name(ctx context.Context, field graphql.CollectedField, obj *model.Group) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Group_name(ctx, field)
 	if err != nil {
@@ -1609,6 +1731,8 @@ func (ec *executionContext) fieldContext_GroupEdge_node(ctx context.Context, fie
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Group_id(ctx, field)
+			case "groupId":
+				return ec.fieldContext_Group_groupId(ctx, field)
 			case "name":
 				return ec.fieldContext_Group_name(ctx, field)
 			case "userPagination":
@@ -1719,6 +1843,8 @@ func (ec *executionContext) fieldContext_GroupPagination_nodes(ctx context.Conte
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Group_id(ctx, field)
+			case "groupId":
+				return ec.fieldContext_Group_groupId(ctx, field)
 			case "name":
 				return ec.fieldContext_Group_name(ctx, field)
 			case "userPagination":
@@ -1771,6 +1897,8 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_User_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_User_userId(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "status":
@@ -1838,6 +1966,8 @@ func (ec *executionContext) fieldContext_Mutation_createGroup(ctx context.Contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Group_id(ctx, field)
+			case "groupId":
+				return ec.fieldContext_Group_groupId(ctx, field)
 			case "name":
 				return ec.fieldContext_Group_name(ctx, field)
 			case "userPagination":
@@ -2799,6 +2929,8 @@ func (ec *executionContext) fieldContext_Photo_owner(ctx context.Context, field 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_User_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_User_userId(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "status":
@@ -2899,6 +3031,8 @@ func (ec *executionContext) fieldContext_Photo_group(ctx context.Context, field 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Group_id(ctx, field)
+			case "groupId":
+				return ec.fieldContext_Group_groupId(ctx, field)
 			case "name":
 				return ec.fieldContext_Group_name(ctx, field)
 			case "userPagination":
@@ -3803,6 +3937,8 @@ func (ec *executionContext) fieldContext_PhotoFile_group(ctx context.Context, fi
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Group_id(ctx, field)
+			case "groupId":
+				return ec.fieldContext_Group_groupId(ctx, field)
 			case "name":
 				return ec.fieldContext_Group_name(ctx, field)
 			case "userPagination":
@@ -3899,6 +4035,8 @@ func (ec *executionContext) fieldContext_PhotoFile_owner(ctx context.Context, fi
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_User_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_User_userId(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "status":
@@ -4126,6 +4264,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_User_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_User_userId(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "status":
@@ -4268,6 +4408,123 @@ func (ec *executionContext) fieldContext_Query_existUserId(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_group(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_group(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Group(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Group)
+	fc.Result = res
+	return ec.marshalOGroup2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGroup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_group(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Group_id(ctx, field)
+			case "groupId":
+				return ec.fieldContext_Group_groupId(ctx, field)
+			case "name":
+				return ec.fieldContext_Group_name(ctx, field)
+			case "userPagination":
+				return ec.fieldContext_Group_userPagination(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_group_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_existGroupId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_existGroupId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ExistGroupID(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_existGroupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_existGroupId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_me(ctx, field)
 	if err != nil {
@@ -4306,6 +4563,8 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_User_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_User_userId(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "status":
@@ -4786,6 +5045,50 @@ func (ec *executionContext) fieldContext_User_id(ctx context.Context, field grap
 	return fc, nil
 }
 
+func (ec *executionContext) _User_userId(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_userId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_userId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_name(ctx, field)
 	if err != nil {
@@ -4964,6 +5267,8 @@ func (ec *executionContext) fieldContext_User_belongGroups(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Group_id(ctx, field)
+			case "groupId":
+				return ec.fieldContext_Group_groupId(ctx, field)
 			case "name":
 				return ec.fieldContext_Group_name(ctx, field)
 			case "userPagination":
@@ -5060,6 +5365,8 @@ func (ec *executionContext) fieldContext_UserEdge_node(ctx context.Context, fiel
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_User_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_User_userId(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "status":
@@ -5174,6 +5481,8 @@ func (ec *executionContext) fieldContext_UserPagination_nodes(ctx context.Contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_User_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_User_userId(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "status":
@@ -7451,6 +7760,13 @@ func (ec *executionContext) _Group(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "groupId":
+
+			out.Values[i] = ec._Group_groupId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "name":
 
 			out.Values[i] = ec._Group_name(ctx, field, obj)
@@ -8265,6 +8581,49 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "group":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_group(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "existGroupId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_existGroupId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "me":
 			field := field
 
@@ -8407,6 +8766,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "id":
 
 			out.Values[i] = ec._User_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "userId":
+
+			out.Values[i] = ec._User_userId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -9697,6 +10063,13 @@ func (ec *executionContext) marshalOCursor2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOGroup2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *model.Group) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Group(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
