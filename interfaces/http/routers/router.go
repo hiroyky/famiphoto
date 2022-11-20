@@ -42,10 +42,11 @@ func New() *echo.Echo {
 
 	e.Renderer = responses.NewHtmlTemplateRenderer()
 
+	authController := di.NewAuthController()
+	e.POST("/auth/login", authController.Login, authMiddleware.AuthClientSecret, authMiddleware.VerifyAdminClient)
+
 	oauthController := di.NewOAuthController()
 	e.POST("/oauth/v2/token", oauthController.PostToken, authMiddleware.AuthClientSecret)
-	e.GET("/oauth/authorize", oauthController.GetAuthorize, middlewares.CSRFByForm())
-	e.POST("/oauth/authorize", oauthController.PostAuthorize, middlewares.CSRFByForm())
 
 	e.Group("assets").Use(middleware.StaticWithConfig(middleware.StaticConfig{Root: "assets"}))
 

@@ -62,3 +62,17 @@ func (mr *MockAuthMiddlewareMockRecorder) AuthClientSecret(next interface{}) *go
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthClientSecret", reflect.TypeOf((*MockAuthMiddleware)(nil).AuthClientSecret), next)
 }
+
+// VerifyAdminClient mocks base method.
+func (m *MockAuthMiddleware) VerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyAdminClient", next)
+	ret0, _ := ret[0].(echo.HandlerFunc)
+	return ret0
+}
+
+// VerifyAdminClient indicates an expected call of VerifyAdminClient.
+func (mr *MockAuthMiddlewareMockRecorder) VerifyAdminClient(next interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyAdminClient", reflect.TypeOf((*MockAuthMiddleware)(nil).VerifyAdminClient), next)
+}

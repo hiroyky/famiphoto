@@ -18,20 +18,27 @@ type UserUseCase interface {
 	ExistUser(ctx context.Context, userID string) (bool, error)
 	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
 	GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, int, error)
+	Login(ctx context.Context, client *entities.OauthClient, userID, password string, now time.Time) (*entities.Oauth2AuthorizationCode, error)
 }
 
 func NewUserUseCase(
 	userAdapter infrastructures.UserAdapter,
+	userService services.UserService,
+	authService services.OAuthService,
 	passwordService services.PasswordService,
 ) UserUseCase {
 	return &userUseCase{
 		userAdapter:     userAdapter,
+		userService:     userService,
+		authService:     authService,
 		passwordService: passwordService,
 	}
 }
 
 type userUseCase struct {
 	userAdapter     infrastructures.UserAdapter
+	userService     services.UserService
+	authService     services.OAuthService
 	passwordService services.PasswordService
 }
 
@@ -114,4 +121,24 @@ func (u *userUseCase) GetUsersBelongingGroup(ctx context.Context, groupID string
 		return nil, 0, err
 	}
 	return users, total, nil
+}
+
+func (u *userUseCase) Login(ctx context.Context, client *entities.OauthClient, userID, password string, now time.Time) (*entities.Oauth2AuthorizationCode, error) {
+	if err := u.userService.AuthUserPassword(ctx, userID, password); err != nil {
+		return nil, err
+	}
+
+	accessToken, expireIn, err := u.authService.PublishUserAccessToken(ctx, client, userID)
+	if err != nil {
+		return nil, err
+	}
+	refreshToken, err := u.authService.UpsertUserAuth(ctx, client.OauthClientID, userID, now)
+	if err != nil {
+		return nil, err
+	}
+	return &entities.Oauth2AuthorizationCode{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpireIn:     expireIn,
+	}, nil
 }

@@ -51,6 +51,21 @@ func (mr *MockUserUseCaseMockRecorder) CreateUser(ctx, userID, name, password, n
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUserUseCase)(nil).CreateUser), ctx, userID, name, password, now)
 }
 
+// ExistUser mocks base method.
+func (m *MockUserUseCase) ExistUser(ctx context.Context, userID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistUser", ctx, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistUser indicates an expected call of ExistUser.
+func (mr *MockUserUseCaseMockRecorder) ExistUser(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistUser", reflect.TypeOf((*MockUserUseCase)(nil).ExistUser), ctx, userID)
+}
+
 // GetUser mocks base method.
 func (m *MockUserUseCase) GetUser(ctx context.Context, userID string) (*entities.User, error) {
 	m.ctrl.T.Helper()
@@ -111,6 +126,21 @@ func (m *MockUserUseCase) GetUsersBelongingGroup(ctx context.Context, groupID st
 func (mr *MockUserUseCaseMockRecorder) GetUsersBelongingGroup(ctx, groupID, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersBelongingGroup", reflect.TypeOf((*MockUserUseCase)(nil).GetUsersBelongingGroup), ctx, groupID, limit, offset)
+}
+
+// Login mocks base method.
+func (m *MockUserUseCase) Login(ctx context.Context, client *entities.OauthClient, userID, password string, now time.Time) (*entities.Oauth2AuthorizationCode, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Login", ctx, client, userID, password, now)
+	ret0, _ := ret[0].(*entities.Oauth2AuthorizationCode)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Login indicates an expected call of Login.
+func (mr *MockUserUseCaseMockRecorder) Login(ctx, client, userID, password, now interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUserUseCase)(nil).Login), ctx, client, userID, password, now)
 }
 
 // ValidateToCreateUser mocks base method.

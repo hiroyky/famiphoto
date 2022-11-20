@@ -2,7 +2,9 @@ package middlewares
 
 import (
 	"context"
+	"fmt"
 	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/responses"
 	"github.com/hiroyky/famiphoto/usecases"
@@ -13,6 +15,7 @@ import (
 
 type AuthMiddleware interface {
 	AuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc
+	VerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc
 	AuthAccessToken() func(handler http.Handler) http.Handler
 }
 
@@ -42,10 +45,24 @@ func (m *authMiddleware) AuthClientSecret(next echo.HandlerFunc) echo.HandlerFun
 	}
 }
 
+func (m *authMiddleware) VerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		client, ok := c.Get(config.OauthClientKey).(*entities.OauthClient)
+		if !ok {
+			return errors.New(errors.ContextValueNotFoundFatal, nil)
+		}
+		if client.Scope != entities.OauthScopeAdmin {
+			return errors.New(errors.ForbiddenError, nil)
+		}
+		return next(c)
+	}
+}
+
 func (m *authMiddleware) AuthAccessToken() func(handler http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 			ctx := req.Context()
+			fmt.Println("auth header", req.Header.Get("authorization"))
 			token, ok := utils.ParseAuthHeader(req.Header.Get("authorization"), "Bearer")
 			if !ok {
 				next.ServeHTTP(writer, req)

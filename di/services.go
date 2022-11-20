@@ -2,8 +2,8 @@ package di
 
 import "github.com/hiroyky/famiphoto/services"
 
-func NewAuthService() services.AuthService {
-	return services.NewAuthService(newPasswordService(), NewAuthAdapter())
+func NewAuthService() services.OAuthService {
+	return services.NewOAuthService(newPasswordService(), NewAuthAdapter())
 }
 
 func NewImageProcessService() services.ImageProcessService {

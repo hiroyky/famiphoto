@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type AuthService interface {
+type OAuthService interface {
 	PublishUserAccessToken(ctx context.Context, client *entities.OauthClient, userID string) (string, int64, error)
 	PublishCCAccessToken(ctx context.Context, client *entities.OauthClient) (string, int64, error)
 	GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error)
@@ -26,24 +26,24 @@ type AuthService interface {
 	ValidateRedirectURL(ctx context.Context, clientID, redirectURL string) error
 }
 
-func NewAuthService(
+func NewOAuthService(
 	passwordService PasswordService,
-	authAdapter infrastructures.AuthAdapter,
-) AuthService {
-	return &authService{
+	authAdapter infrastructures.OAuthAdapter,
+) OAuthService {
+	return &oauthService{
 		passwordService:          passwordService,
 		authAdapter:              authAdapter,
 		generateRandomStringFunc: random.GenerateRandomString,
 	}
 }
 
-type authService struct {
+type oauthService struct {
 	passwordService          PasswordService
-	authAdapter              infrastructures.AuthAdapter
+	authAdapter              infrastructures.OAuthAdapter
 	generateRandomStringFunc func(length int) string
 }
 
-func (s *authService) PublishUserAccessToken(ctx context.Context, client *entities.OauthClient, userID string) (string, int64, error) {
+func (s *oauthService) PublishUserAccessToken(ctx context.Context, client *entities.OauthClient, userID string) (string, int64, error) {
 	accessToken := s.generateRandomStringFunc(config.AccessTokenLength)
 	expireIn := config.Env.CCAccessTokenExpireInSec
 	if err := s.authAdapter.SetUserAccessToken(
@@ -59,7 +59,7 @@ func (s *authService) PublishUserAccessToken(ctx context.Context, client *entiti
 	return accessToken, expireIn, nil
 }
 
-func (s *authService) PublishCCAccessToken(ctx context.Context, client *entities.OauthClient) (string, int64, error) {
+func (s *oauthService) PublishCCAccessToken(ctx context.Context, client *entities.OauthClient) (string, int64, error) {
 	accessToken := s.generateRandomStringFunc(config.AccessTokenLength)
 	expireIn := config.Env.CCAccessTokenExpireInSec
 
@@ -74,11 +74,11 @@ func (s *authService) PublishCCAccessToken(ctx context.Context, client *entities
 	return accessToken, expireIn, nil
 }
 
-func (s *authService) GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
+func (s *oauthService) GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
 	return s.authAdapter.GetSession(ctx, accessToken)
 }
 
-func (s *authService) AuthByRefreshToken(ctx context.Context, clientID, refreshToken string) (*entities.UserAuth, error) {
+func (s *oauthService) AuthByRefreshToken(ctx context.Context, clientID, refreshToken string) (*entities.UserAuth, error) {
 	ua, err := s.authAdapter.GetUserAuthByRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (s *authService) AuthByRefreshToken(ctx context.Context, clientID, refreshT
 	return ua, nil
 }
 
-func (s *authService) UpsertUserAuth(ctx context.Context, clientID, userID string, now time.Time) (string, error) {
+func (s *oauthService) UpsertUserAuth(ctx context.Context, clientID, userID string, now time.Time) (string, error) {
 	refreshToken := s.generateRandomStringFunc(config.RefreshTokenLength)
 	ua := &entities.UserAuth{
 		UserID:                  userID,
@@ -105,7 +105,7 @@ func (s *authService) UpsertUserAuth(ctx context.Context, clientID, userID strin
 	return refreshToken, nil
 }
 
-func (s *authService) AuthCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string) (*entities.OAuthCode, error) {
+func (s *oauthService) AuthCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string) (*entities.OAuthCode, error) {
 	oauthCode, err := s.authAdapter.GetCode(ctx, code)
 	if err != nil {
 		return nil, err
@@ -119,7 +119,7 @@ func (s *authService) AuthCode(ctx context.Context, client *entities.OauthClient
 	return oauthCode, nil
 }
 
-func (s *authService) PublishAuthCode(ctx context.Context, clientID, userID, redirectURL string) (string, error) {
+func (s *oauthService) PublishAuthCode(ctx context.Context, clientID, userID, redirectURL string) (string, error) {
 	code := s.generateRandomStringFunc(30)
 	if err := s.authAdapter.SetCode(ctx, &entities.OAuthCode{
 		Code:        code,
@@ -132,7 +132,7 @@ func (s *authService) PublishAuthCode(ctx context.Context, clientID, userID, red
 	return code, nil
 }
 
-func (s *authService) AuthClient(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error) {
+func (s *oauthService) AuthClient(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error) {
 	client, err := s.authAdapter.GetByOauthClientID(ctx, clientID)
 	if err != nil {
 		return nil, err
@@ -146,7 +146,7 @@ func (s *authService) AuthClient(ctx context.Context, clientID, clientSecret str
 	return client, nil
 }
 
-func (s *authService) CreateClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error) {
+func (s *oauthService) CreateClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error) {
 	clientSecret, err := s.passwordService.GeneratePassword(50)
 	if err != nil {
 		return nil, "", err
@@ -163,7 +163,7 @@ func (s *authService) CreateClient(ctx context.Context, client *entities.OauthCl
 	return dst, clientSecret, nil
 }
 
-func (s *authService) ValidateToCreateClient(ctx context.Context, client *entities.OauthClient) error {
+func (s *oauthService) ValidateToCreateClient(ctx context.Context, client *entities.OauthClient) error {
 	if exist, err := s.authAdapter.ExistOauthClient(ctx, client.OauthClientID); err != nil {
 		return err
 	} else if exist {
@@ -172,7 +172,7 @@ func (s *authService) ValidateToCreateClient(ctx context.Context, client *entiti
 	return nil
 }
 
-func (s *authService) GetUserClient(ctx context.Context, clientID string) (*entities.OauthClient, error) {
+func (s *oauthService) GetUserClient(ctx context.Context, clientID string) (*entities.OauthClient, error) {
 	client, err := s.authAdapter.GetByOauthClientID(ctx, clientID)
 	if err != nil {
 		return nil, err
@@ -183,11 +183,11 @@ func (s *authService) GetUserClient(ctx context.Context, clientID string) (*enti
 	return client, nil
 }
 
-func (s *authService) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, clientID string) (entities.OAuthClientRedirectURLList, error) {
+func (s *oauthService) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, clientID string) (entities.OAuthClientRedirectURLList, error) {
 	return s.authAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, clientID)
 }
 
-func (s *authService) ValidateRedirectURL(ctx context.Context, clientID, redirectURL string) error {
+func (s *oauthService) ValidateRedirectURL(ctx context.Context, clientID, redirectURL string) error {
 	urls, err := s.authAdapter.GetOAuthClientRedirectURLsByOAuthClientID(ctx, clientID)
 	if err != nil {
 		return err

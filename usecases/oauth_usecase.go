@@ -20,7 +20,7 @@ type OauthUseCase interface {
 }
 
 func NewOauthUseCase(
-	authService services.AuthService,
+	authService services.OAuthService,
 	userService services.UserService,
 ) OauthUseCase {
 	return &oauthUseCase{
@@ -30,7 +30,7 @@ func NewOauthUseCase(
 }
 
 type oauthUseCase struct {
-	authService services.AuthService
+	authService services.OAuthService
 	userService services.UserService
 }
 

@@ -44,6 +44,7 @@ const (
 	OAuthClientInvalidRedirectURLError FamiPhotoErrorCode = "OAuthClientInvalidRedirectURLError"
 	OAuthAccessTokenNotFoundError      FamiPhotoErrorCode = "OAuthAccessTokenNotFoundError"
 	UserAuthNotFoundError              FamiPhotoErrorCode = "UserAuthNotFoundError"
+	LoginTokenNotFoundError            FamiPhotoErrorCode = "LoginTokenNotFoundError"
 	UnauthorizedError                  FamiPhotoErrorCode = "UnauthorizedError"
 	DBColumnNotFoundError              FamiPhotoErrorCode = "DBColumnNotFoundError"
 	InvalidFilePathFatal               FamiPhotoErrorCode = "InvalidFilePathFatal"

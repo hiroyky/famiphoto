@@ -110,6 +110,21 @@ func (mr *MockPhotoAdapterMockRecorder) GetPhotoMetaByPhotoID(ctx, photoID inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotoMetaByPhotoID", reflect.TypeOf((*MockPhotoAdapter)(nil).GetPhotoMetaByPhotoID), ctx, photoID)
 }
 
+// GetPhotoMetaItemByPhotoIDTagID mocks base method.
+func (m *MockPhotoAdapter) GetPhotoMetaItemByPhotoIDTagID(ctx context.Context, photoID, tagID int) (*entities.PhotoMetaItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhotoMetaItemByPhotoIDTagID", ctx, photoID, tagID)
+	ret0, _ := ret[0].(*entities.PhotoMetaItem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPhotoMetaItemByPhotoIDTagID indicates an expected call of GetPhotoMetaItemByPhotoIDTagID.
+func (mr *MockPhotoAdapterMockRecorder) GetPhotoMetaItemByPhotoIDTagID(ctx, photoID, tagID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotoMetaItemByPhotoIDTagID", reflect.TypeOf((*MockPhotoAdapter)(nil).GetPhotoMetaItemByPhotoIDTagID), ctx, photoID, tagID)
+}
+
 // GetPhotos mocks base method.
 func (m *MockPhotoAdapter) GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error) {
 	m.ctrl.T.Helper()

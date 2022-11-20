@@ -452,6 +452,21 @@ func (m *MockQueryResolver) EXPECT() *MockQueryResolverMockRecorder {
 	return m.recorder
 }
 
+// ExistUserID mocks base method.
+func (m *MockQueryResolver) ExistUserID(ctx context.Context, id string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistUserID", ctx, id)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistUserID indicates an expected call of ExistUserID.
+func (mr *MockQueryResolverMockRecorder) ExistUserID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistUserID", reflect.TypeOf((*MockQueryResolver)(nil).ExistUserID), ctx, id)
+}
+
 // Me mocks base method.
 func (m *MockQueryResolver) Me(ctx context.Context) (*model.User, error) {
 	m.ctrl.T.Helper()
