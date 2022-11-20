@@ -17,6 +17,7 @@ type AuthMiddleware interface {
 	MustVerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc
 	AuthClientSecret() func(handler http.Handler) http.Handler
 	AuthAccessToken() func(handler http.Handler) http.Handler
+	VerifyClient() func(handler http.Handler) http.Handler
 }
 
 func NewAuthMiddleware(oauthUseCase usecases.OauthUseCase) AuthMiddleware {
@@ -103,6 +104,21 @@ func (m *authMiddleware) AuthAccessToken() func(handler http.Handler) http.Handl
 			ctx = context.WithValue(ctx, config.ClientSessionKey, sess)
 			ctx = context.WithValue(ctx, config.OauthClientKey, client)
 			req = req.WithContext(ctx)
+			next.ServeHTTP(writer, req)
+		})
+	}
+}
+
+// VerifyClient クライアント情報が確認できなければエラーとする、APIにアクセスさせない。
+func (m *authMiddleware) VerifyClient() func(hander http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+			ctx := req.Context()
+			_, ok := ctx.Value(config.OauthClientKey).(*entities.OauthClient)
+			if !ok {
+				http.Error(writer, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				return
+			}
 			next.ServeHTTP(writer, req)
 		})
 	}

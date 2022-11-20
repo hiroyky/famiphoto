@@ -31,10 +31,16 @@ func New() *echo.Echo {
 	})
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: di.NewResolver()}))
-	e.POST("/graphql", func(ctx echo.Context) error {
-		srv.ServeHTTP(ctx.Response(), ctx.Request())
-		return nil
-	}, echo.WrapMiddleware(authMiddleware.AuthClientSecret()), echo.WrapMiddleware(authMiddleware.AuthAccessToken()))
+	e.POST(
+		"/graphql",
+		func(ctx echo.Context) error {
+			srv.ServeHTTP(ctx.Response(), ctx.Request())
+			return nil
+		},
+		echo.WrapMiddleware(authMiddleware.AuthClientSecret()),
+		echo.WrapMiddleware(authMiddleware.AuthAccessToken()),
+		echo.WrapMiddleware(authMiddleware.VerifyClient()),
+	)
 
 	if config.Env.IsDebug() {
 		e.GET("/debug/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql")))
