@@ -19,6 +19,7 @@ services:
       - .env.local
     volumes:
       - ./:/go/src/github.com/hiroyky/famiphoto/
+      - ./samba/photos:/mnt/famiphoto
   elasticsearch:
     build:
       context: .
@@ -59,19 +60,6 @@ services:
       - ./schema/dbschema/generator/:/docker-entrypoint-initdb.d/
     ports:
       - 7001:3306
-    networks:
-      - famiphoto_network
-  samba:
-    image: dperson/samba
-    container_name: samba
-    restart: always
-    environment:
-      - PERMISSIONS=1
-      - USER=famiphoto;password
-      - WORKGROUP=famiphoto
-      - SHARE=famiphoto;/mnt/famiphoto;yes;no;no;famiphoto
-    volumes:
-      - ./samba/:/mnt/famiphoto
     networks:
       - famiphoto_network
   redis_oauth:

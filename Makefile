@@ -35,7 +35,7 @@ test:
 dc_exec:
 	docker compose exec $(DOCKER) bash
 dc_exec_import:
-	docker compose exec $(DOCKER) ./dst/import_photos --base-dir photos/yokoyama/hiro
+	docker compose exec $(DOCKER) ./dst/import_photos --base-dir yokoyama/hiro
 dc_exec_indexing:
 	docker compose exec $(DOCKER) ./dst/indexing
 dc_fmt:
