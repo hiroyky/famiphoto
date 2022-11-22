@@ -7,7 +7,7 @@ import (
 )
 
 func TestPhotoImportUseCase_parseBasePath_ルートパス(t *testing.T) {
-	src := "photo/group_id1/user_id1"
+	src := "group_id1/user_id1"
 
 	uc := photoImportUseCase{}
 	actual1, actual2, err := uc.parseBasePath(src)
@@ -19,7 +19,7 @@ func TestPhotoImportUseCase_parseBasePath_ルートパス(t *testing.T) {
 }
 
 func TestPhotoImportUseCase_parseBasePath_下位層(t *testing.T) {
-	src := "photo/group_id1/user_id1/subdir1"
+	src := "group_id1/user_id1/subdir1"
 
 	uc := photoImportUseCase{}
 	actual1, actual2, err := uc.parseBasePath(src)

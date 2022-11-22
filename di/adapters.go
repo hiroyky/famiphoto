@@ -61,7 +61,7 @@ func newPhotoThumbnailRepository() repositories.PhotoThumbnailRepository {
 }
 
 func newPhotoStorageRepository() repositories.PhotoStorageRepository {
-	return repositories.NewPhotoStorageRepository(NewMediaSambaStorageDriver())
+	return repositories.NewPhotoStorageRepository(NewMediaLocalStorageDriver())
 }
 
 func NewSearchAdapter() infrastructures.SearchAdapter {

@@ -70,11 +70,11 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 func (u *photoImportUseCase) parseBasePath(basePath string) (string, string, error) {
 	directories := utils.SplitPath(basePath)
 	fmt.Println(directories)
-	if len(directories) < 3 {
+	if len(directories) < 2 {
 		return "", "", errors.New(errors.InvalidFilePathFatal, fmt.Errorf(basePath))
 	}
-	groupID := directories[1]
-	ownerID := directories[2]
+	groupID := directories[0]
+	ownerID := directories[1]
 	return groupID, ownerID, nil
 }
 

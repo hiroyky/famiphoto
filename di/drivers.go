@@ -45,3 +45,7 @@ func NewMediaSambaStorageDriver() storage.Driver {
 func NewPhotoThumbnailStorageDriver() storage.Driver {
 	return storage.NewPhotoThumbnailDriver()
 }
+
+func NewMediaLocalStorageDriver() storage.Driver {
+	return storage.NewLocalStorageDriver("/mnt/famiphoto")
+}
