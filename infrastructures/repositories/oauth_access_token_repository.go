@@ -53,7 +53,7 @@ func (r *oauthAccessTokenRepository) GetSession(ctx context.Context, accessToken
 	str, err := r.db.Get(ctx, r.toHash(accessToken))
 	if err != nil {
 		code := errors.GetFPErrorCode(err)
-		if code == errors.RedisKeyNotFound {
+		if code == errors.RedisKeyNotFoundError {
 			return nil, errors.New(errors.OAuthAccessTokenNotFoundError, nil)
 		}
 		return nil, err

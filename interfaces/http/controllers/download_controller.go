@@ -31,7 +31,7 @@ func (c *downloadController) GetFileDownload(ctx echo.Context) error {
 
 	fileID, err := gql.DecodeIntID(req.FileID)
 	if err != nil {
-		return errors.New(errors.FileNotFound, err)
+		return errors.New(errors.FileNotFoundError, err)
 	}
 
 	data, file, err := c.downloadUseCase.LoadPhotoFile(ctx.Request().Context(), fileID)

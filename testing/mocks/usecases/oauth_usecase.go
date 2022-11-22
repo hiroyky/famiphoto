@@ -37,12 +37,13 @@ func (m *MockOauthUseCase) EXPECT() *MockOauthUseCaseMockRecorder {
 }
 
 // AuthAccessToken mocks base method.
-func (m *MockOauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
+func (m *MockOauthUseCase) AuthAccessToken(ctx context.Context, accessToken string) (*entities.OauthSession, *entities.OauthClient, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AuthAccessToken", ctx, accessToken)
 	ret0, _ := ret[0].(*entities.OauthSession)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(*entities.OauthClient)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // AuthAccessToken indicates an expected call of AuthAccessToken.

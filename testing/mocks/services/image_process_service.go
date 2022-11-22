@@ -36,15 +36,15 @@ func (m *MockImageProcessService) EXPECT() *MockImageProcessServiceMockRecorder 
 }
 
 // CreateThumbnails mocks base method.
-func (m *MockImageProcessService) CreateThumbnails(ctx context.Context, photoFile *entities.PhotoFile, data []byte) error {
+func (m *MockImageProcessService) CreateThumbnails(ctx context.Context, photoFile *entities.PhotoFile, data []byte, orientation int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateThumbnails", ctx, photoFile, data)
+	ret := m.ctrl.Call(m, "CreateThumbnails", ctx, photoFile, data, orientation)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateThumbnails indicates an expected call of CreateThumbnails.
-func (mr *MockImageProcessServiceMockRecorder) CreateThumbnails(ctx, photoFile, data interface{}) *gomock.Call {
+func (mr *MockImageProcessServiceMockRecorder) CreateThumbnails(ctx, photoFile, data, orientation interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateThumbnails", reflect.TypeOf((*MockImageProcessService)(nil).CreateThumbnails), ctx, photoFile, data)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateThumbnails", reflect.TypeOf((*MockImageProcessService)(nil).CreateThumbnails), ctx, photoFile, data, orientation)
 }

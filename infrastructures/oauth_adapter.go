@@ -3,6 +3,7 @@ package infrastructures
 import (
 	"context"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
@@ -10,7 +11,7 @@ import (
 	"github.com/hiroyky/famiphoto/utils/cast"
 )
 
-type AuthAdapter interface {
+type OAuthAdapter interface {
 	GetByOauthClientID(ctx context.Context, id string) (*entities.OauthClient, error)
 	GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) (entities.OAuthClientRedirectURLList, error)
 	CreateOAuthClient(ctx context.Context, client *entities.OauthClient, clientSecret string) (*entities.OauthClient, error)
@@ -36,8 +37,8 @@ func NewAuthAdapter(
 	oauthClientRedirectURLRepo repositories.OAuthClientRedirectURLRepository,
 	oauthCodeRepo repositories.OauthCodeRepository,
 	userAuthRepository repositories.UserAuthRepository,
-) AuthAdapter {
-	return &authAdapter{
+) OAuthAdapter {
+	return &oauthAdapter{
 		oauthClientRepo:            oauthClientRepo,
 		oauthAccessTokenRepo:       oauthAccessTokenRepo,
 		oauthClientRedirectURLRepo: oauthClientRedirectURLRepo,
@@ -46,7 +47,7 @@ func NewAuthAdapter(
 	}
 }
 
-type authAdapter struct {
+type oauthAdapter struct {
 	oauthClientRepo            repositories.OAuthClientRepository
 	oauthAccessTokenRepo       repositories.OauthAccessTokenRepository
 	oauthClientRedirectURLRepo repositories.OAuthClientRedirectURLRepository
@@ -54,7 +55,7 @@ type authAdapter struct {
 	userAuthRepository         repositories.UserAuthRepository
 }
 
-func (a *authAdapter) GetByOauthClientID(ctx context.Context, id string) (*entities.OauthClient, error) {
+func (a *oauthAdapter) GetByOauthClientID(ctx context.Context, id string) (*entities.OauthClient, error) {
 	oauthClient, err := a.oauthClientRepo.GetByOauthClientID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -67,7 +68,7 @@ func (a *authAdapter) GetByOauthClientID(ctx context.Context, id string) (*entit
 	return a.toOAuthClientEntity(oauthClient, redirectURLs), nil
 }
 
-func (a *authAdapter) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) (entities.OAuthClientRedirectURLList, error) {
+func (a *oauthAdapter) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, oauthClientID string) (entities.OAuthClientRedirectURLList, error) {
 	urls, err := a.oauthClientRedirectURLRepo.GetOAuthClientRedirectURLsByOAuthClientID(ctx, oauthClientID)
 	if err != nil {
 		return nil, err
@@ -75,7 +76,7 @@ func (a *authAdapter) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Cont
 	return array.Map(urls, a.toRedirectURLEntity), nil
 }
 
-func (a *authAdapter) CreateOAuthClient(ctx context.Context, client *entities.OauthClient, clientSecret string) (*entities.OauthClient, error) {
+func (a *oauthAdapter) CreateOAuthClient(ctx context.Context, client *entities.OauthClient, clientSecret string) (*entities.OauthClient, error) {
 	dbClient := &dbmodels.OauthClient{
 		OauthClientID: client.OauthClientID,
 		Name:          client.Name,
@@ -98,11 +99,11 @@ func (a *authAdapter) CreateOAuthClient(ctx context.Context, client *entities.Oa
 	return a.toOAuthClientEntity(dstClient, dstURLs), nil
 }
 
-func (a *authAdapter) ExistOauthClient(ctx context.Context, id string) (bool, error) {
+func (a *oauthAdapter) ExistOauthClient(ctx context.Context, id string) (bool, error) {
 	return a.oauthClientRepo.ExistOauthClient(ctx, id)
 }
 
-func (a *authAdapter) toOAuthClientEntity(m *dbmodels.OauthClient, redirectURLs []*dbmodels.OauthClientRedirectURL) *entities.OauthClient {
+func (a *oauthAdapter) toOAuthClientEntity(m *dbmodels.OauthClient, redirectURLs []*dbmodels.OauthClientRedirectURL) *entities.OauthClient {
 	return &entities.OauthClient{
 		OauthClientID:      m.OauthClientID,
 		ClientSecretHashed: m.ClientSecret,
@@ -115,7 +116,7 @@ func (a *authAdapter) toOAuthClientEntity(m *dbmodels.OauthClient, redirectURLs 
 	}
 }
 
-func (a *authAdapter) SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireAt int64) error {
+func (a *oauthAdapter) SetClientCredentialAccessToken(ctx context.Context, clientID, accessToken string, expireAt int64) error {
 	m := &models.OauthAccessToken{
 		ClientID:   clientID,
 		ClientType: models.OauthClientTypeClientCredential,
@@ -124,7 +125,7 @@ func (a *authAdapter) SetClientCredentialAccessToken(ctx context.Context, client
 	return a.oauthAccessTokenRepo.SetClientCredentialAccessToken(ctx, m, accessToken, expireAt)
 }
 
-func (a *authAdapter) SetUserAccessToken(ctx context.Context, clientID, userID, accessToken string, scope entities.OauthScope, expireIn int64) error {
+func (a *oauthAdapter) SetUserAccessToken(ctx context.Context, clientID, userID, accessToken string, scope entities.OauthScope, expireIn int64) error {
 	m := &models.OauthAccessToken{
 		ClientID:   clientID,
 		ClientType: models.OauthClientTypeUserCredential,
@@ -133,11 +134,18 @@ func (a *authAdapter) SetUserAccessToken(ctx context.Context, clientID, userID, 
 	}
 	return a.oauthAccessTokenRepo.SetClientCredentialAccessToken(ctx, m, accessToken, expireIn)
 }
-func (a *authAdapter) GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
-	return a.oauthAccessTokenRepo.GetSession(ctx, accessToken)
+func (a *oauthAdapter) GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
+	val, err := a.oauthAccessTokenRepo.GetSession(ctx, accessToken)
+	if err != nil {
+		if errors.IsErrCode(err, errors.OAuthAccessTokenNotFoundError) {
+			return nil, errors.New(errors.UserUnauthorizedError, err)
+		}
+		return nil, err
+	}
+	return val, nil
 }
 
-func (a *authAdapter) SetCode(ctx context.Context, code *entities.OAuthCode) error {
+func (a *oauthAdapter) SetCode(ctx context.Context, code *entities.OAuthCode) error {
 	return a.oauthCodeRepo.SetCode(ctx, code.Code, &models.OauthCode{
 		ClientID:    code.ClientID,
 		UserID:      code.UserID,
@@ -145,7 +153,7 @@ func (a *authAdapter) SetCode(ctx context.Context, code *entities.OAuthCode) err
 	})
 }
 
-func (a *authAdapter) GetCode(ctx context.Context, code string) (*entities.OAuthCode, error) {
+func (a *oauthAdapter) GetCode(ctx context.Context, code string) (*entities.OAuthCode, error) {
 	m, err := a.oauthCodeRepo.GetCode(ctx, code)
 	if err != nil {
 		return nil, err
@@ -158,7 +166,7 @@ func (a *authAdapter) GetCode(ctx context.Context, code string) (*entities.OAuth
 	}, nil
 }
 
-func (a *authAdapter) UpsertUserAuth(ctx context.Context, userAuth *entities.UserAuth) (*entities.UserAuth, error) {
+func (a *oauthAdapter) UpsertUserAuth(ctx context.Context, userAuth *entities.UserAuth) (*entities.UserAuth, error) {
 	m := &dbmodels.UserAuth{
 		UserID:                  userAuth.UserID,
 		OauthClientID:           userAuth.OAuthClientID,
@@ -172,7 +180,7 @@ func (a *authAdapter) UpsertUserAuth(ctx context.Context, userAuth *entities.Use
 	return a.toUserAuthEntity(dst), nil
 }
 
-func (a *authAdapter) GetUserAuth(ctx context.Context, userID, clientID string) (*entities.UserAuth, error) {
+func (a *oauthAdapter) GetUserAuth(ctx context.Context, userID, clientID string) (*entities.UserAuth, error) {
 	m, err := a.userAuthRepository.GetUserAuth(ctx, userID, clientID)
 	if err != nil {
 		return nil, err
@@ -180,21 +188,21 @@ func (a *authAdapter) GetUserAuth(ctx context.Context, userID, clientID string) 
 	return a.toUserAuthEntity(m), nil
 }
 
-func (a *authAdapter) GetUserAuthByRefreshToken(ctx context.Context, refreshToken string) (*entities.UserAuth, error) {
+func (a *oauthAdapter) GetUserAuthByRefreshToken(ctx context.Context, refreshToken string) (*entities.UserAuth, error) {
 	m, err := a.userAuthRepository.GetUserAuthByRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return nil, err
 	}
 	return a.toUserAuthEntity(m), nil
 }
-func (a *authAdapter) DeleteUserAuth(ctx context.Context, userID, clientID string) error {
+func (a *oauthAdapter) DeleteUserAuth(ctx context.Context, userID, clientID string) error {
 	return a.userAuthRepository.DeleteUserAuth(ctx, userID, clientID)
 }
-func (a *authAdapter) DeleteClientAllAuth(ctx context.Context, clientID string) error {
+func (a *oauthAdapter) DeleteClientAllAuth(ctx context.Context, clientID string) error {
 	return a.userAuthRepository.DeleteClientAllAuth(ctx, clientID)
 }
 
-func (a *authAdapter) toUserAuthEntity(m *dbmodels.UserAuth) *entities.UserAuth {
+func (a *oauthAdapter) toUserAuthEntity(m *dbmodels.UserAuth) *entities.UserAuth {
 	return &entities.UserAuth{
 		UserID:                  m.UserID,
 		OAuthClientID:           m.OauthClientID,
@@ -203,7 +211,7 @@ func (a *authAdapter) toUserAuthEntity(m *dbmodels.UserAuth) *entities.UserAuth 
 	}
 }
 
-func (a *authAdapter) toRedirectURLEntity(url *dbmodels.OauthClientRedirectURL) *entities.OAuthClientRedirectURL {
+func (a *oauthAdapter) toRedirectURLEntity(url *dbmodels.OauthClientRedirectURL) *entities.OAuthClientRedirectURL {
 	return &entities.OAuthClientRedirectURL{
 		OAuthClientRedirectUrlID: url.OauthClientRedirectURLID,
 		OauthClientID:            url.OauthClientID,

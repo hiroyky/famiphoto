@@ -1,5 +1,6 @@
 type Group implements Node {
     id: ID!
+    groupId: String!
     name: String!
     userPagination(limit: Int, offset: Int): UserPagination!
 }

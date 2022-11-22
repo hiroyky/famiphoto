@@ -35,6 +35,21 @@ func (m *MockGroupUseCase) EXPECT() *MockGroupUseCaseMockRecorder {
 	return m.recorder
 }
 
+// ExistGroup mocks base method.
+func (m *MockGroupUseCase) ExistGroup(ctx context.Context, groupID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistGroup", ctx, groupID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistGroup indicates an expected call of ExistGroup.
+func (mr *MockGroupUseCaseMockRecorder) ExistGroup(ctx, groupID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistGroup", reflect.TypeOf((*MockGroupUseCase)(nil).ExistGroup), ctx, groupID)
+}
+
 // GetGroup mocks base method.
 func (m *MockGroupUseCase) GetGroup(ctx context.Context, groupID string) (*entities.Group, error) {
 	m.ctrl.T.Helper()

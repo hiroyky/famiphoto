@@ -50,15 +50,71 @@ func (mr *MockAuthMiddlewareMockRecorder) AuthAccessToken() *gomock.Call {
 }
 
 // AuthClientSecret mocks base method.
-func (m *MockAuthMiddleware) AuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc {
+func (m *MockAuthMiddleware) AuthClientSecret() func(http.Handler) http.Handler {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AuthClientSecret", next)
-	ret0, _ := ret[0].(echo.HandlerFunc)
+	ret := m.ctrl.Call(m, "AuthClientSecret")
+	ret0, _ := ret[0].(func(http.Handler) http.Handler)
 	return ret0
 }
 
 // AuthClientSecret indicates an expected call of AuthClientSecret.
-func (mr *MockAuthMiddlewareMockRecorder) AuthClientSecret(next interface{}) *gomock.Call {
+func (mr *MockAuthMiddlewareMockRecorder) AuthClientSecret() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthClientSecret", reflect.TypeOf((*MockAuthMiddleware)(nil).AuthClientSecret), next)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthClientSecret", reflect.TypeOf((*MockAuthMiddleware)(nil).AuthClientSecret))
+}
+
+// MustAuthClientSecret mocks base method.
+func (m *MockAuthMiddleware) MustAuthClientSecret(next echo.HandlerFunc) echo.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MustAuthClientSecret", next)
+	ret0, _ := ret[0].(echo.HandlerFunc)
+	return ret0
+}
+
+// MustAuthClientSecret indicates an expected call of MustAuthClientSecret.
+func (mr *MockAuthMiddlewareMockRecorder) MustAuthClientSecret(next interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MustAuthClientSecret", reflect.TypeOf((*MockAuthMiddleware)(nil).MustAuthClientSecret), next)
+}
+
+// MustVerifyAdminClient mocks base method.
+func (m *MockAuthMiddleware) MustVerifyAdminClient(next echo.HandlerFunc) echo.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MustVerifyAdminClient", next)
+	ret0, _ := ret[0].(echo.HandlerFunc)
+	return ret0
+}
+
+// MustVerifyAdminClient indicates an expected call of MustVerifyAdminClient.
+func (mr *MockAuthMiddlewareMockRecorder) MustVerifyAdminClient(next interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MustVerifyAdminClient", reflect.TypeOf((*MockAuthMiddleware)(nil).MustVerifyAdminClient), next)
+}
+
+// VerifyClient mocks base method.
+func (m *MockAuthMiddleware) VerifyClient() func(http.Handler) http.Handler {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyClient")
+	ret0, _ := ret[0].(func(http.Handler) http.Handler)
+	return ret0
+}
+
+// VerifyClient indicates an expected call of VerifyClient.
+func (mr *MockAuthMiddlewareMockRecorder) VerifyClient() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyClient", reflect.TypeOf((*MockAuthMiddleware)(nil).VerifyClient))
+}
+
+// VerifyFileDownloadPermission mocks base method.
+func (m *MockAuthMiddleware) VerifyFileDownloadPermission(next echo.HandlerFunc) echo.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyFileDownloadPermission", next)
+	ret0, _ := ret[0].(echo.HandlerFunc)
+	return ret0
+}
+
+// VerifyFileDownloadPermission indicates an expected call of VerifyFileDownloadPermission.
+func (mr *MockAuthMiddlewareMockRecorder) VerifyFileDownloadPermission(next interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyFileDownloadPermission", reflect.TypeOf((*MockAuthMiddleware)(nil).VerifyFileDownloadPermission), next)
 }

@@ -15,14 +15,18 @@ func HandlerError(err error, ctx echo.Context) {
 		ctx.JSON(
 			http.StatusInternalServerError,
 			map[string]string{
-				"error": http.StatusText(http.StatusInternalServerError),
+				"error":         http.StatusText(http.StatusInternalServerError),
+				"error_code":    http.StatusText(http.StatusInternalServerError),
+				"error_message": http.StatusText(http.StatusInternalServerError),
 			},
 		)
 	}
 	ctx.JSON(
 		responses.GetStatusCode(err),
 		map[string]string{
-			"error": errors.GetFPErrorCode(err).ToString(),
+			"error":         http.StatusText(responses.GetStatusCode(err)),
+			"error_code":    errors.GetFPErrorCode(err).ToString(),
+			"error_message": err.Error(),
 		},
 	)
 }

@@ -12,6 +12,10 @@ type Driver interface {
 	Get(ctx context.Context, key string) (string, error)
 	GetDel(ctx context.Context, key string) (string, error)
 	SetEx(ctx context.Context, key string, val interface{}, expiration time.Duration) error
+	Del(ctx context.Context, key string) error
+	SAdd(ctx context.Context, key string, members ...string) error
+	SMembers(ctx context.Context, key string) ([]string, error)
+	SRem(ctx context.Context, key string, members ...string) error
 }
 
 type redisDB struct {
@@ -24,7 +28,7 @@ func (r *redisDB) Get(ctx context.Context, key string) (string, error) {
 		return val, nil
 	}
 	if err == native.Nil {
-		return "", errors.New(errors.RedisKeyNotFound, err)
+		return "", errors.New(errors.RedisKeyNotFoundError, err)
 	}
 	return val, errors.New(errors.RedisFatal, err)
 }
@@ -35,7 +39,7 @@ func (r *redisDB) GetDel(ctx context.Context, key string) (string, error) {
 		return val, nil
 	}
 	if err == native.Nil {
-		return "", errors.New(errors.RedisKeyNotFound, err)
+		return "", errors.New(errors.RedisKeyNotFoundError, err)
 	}
 	return val, nil
 }
@@ -48,7 +52,48 @@ func (r *redisDB) SetEx(ctx context.Context, key string, val interface{}, expira
 	return nil
 }
 
+func (r *redisDB) Del(ctx context.Context, key string) error {
+	err := r.client.Del(ctx, key).Err()
+	if err == nil {
+		return nil
+	}
+	if err == native.Nil {
+		return errors.New(errors.RedisKeyNotFoundError, err)
+	}
+	return errors.New(errors.RedisFatal, err)
+}
+
+func (r *redisDB) SAdd(ctx context.Context, key string, members ...string) error {
+	return r.client.SAdd(ctx, key, members).Err()
+}
+
+func (r *redisDB) SMembers(ctx context.Context, key string) ([]string, error) {
+	values, err := r.client.SMembers(ctx, key).Result()
+	if err == nil {
+		return values, nil
+	}
+	if err == native.Nil {
+		return nil, errors.New(errors.RedisKeyNotFoundError, err)
+	}
+	return nil, err
+}
+
+func (r *redisDB) SRem(ctx context.Context, key string, members ...string) error {
+	err := r.client.SRem(ctx, key, members).Err()
+	if err == nil {
+		return nil
+	}
+	if err == native.Nil {
+		return errors.New(errors.RedisKeyNotFoundError, err)
+	}
+	return err
+}
+
 var oauthDB *redisDB = nil
+
+func NewRedisDriver(client *native.Client) Driver {
+	return &redisDB{client: client}
+}
 
 func NewOauthRedis() Driver {
 	if oauthDB != nil {

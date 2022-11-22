@@ -452,6 +452,51 @@ func (m *MockQueryResolver) EXPECT() *MockQueryResolverMockRecorder {
 	return m.recorder
 }
 
+// ExistGroupID mocks base method.
+func (m *MockQueryResolver) ExistGroupID(ctx context.Context, id string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistGroupID", ctx, id)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistGroupID indicates an expected call of ExistGroupID.
+func (mr *MockQueryResolverMockRecorder) ExistGroupID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistGroupID", reflect.TypeOf((*MockQueryResolver)(nil).ExistGroupID), ctx, id)
+}
+
+// ExistUserID mocks base method.
+func (m *MockQueryResolver) ExistUserID(ctx context.Context, id string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistUserID", ctx, id)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistUserID indicates an expected call of ExistUserID.
+func (mr *MockQueryResolverMockRecorder) ExistUserID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistUserID", reflect.TypeOf((*MockQueryResolver)(nil).ExistUserID), ctx, id)
+}
+
+// Group mocks base method.
+func (m *MockQueryResolver) Group(ctx context.Context, id string) (*model.Group, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Group", ctx, id)
+	ret0, _ := ret[0].(*model.Group)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Group indicates an expected call of Group.
+func (mr *MockQueryResolverMockRecorder) Group(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Group", reflect.TypeOf((*MockQueryResolver)(nil).Group), ctx, id)
+}
+
 // Me mocks base method.
 func (m *MockQueryResolver) Me(ctx context.Context) (*model.User, error) {
 	m.ctrl.T.Helper()

@@ -6,7 +6,7 @@ import (
 	"github.com/hiroyky/famiphoto/infrastructures/repositories"
 )
 
-func NewAuthAdapter() infrastructures.AuthAdapter {
+func NewAuthAdapter() infrastructures.OAuthAdapter {
 	return infrastructures.NewAuthAdapter(
 		newOAuthClientRepository(),
 		NewOauthAccessTokenRepository(),

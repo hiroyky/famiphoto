@@ -35,6 +35,21 @@ func (m *MockGroupAdapter) EXPECT() *MockGroupAdapterMockRecorder {
 	return m.recorder
 }
 
+// ExistGroup mocks base method.
+func (m *MockGroupAdapter) ExistGroup(ctx context.Context, groupID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistGroup", ctx, groupID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistGroup indicates an expected call of ExistGroup.
+func (mr *MockGroupAdapterMockRecorder) ExistGroup(ctx, groupID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistGroup", reflect.TypeOf((*MockGroupAdapter)(nil).ExistGroup), ctx, groupID)
+}
+
 // GetGroup mocks base method.
 func (m *MockGroupAdapter) GetGroup(ctx context.Context, groupID string) (*entities.Group, error) {
 	m.ctrl.T.Helper()
@@ -63,4 +78,19 @@ func (m *MockGroupAdapter) GetGroupsByUserID(ctx context.Context, userID string)
 func (mr *MockGroupAdapterMockRecorder) GetGroupsByUserID(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupsByUserID", reflect.TypeOf((*MockGroupAdapter)(nil).GetGroupsByUserID), ctx, userID)
+}
+
+// IsBelongGroupUser mocks base method.
+func (m *MockGroupAdapter) IsBelongGroupUser(ctx context.Context, groupID, userID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsBelongGroupUser", ctx, groupID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsBelongGroupUser indicates an expected call of IsBelongGroupUser.
+func (mr *MockGroupAdapterMockRecorder) IsBelongGroupUser(ctx, groupID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsBelongGroupUser", reflect.TypeOf((*MockGroupAdapter)(nil).IsBelongGroupUser), ctx, groupID, userID)
 }

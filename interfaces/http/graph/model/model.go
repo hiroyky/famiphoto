@@ -14,7 +14,8 @@ type Photo struct {
 	FileTypes        []string `json:"fileTypes"`
 }
 
-func (Photo) IsNode() {}
+func (Photo) IsNode()         {}
+func (m Photo) GetID() string { return m.GetID() }
 
 type PhotoFile struct {
 	ID         string `json:"id"`
@@ -26,22 +27,27 @@ type PhotoFile struct {
 	FileHash   string `json:"fileHash"`
 }
 
-func (PhotoFile) IsNode() {}
+func (PhotoFile) IsNode()         {}
+func (m PhotoFile) GetID() string { return m.GetID() }
 
 type User struct {
 	ID     string     `json:"id"`
+	UserID string     `json:"userId"`
 	Name   string     `json:"name"`
 	Status UserStatus `json:"status"`
 }
 
-func (User) IsNode() {}
+func (User) IsNode()         {}
+func (m User) GetID() string { return m.GetID() }
 
 type Group struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID      string `json:"id"`
+	GroupID string `json:"groupId"`
+	Name    string `json:"name"`
 }
 
-func (Group) IsNode() {}
+func (Group) IsNode()         {}
+func (m Group) GetID() string { return m.GetID() }
 
 type OauthClient struct {
 	ID           string           `json:"id"`
@@ -52,7 +58,8 @@ type OauthClient struct {
 	ClientSecret *string          `json:"clientSecret"`
 }
 
-func (OauthClient) IsNode() {}
+func (OauthClient) IsNode()         {}
+func (m OauthClient) GetID() string { return m.GetID() }
 
 func (e OauthClientScope) ToEntity() entities.OauthScope {
 	switch e {

@@ -44,6 +44,29 @@ func (r *queryResolver) Users(ctx context.Context, id *string, limit *int, offse
 	return model.NewUserPagination(users, total, dstLimit, dstOffset), nil
 }
 
+// ExistUserID is the resolver for the existUserId field.
+func (r *queryResolver) ExistUserID(ctx context.Context, id string) (bool, error) {
+	return r.userUseCase.ExistUser(ctx, id)
+}
+
+// Group is the resolver for the group field.
+func (r *queryResolver) Group(ctx context.Context, id string) (*model.Group, error) {
+	groupID, err := gql.DecodeStrID(id)
+	if err != nil {
+		return nil, err
+	}
+	group, err := r.groupUseCase.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewGroup(group), nil
+}
+
+// ExistGroupID is the resolver for the existGroupId field.
+func (r *queryResolver) ExistGroupID(ctx context.Context, id string) (bool, error) {
+	return r.groupUseCase.ExistGroup(ctx, id)
+}
+
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)

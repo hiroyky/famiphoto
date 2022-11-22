@@ -11,8 +11,10 @@ import (
 
 type GroupRepository interface {
 	GetGroup(ctx context.Context, groupID string) (*dbmodels.Group, error)
+	ExistGroup(ctx context.Context, groupID string) (bool, error)
 	GetGroupsByUserID(ctx context.Context, userID string) (dbmodels.GroupSlice, error)
 	GetUsersByGroupID(ctx context.Context, groupID string, limit, offset int) (dbmodels.UserSlice, error)
+	ExistGroupUser(ctx context.Context, groupID, userID string) (bool, error)
 	CountUsersByGroupID(ctx context.Context, groupID string) (int, error)
 }
 
@@ -35,6 +37,10 @@ func (r *groupRepository) GetGroup(ctx context.Context, groupID string) (*dbmode
 		return nil, err
 	}
 	return group, nil
+}
+
+func (r *groupRepository) ExistGroup(ctx context.Context, groupID string) (bool, error) {
+	return dbmodels.GroupExists(ctx, r.db, groupID)
 }
 
 func (r *groupRepository) GetGroupsByUserID(ctx context.Context, userID string) (dbmodels.GroupSlice, error) {
@@ -70,6 +76,10 @@ func (r *groupRepository) GetUsersByGroupID(ctx context.Context, groupID string,
 		users[i] = ug.R.User
 	}
 	return users, nil
+}
+
+func (r *groupRepository) ExistGroupUser(ctx context.Context, groupID, userID string) (bool, error) {
+	return dbmodels.GroupUserExists(ctx, r.db, groupID, userID)
 }
 
 func (r *groupRepository) CountUsersByGroupID(ctx context.Context, groupID string) (int, error) {

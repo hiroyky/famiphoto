@@ -7,7 +7,6 @@ package mock_repositories
 import (
 	context "context"
 	reflect "reflect"
-	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 	dbmodels "github.com/hiroyky/famiphoto/infrastructures/dbmodels"
@@ -53,18 +52,18 @@ func (mr *MockUserRepositoryMockRecorder) CountUsers(ctx, filter interface{}) *g
 }
 
 // CreateUser mocks base method.
-func (m *MockUserRepository) CreateUser(ctx context.Context, user *dbmodels.User, password string, isInitializedPassword bool, now time.Time) (*dbmodels.User, error) {
+func (m *MockUserRepository) CreateUser(ctx context.Context, user *dbmodels.User, group *dbmodels.Group, password *dbmodels.UserPassword) (*dbmodels.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", ctx, user, password, isInitializedPassword, now)
+	ret := m.ctrl.Call(m, "CreateUser", ctx, user, group, password)
 	ret0, _ := ret[0].(*dbmodels.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateUser indicates an expected call of CreateUser.
-func (mr *MockUserRepositoryMockRecorder) CreateUser(ctx, user, password, isInitializedPassword, now interface{}) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) CreateUser(ctx, user, group, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUserRepository)(nil).CreateUser), ctx, user, password, isInitializedPassword, now)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUserRepository)(nil).CreateUser), ctx, user, group, password)
 }
 
 // ExistUser mocks base method.

@@ -50,6 +50,36 @@ func (mr *MockGroupRepositoryMockRecorder) CountUsersByGroupID(ctx, groupID inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountUsersByGroupID", reflect.TypeOf((*MockGroupRepository)(nil).CountUsersByGroupID), ctx, groupID)
 }
 
+// ExistGroup mocks base method.
+func (m *MockGroupRepository) ExistGroup(ctx context.Context, groupID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistGroup", ctx, groupID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistGroup indicates an expected call of ExistGroup.
+func (mr *MockGroupRepositoryMockRecorder) ExistGroup(ctx, groupID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistGroup", reflect.TypeOf((*MockGroupRepository)(nil).ExistGroup), ctx, groupID)
+}
+
+// ExistGroupUser mocks base method.
+func (m *MockGroupRepository) ExistGroupUser(ctx context.Context, groupID, userID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistGroupUser", ctx, groupID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistGroupUser indicates an expected call of ExistGroupUser.
+func (mr *MockGroupRepositoryMockRecorder) ExistGroupUser(ctx, groupID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistGroupUser", reflect.TypeOf((*MockGroupRepository)(nil).ExistGroupUser), ctx, groupID, userID)
+}
+
 // GetGroup mocks base method.
 func (m *MockGroupRepository) GetGroup(ctx context.Context, groupID string) (*dbmodels.Group, error) {
 	m.ctrl.T.Helper()

@@ -8,15 +8,18 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
+	fperrors "github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
-	if err := r.userUseCase.ValidateToCreateUser(ctx, input.UserID, input.Name, input.Password); err != nil {
-		return nil, err
+	client, ok := ctx.Value(config.OauthClientKey).(*entities.OauthClient)
+	if !ok || client.Scope != entities.OauthScopeAdmin {
+		return nil, fperrors.New(fperrors.ForbiddenError, nil)
 	}
 
 	user, err := r.userUseCase.CreateUser(ctx, input.UserID, input.Name, input.Password, time.Now())
