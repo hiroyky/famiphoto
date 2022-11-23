@@ -3,6 +3,7 @@ type Query {
     users(id: ID, limit: Int, offset: Int): UserPagination!
     existUserId(id: String!): Boolean!
     group(id: ID!): Group
+    belongingGroups: [Group!]!
     existGroupId(id: String!): Boolean!
     me: User
     photo(id: ID!): Photo

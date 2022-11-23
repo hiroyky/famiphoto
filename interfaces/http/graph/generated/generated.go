@@ -140,16 +140,17 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ExistGroupID func(childComplexity int, id string) int
-		ExistUserID  func(childComplexity int, id string) int
-		Group        func(childComplexity int, id string) int
-		Me           func(childComplexity int) int
-		Photo        func(childComplexity int, id string) int
-		PhotoFile    func(childComplexity int, id string) int
-		PhotoFiles   func(childComplexity int, photoID string) int
-		Photos       func(childComplexity int, id *string, ownerID *string, groupID *string, limit *int, offset *int) int
-		User         func(childComplexity int, id string) int
-		Users        func(childComplexity int, id *string, limit *int, offset *int) int
+		BelongingGroups func(childComplexity int) int
+		ExistGroupID    func(childComplexity int, id string) int
+		ExistUserID     func(childComplexity int, id string) int
+		Group           func(childComplexity int, id string) int
+		Me              func(childComplexity int) int
+		Photo           func(childComplexity int, id string) int
+		PhotoFile       func(childComplexity int, id string) int
+		PhotoFiles      func(childComplexity int, photoID string) int
+		Photos          func(childComplexity int, id *string, ownerID *string, groupID *string, limit *int, offset *int) int
+		User            func(childComplexity int, id string) int
+		Users           func(childComplexity int, id *string, limit *int, offset *int) int
 	}
 
 	User struct {
@@ -210,6 +211,7 @@ type QueryResolver interface {
 	Users(ctx context.Context, id *string, limit *int, offset *int) (*model.UserPagination, error)
 	ExistUserID(ctx context.Context, id string) (bool, error)
 	Group(ctx context.Context, id string) (*model.Group, error)
+	BelongingGroups(ctx context.Context) ([]*model.Group, error)
 	ExistGroupID(ctx context.Context, id string) (bool, error)
 	Me(ctx context.Context) (*model.User, error)
 	Photo(ctx context.Context, id string) (*model.Photo, error)
@@ -656,6 +658,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PhotoPagination.PageInfo(childComplexity), true
 
+	case "Query.belongingGroups":
+		if e.complexity.Query.BelongingGroups == nil {
+			break
+		}
+
+		return e.complexity.Query.BelongingGroups(childComplexity), true
+
 	case "Query.existGroupId":
 		if e.complexity.Query.ExistGroupID == nil {
 			break
@@ -1091,6 +1100,7 @@ type PhotoPagination implements Pagination {
     users(id: ID, limit: Int, offset: Int): UserPagination!
     existUserId(id: String!): Boolean!
     group(id: ID!): Group
+    belongingGroups: [Group!]!
     existGroupId(id: String!): Boolean!
     me: User
     photo(id: ID!): Photo
@@ -4466,6 +4476,60 @@ func (ec *executionContext) fieldContext_Query_group(ctx context.Context, field 
 	if fc.Args, err = ec.field_Query_group_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_belongingGroups(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_belongingGroups(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().BelongingGroups(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Group)
+	fc.Result = res
+	return ec.marshalNGroup2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGroupᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_belongingGroups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Group_id(ctx, field)
+			case "groupId":
+				return ec.fieldContext_Group_groupId(ctx, field)
+			case "name":
+				return ec.fieldContext_Group_name(ctx, field)
+			case "userPagination":
+				return ec.fieldContext_Group_userPagination(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -8591,6 +8655,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_group(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "belongingGroups":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_belongingGroups(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
