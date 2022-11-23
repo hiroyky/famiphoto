@@ -1,6 +1,7 @@
 package storage
 
 import (
+	native "errors"
 	"fmt"
 	"github.com/hiroyky/famiphoto/errors"
 	"os"
@@ -64,4 +65,15 @@ func (d *localStorageDriver) Glob(pattern string) ([]string, error) {
 func (d *localStorageDriver) Exist(filePath string) bool {
 	_, err := os.Stat(path.Join(d.baseDir, filePath))
 	return err == nil
+}
+
+func (d *localStorageDriver) Stat(filePath string) (os.FileInfo, error) {
+	stat, err := os.Stat(path.Join(d.baseDir, filePath))
+	if err != nil {
+		if native.Is(err, os.ErrNotExist) {
+			return nil, errors.New(errors.FileNotFoundError, err)
+		}
+		return nil, err
+	}
+	return stat, nil
 }

@@ -35,6 +35,20 @@ func (m *MockPhotoStorageRepository) EXPECT() *MockPhotoStorageRepositoryMockRec
 	return m.recorder
 }
 
+// CreateGroupUserDir mocks base method.
+func (m *MockPhotoStorageRepository) CreateGroupUserDir(groupID, userID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateGroupUserDir", groupID, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateGroupUserDir indicates an expected call of CreateGroupUserDir.
+func (mr *MockPhotoStorageRepositoryMockRecorder) CreateGroupUserDir(groupID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGroupUserDir", reflect.TypeOf((*MockPhotoStorageRepository)(nil).CreateGroupUserDir), groupID, userID)
+}
+
 // LoadContent mocks base method.
 func (m *MockPhotoStorageRepository) LoadContent(path string) ([]byte, error) {
 	m.ctrl.T.Helper()

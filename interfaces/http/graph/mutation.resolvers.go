@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/hiroyky/famiphoto/config"
@@ -31,7 +30,16 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 
 // CreateGroup is the resolver for the createGroup field.
 func (r *mutationResolver) CreateGroup(ctx context.Context, input model.CreateGroupInput) (*model.Group, error) {
-	panic(fmt.Errorf("not implemented"))
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return nil, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+	group, err := r.groupUseCase.CreateGroup(ctx, input.GroupID, input.Name, sess.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewGroup(group), nil
 }
 
 // CreateOauthClient is the resolver for the createOauthClient field.

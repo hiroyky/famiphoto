@@ -452,6 +452,21 @@ func (m *MockQueryResolver) EXPECT() *MockQueryResolverMockRecorder {
 	return m.recorder
 }
 
+// BelongingGroups mocks base method.
+func (m *MockQueryResolver) BelongingGroups(ctx context.Context) ([]*model.Group, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BelongingGroups", ctx)
+	ret0, _ := ret[0].([]*model.Group)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BelongingGroups indicates an expected call of BelongingGroups.
+func (mr *MockQueryResolverMockRecorder) BelongingGroups(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BelongingGroups", reflect.TypeOf((*MockQueryResolver)(nil).BelongingGroups), ctx)
+}
+
 // ExistGroupID mocks base method.
 func (m *MockQueryResolver) ExistGroupID(ctx context.Context, id string) (bool, error) {
 	m.ctrl.T.Helper()

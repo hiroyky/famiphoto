@@ -13,14 +13,22 @@ type GroupAdapter interface {
 	ExistGroup(ctx context.Context, groupID string) (bool, error)
 	GetGroupsByUserID(ctx context.Context, userID string) ([]*entities.Group, error)
 	IsBelongGroupUser(ctx context.Context, groupID, userID string) (bool, error)
+	CreateGroup(ctx context.Context, group *entities.Group, userID string) error
 }
 
-func NewGroupAdapter(groupRepo repositories.GroupRepository) GroupAdapter {
-	return &groupAdapter{groupRepo: groupRepo}
+func NewGroupAdapter(
+	groupRepo repositories.GroupRepository,
+	photoStorageRepo repositories.PhotoStorageRepository,
+) GroupAdapter {
+	return &groupAdapter{
+		groupRepo:        groupRepo,
+		photoStorageRepo: photoStorageRepo,
+	}
 }
 
 type groupAdapter struct {
-	groupRepo repositories.GroupRepository
+	groupRepo        repositories.GroupRepository
+	photoStorageRepo repositories.PhotoStorageRepository
 }
 
 func (a *groupAdapter) GetGroup(ctx context.Context, groupID string) (*entities.Group, error) {
@@ -45,6 +53,25 @@ func (a *groupAdapter) GetGroupsByUserID(ctx context.Context, userID string) ([]
 
 func (a *groupAdapter) IsBelongGroupUser(ctx context.Context, groupID, userID string) (bool, error) {
 	return a.groupRepo.ExistGroupUser(ctx, groupID, userID)
+}
+
+func (a *groupAdapter) CreateGroup(ctx context.Context, group *entities.Group, userID string) error {
+	if err := a.photoStorageRepo.CreateGroupUserDir(group.GroupID, userID); err != nil {
+		return err
+	}
+
+	groupModel := &dbmodels.Group{
+		GroupID: group.GroupID,
+		Name:    group.Name,
+	}
+	groupUser := &dbmodels.GroupUser{
+		GroupID: group.GroupID,
+		UserID:  userID,
+	}
+	if err := a.groupRepo.CreateGroup(ctx, groupModel, groupUser); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (a *groupAdapter) toGroupEntity(group *dbmodels.Group) *entities.Group {

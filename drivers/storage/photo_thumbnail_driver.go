@@ -1,6 +1,8 @@
 package storage
 
 import (
+	native "errors"
+	"github.com/hiroyky/famiphoto/errors"
 	"os"
 	"path"
 	"path/filepath"
@@ -62,4 +64,15 @@ func (d *photoThumbnailDriver) Glob(pattern string) ([]string, error) {
 
 func (d *photoThumbnailDriver) Exist(filePath string) bool {
 	panic("Not implemented")
+}
+
+func (d *photoThumbnailDriver) Stat(filePath string) (os.FileInfo, error) {
+	stat, err := os.Stat(path.Join(d.baseDir, filePath))
+	if err != nil {
+		if native.Is(err, os.ErrNotExist) {
+			return nil, errors.New(errors.FileNotFoundError, err)
+		}
+		return nil, err
+	}
+	return stat, nil
 }

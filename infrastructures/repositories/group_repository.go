@@ -6,10 +6,12 @@ import (
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 type GroupRepository interface {
+	CreateGroup(ctx context.Context, group *dbmodels.Group, groupUser *dbmodels.GroupUser) error
 	GetGroup(ctx context.Context, groupID string) (*dbmodels.Group, error)
 	ExistGroup(ctx context.Context, groupID string) (bool, error)
 	GetGroupsByUserID(ctx context.Context, userID string) (dbmodels.GroupSlice, error)
@@ -26,6 +28,29 @@ func NewGroupRepository(db mysql.SQLExecutor) GroupRepository {
 
 type groupRepository struct {
 	db mysql.SQLExecutor
+}
+
+func (r *groupRepository) CreateGroup(ctx context.Context, group *dbmodels.Group, groupUser *dbmodels.GroupUser) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return errors.New(errors.TxnBeginFatal, err)
+	}
+
+	if err := group.Insert(ctx, tx, boil.Infer()); err != nil {
+		return err
+	}
+
+	if err := groupUser.Insert(ctx, tx, boil.Infer()); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return errors.New(errors.TxnRollbackFatal, err)
+		}
+		return err
+	}
+	return nil
 }
 
 func (r *groupRepository) GetGroup(ctx context.Context, groupID string) (*dbmodels.Group, error) {

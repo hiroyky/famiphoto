@@ -89,5 +89,5 @@ func newGroupRepository() repositories.GroupRepository {
 }
 
 func NewGroupAdapter() infrastructures.GroupAdapter {
-	return infrastructures.NewGroupAdapter(newGroupRepository())
+	return infrastructures.NewGroupAdapter(newGroupRepository(), newPhotoStorageRepository())
 }
