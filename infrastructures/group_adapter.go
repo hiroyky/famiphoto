@@ -14,6 +14,7 @@ type GroupAdapter interface {
 	GetGroupsByUserID(ctx context.Context, userID string) ([]*entities.Group, error)
 	IsBelongGroupUser(ctx context.Context, groupID, userID string) (bool, error)
 	CreateGroup(ctx context.Context, group *entities.Group, userID string) error
+	EditGroupMembers(ctx context.Context, groupID string, appendUserIDs, deleteUserIDs []string) error
 }
 
 func NewGroupAdapter(
@@ -28,6 +29,7 @@ func NewGroupAdapter(
 
 type groupAdapter struct {
 	groupRepo        repositories.GroupRepository
+	gropuUserRepo    repositories.GroupUserRepository
 	photoStorageRepo repositories.PhotoStorageRepository
 }
 
@@ -79,4 +81,34 @@ func (a *groupAdapter) toGroupEntity(group *dbmodels.Group) *entities.Group {
 		GroupID: group.GroupID,
 		Name:    group.Name,
 	}
+}
+
+func (a *groupAdapter) EditGroupMembers(ctx context.Context, groupID string, appendUserIDs, deleteUserIDs []string) error {
+	if appendUserIDs != nil {
+		appendGroupUsers := make(dbmodels.GroupUserSlice, len(appendUserIDs))
+		for i, v := range appendUserIDs {
+			appendGroupUsers[i] = &dbmodels.GroupUser{
+				GroupID: groupID,
+				UserID:  v,
+			}
+		}
+		if err := a.gropuUserRepo.CreateGroupUsers(ctx, appendGroupUsers); err != nil {
+			return nil
+		}
+	}
+
+	if deleteUserIDs != nil {
+		deleteGroupUsers := make(dbmodels.GroupUserSlice, len(deleteUserIDs))
+		for i, v := range deleteUserIDs {
+			deleteGroupUsers[i] = &dbmodels.GroupUser{
+				GroupID: groupID,
+				UserID:  v,
+			}
+		}
+		if err := a.gropuUserRepo.DeleteGroupUsers(ctx, deleteGroupUsers); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

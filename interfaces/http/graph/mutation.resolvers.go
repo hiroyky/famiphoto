@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"github.com/hiroyky/famiphoto/utils/gql"
 	"time"
 
 	"github.com/hiroyky/famiphoto/config"
@@ -39,6 +40,33 @@ func (r *mutationResolver) CreateGroup(ctx context.Context, input model.CreateGr
 		return nil, err
 	}
 
+	return model.NewGroup(group), nil
+}
+
+// AlterGroupMembers is the resolver for the alterGroupMembers field.
+func (r *mutationResolver) AlterGroupMembers(ctx context.Context, input model.AlterGroupMembersInput) (*model.Group, error) {
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return nil, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+
+	groupID, err := gql.DecodeStrID(input.GroupID)
+	if err != nil {
+		return nil, err
+	}
+	appendUserIDs, err := gql.DecodeStrIDs(input.AppendUserIds)
+	if err != nil {
+		return nil, err
+	}
+	removeUserIDs, err := gql.DecodeStrIDs(input.RemoveUserIds)
+	if err != nil {
+		return nil, err
+	}
+
+	group, err := r.groupUseCase.AlterGroupMembers(ctx, sess.UserID, groupID, appendUserIDs, removeUserIDs)
+	if err != nil {
+		return nil, err
+	}
 	return model.NewGroup(group), nil
 }
 

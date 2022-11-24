@@ -53,6 +53,18 @@ func DecodeStrID(graphID string) (string, error) {
 	return parts[1], nil
 }
 
+func DecodeStrIDs(graphIDs []string) ([]string, error) {
+	dst := make([]string, len(graphIDs))
+	for i, v := range graphIDs {
+		decoded, err := DecodeStrID(v)
+		if err != nil {
+			return nil, err
+		}
+		dst[i] = decoded
+	}
+	return dst, nil
+}
+
 func DecodeStrIDPtr(graphID *string) (*string, error) {
 	if graphID == nil {
 		return nil, nil

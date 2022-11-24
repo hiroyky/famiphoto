@@ -12,6 +12,7 @@ type GroupUseCase interface {
 	ExistGroup(ctx context.Context, groupID string) (bool, error)
 	GetUserBelongingGroups(ctx context.Context, userID string) ([]*entities.Group, error)
 	CreateGroup(ctx context.Context, groupID, groupName, userID string) (*entities.Group, error)
+	AlterGroupMembers(ctx context.Context, executorUserID, groupID string, appendUserIDs, removeUserIDs []string) (*entities.Group, error)
 }
 
 func NewGroupUseCase(groupAdapter infrastructures.GroupAdapter) GroupUseCase {
@@ -49,6 +50,26 @@ func (u *groupUseCase) CreateGroup(ctx context.Context, groupID, groupName, user
 		},
 		userID,
 	); err != nil {
+		return nil, err
+	}
+
+	return u.groupAdapter.GetGroup(ctx, groupID)
+}
+
+func (u *groupUseCase) AlterGroupMembers(ctx context.Context, executorUserID, groupID string, appendUserIDs, removeUserIDs []string) (*entities.Group, error) {
+	if belong, err := u.groupAdapter.IsBelongGroupUser(ctx, groupID, executorUserID); err != nil {
+		return nil, err
+	} else if !belong {
+		return nil, errors.New(errors.ForbiddenError, nil)
+	}
+
+	if exist, err := u.groupAdapter.ExistGroup(ctx, groupID); err != nil {
+		return nil, err
+	} else if !exist {
+		return nil, errors.New(errors.GroupNotFoundError, nil)
+	}
+
+	if err := u.groupAdapter.EditGroupMembers(ctx, groupID, appendUserIDs, removeUserIDs); err != nil {
 		return nil, err
 	}
 
