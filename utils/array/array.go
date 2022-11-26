@@ -26,3 +26,13 @@ func Filter[T comparable](list []T, fc func(T) bool) []T {
 	}
 	return dst
 }
+
+func RemoveDuplicates[T comparable](list []T) []T {
+	dst := make([]T, 0)
+	for _, v := range list {
+		if !IsContain(v, dst) {
+			dst = append(dst, v)
+		}
+	}
+	return dst
+}

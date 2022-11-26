@@ -5,6 +5,7 @@ import (
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
+	"github.com/hiroyky/famiphoto/utils/array"
 )
 
 type GroupUseCase interface {
@@ -67,12 +68,14 @@ func (u *groupUseCase) AlterGroupMembers(ctx context.Context, executorUserID, gr
 	} else if !belong {
 		return nil, errors.New(errors.ForbiddenError, nil)
 	}
-
 	if exist, err := u.groupAdapter.ExistGroup(ctx, groupID); err != nil {
 		return nil, err
 	} else if !exist {
 		return nil, errors.New(errors.GroupNotFoundError, nil)
 	}
+
+	appendUserIDs = array.RemoveDuplicates(appendUserIDs)
+	removeUserIDs = array.RemoveDuplicates(removeUserIDs)
 
 	if err := u.groupAdapter.EditGroupMembers(ctx, groupID, appendUserIDs, removeUserIDs); err != nil {
 		return nil, err

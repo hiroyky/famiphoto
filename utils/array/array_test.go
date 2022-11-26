@@ -22,3 +22,10 @@ func TestIsContain_リストが空(t *testing.T) {
 	actual := IsContain(1, list)
 	assert.False(t, actual)
 }
+
+func TestRemoveDuplicates(t *testing.T) {
+	list := []string{"a", "b", "c", "c", "b", "d"}
+	actual := RemoveDuplicates(list)
+	expected := []string{"a", "b", "c", "d"}
+	assert.Equal(t, expected, actual)
+}

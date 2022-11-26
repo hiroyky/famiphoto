@@ -47,6 +47,11 @@ func (r *groupUserRepository) CreateGroupUsers(ctx context.Context, groupUsers d
 
 func (r *groupUserRepository) createGroupUsersTxn(ctx context.Context, tx boil.ContextExecutor, groupUsers dbmodels.GroupUserSlice) error {
 	for _, gu := range groupUsers {
+		if exit, err := dbmodels.GroupUserExists(ctx, tx, gu.GroupID, gu.UserID); err != nil {
+			return err
+		} else if exit {
+			continue
+		}
 		if err := gu.Insert(ctx, tx, boil.Infer()); err != nil {
 			return err
 		}
@@ -78,6 +83,12 @@ func (r *groupUserRepository) DeleteGroupUsers(ctx context.Context, groupUsers d
 
 func (r *groupUserRepository) deleteGroupUsersTxn(ctx context.Context, tx boil.ContextExecutor, groupUsers dbmodels.GroupUserSlice) error {
 	for _, gu := range groupUsers {
+		if exit, err := dbmodels.GroupUserExists(ctx, tx, gu.GroupID, gu.UserID); err != nil {
+			return err
+		} else if !exit {
+			continue
+		}
+
 		if _, err := gu.Delete(ctx, tx); err != nil {
 			return err
 		}
