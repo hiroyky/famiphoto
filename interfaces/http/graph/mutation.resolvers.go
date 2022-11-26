@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"github.com/hiroyky/famiphoto/utils/gql"
 	"time"
 
 	"github.com/hiroyky/famiphoto/config"
@@ -13,6 +12,7 @@ import (
 	fperrors "github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/gql"
 )
 
 // CreateUser is the resolver for the createUser field.

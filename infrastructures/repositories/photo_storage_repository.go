@@ -38,11 +38,11 @@ func (r *photoStorageRepository) CreateGroupUserDir(groupID, userID string) erro
 
 func (r *photoStorageRepository) createDirIfNotExist(p string) error {
 	stat, err := r.driver.Stat(p)
-	if err != nil && errors.IsErrCode(err, errors.FileNotFoundError) {
+	if err != nil && !errors.IsErrCode(err, errors.FileNotFoundError) {
 		return err
 	}
 	if stat == nil {
-		return r.driver.CreateDir(p, os.ModeDir)
+		return r.driver.CreateDir(p, os.ModePerm)
 	}
 	if !stat.IsDir() {
 		return errors.New(errors.UnExpectedFileAlreadyExistError, nil)
