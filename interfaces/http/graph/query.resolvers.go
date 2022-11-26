@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"errors"
-
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	fperrors "github.com/hiroyky/famiphoto/errors"
@@ -76,6 +75,20 @@ func (r *queryResolver) BelongingGroups(ctx context.Context) ([]*model.Group, er
 	}
 
 	return model.NewGroups(groups), nil
+}
+
+// IsBelongingGroup is the resolver for the isBelongingGroup field.
+func (r *queryResolver) IsBelongingGroup(ctx context.Context, id string) (bool, error) {
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return false, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+	groupID, err := gql.DecodeStrID(id)
+	if err != nil {
+		return false, err
+	}
+
+	return r.groupUseCase.IsBelongingGroup(ctx, groupID, sess.UserID)
 }
 
 // ExistGroupID is the resolver for the existGroupId field.

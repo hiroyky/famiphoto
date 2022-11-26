@@ -11,6 +11,7 @@ type GroupUseCase interface {
 	GetGroup(ctx context.Context, groupID string) (*entities.Group, error)
 	ExistGroup(ctx context.Context, groupID string) (bool, error)
 	GetUserBelongingGroups(ctx context.Context, userID string) ([]*entities.Group, error)
+	IsBelongingGroup(ctx context.Context, groupID, userID string) (bool, error)
 	CreateGroup(ctx context.Context, groupID, groupName, userID string) (*entities.Group, error)
 	AlterGroupMembers(ctx context.Context, executorUserID, groupID string, appendUserIDs, removeUserIDs []string) (*entities.Group, error)
 }
@@ -33,6 +34,10 @@ func (u *groupUseCase) ExistGroup(ctx context.Context, groupID string) (bool, er
 
 func (u *groupUseCase) GetUserBelongingGroups(ctx context.Context, userID string) ([]*entities.Group, error) {
 	return u.groupAdapter.GetGroupsByUserID(ctx, userID)
+}
+
+func (u *groupUseCase) IsBelongingGroup(ctx context.Context, groupID, userID string) (bool, error) {
+	return u.groupAdapter.IsBelongGroupUser(ctx, groupID, userID)
 }
 
 func (u *groupUseCase) CreateGroup(ctx context.Context, groupID, groupName, userID string) (*entities.Group, error) {

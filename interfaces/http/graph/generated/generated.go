@@ -141,17 +141,18 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		BelongingGroups func(childComplexity int) int
-		ExistGroupID    func(childComplexity int, id string) int
-		ExistUserID     func(childComplexity int, id string) int
-		Group           func(childComplexity int, id string) int
-		Me              func(childComplexity int) int
-		Photo           func(childComplexity int, id string) int
-		PhotoFile       func(childComplexity int, id string) int
-		PhotoFiles      func(childComplexity int, photoID string) int
-		Photos          func(childComplexity int, id *string, ownerID *string, groupID *string, limit *int, offset *int) int
-		User            func(childComplexity int, id string) int
-		Users           func(childComplexity int, id *string, limit *int, offset *int) int
+		BelongingGroups  func(childComplexity int) int
+		ExistGroupID     func(childComplexity int, id string) int
+		ExistUserID      func(childComplexity int, id string) int
+		Group            func(childComplexity int, id string) int
+		IsBelongingGroup func(childComplexity int, id string) int
+		Me               func(childComplexity int) int
+		Photo            func(childComplexity int, id string) int
+		PhotoFile        func(childComplexity int, id string) int
+		PhotoFiles       func(childComplexity int, photoID string) int
+		Photos           func(childComplexity int, id *string, ownerID *string, groupID *string, limit *int, offset *int) int
+		User             func(childComplexity int, id string) int
+		Users            func(childComplexity int, id *string, limit *int, offset *int) int
 	}
 
 	User struct {
@@ -214,6 +215,7 @@ type QueryResolver interface {
 	ExistUserID(ctx context.Context, id string) (bool, error)
 	Group(ctx context.Context, id string) (*model.Group, error)
 	BelongingGroups(ctx context.Context) ([]*model.Group, error)
+	IsBelongingGroup(ctx context.Context, id string) (bool, error)
 	ExistGroupID(ctx context.Context, id string) (bool, error)
 	Me(ctx context.Context) (*model.User, error)
 	Photo(ctx context.Context, id string) (*model.Photo, error)
@@ -715,6 +717,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Group(childComplexity, args["id"].(string)), true
 
+	case "Query.isBelongingGroup":
+		if e.complexity.Query.IsBelongingGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Query_isBelongingGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.IsBelongingGroup(childComplexity, args["id"].(string)), true
+
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
@@ -1116,6 +1130,7 @@ type PhotoPagination implements Pagination {
     existUserId(id: String!): Boolean!
     group(id: ID!): Group
     belongingGroups: [Group!]!
+    isBelongingGroup(id: ID!): Boolean!
     existGroupId(id: String!): Boolean!
     me: User
     photo(id: ID!): Photo
@@ -1297,6 +1312,21 @@ func (ec *executionContext) field_Query_existUserId_args(ctx context.Context, ra
 }
 
 func (ec *executionContext) field_Query_group_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_isBelongingGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -4625,6 +4655,61 @@ func (ec *executionContext) fieldContext_Query_belongingGroups(ctx context.Conte
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_isBelongingGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_isBelongingGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().IsBelongingGroup(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_isBelongingGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_isBelongingGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -8779,6 +8864,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_belongingGroups(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "isBelongingGroup":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_isBelongingGroup(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
