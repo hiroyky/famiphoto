@@ -19,17 +19,19 @@ type GroupAdapter interface {
 
 func NewGroupAdapter(
 	groupRepo repositories.GroupRepository,
+	groupUserRepo repositories.GroupUserRepository,
 	photoStorageRepo repositories.PhotoStorageRepository,
 ) GroupAdapter {
 	return &groupAdapter{
 		groupRepo:        groupRepo,
+		groupUserRepo:    groupUserRepo,
 		photoStorageRepo: photoStorageRepo,
 	}
 }
 
 type groupAdapter struct {
 	groupRepo        repositories.GroupRepository
-	gropuUserRepo    repositories.GroupUserRepository
+	groupUserRepo    repositories.GroupUserRepository
 	photoStorageRepo repositories.PhotoStorageRepository
 }
 
@@ -92,7 +94,7 @@ func (a *groupAdapter) EditGroupMembers(ctx context.Context, groupID string, app
 				UserID:  v,
 			}
 		}
-		if err := a.gropuUserRepo.CreateGroupUsers(ctx, appendGroupUsers); err != nil {
+		if err := a.groupUserRepo.CreateGroupUsers(ctx, appendGroupUsers); err != nil {
 			return nil
 		}
 	}
@@ -105,7 +107,7 @@ func (a *groupAdapter) EditGroupMembers(ctx context.Context, groupID string, app
 				UserID:  v,
 			}
 		}
-		if err := a.gropuUserRepo.DeleteGroupUsers(ctx, deleteGroupUsers); err != nil {
+		if err := a.groupUserRepo.DeleteGroupUsers(ctx, deleteGroupUsers); err != nil {
 			return err
 		}
 	}
