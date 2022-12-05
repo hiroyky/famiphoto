@@ -88,6 +88,10 @@ func newGroupRepository() repositories.GroupRepository {
 	return repositories.NewGroupRepository(NewMySQLDriver())
 }
 
+func newGroupUserRepository() repositories.GroupUserRepository {
+	return repositories.NewGroupUserRepository(NewMySQLDriver())
+}
+
 func NewGroupAdapter() infrastructures.GroupAdapter {
-	return infrastructures.NewGroupAdapter(newGroupRepository())
+	return infrastructures.NewGroupAdapter(newGroupRepository(), newGroupUserRepository(), newPhotoStorageRepository())
 }

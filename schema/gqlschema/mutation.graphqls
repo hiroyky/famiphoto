@@ -1,6 +1,7 @@
 type Mutation {
     createUser(input: CreateUserInput!): User!
     createGroup(input: CreateGroupInput!): Group!
+    alterGroupMembers(input: AlterGroupMembersInput!): Group!
     createOauthClient(input: CreateOauthClientInput!): OauthClient!
 }
 

@@ -56,6 +56,7 @@ const (
 	RedisKeyNotFoundError              FamiPhotoErrorCode = "RedisKeyNotFoundError"
 	RedisFatal                         FamiPhotoErrorCode = "RedisFatal"
 	ContextValueNotFoundFatal          FamiPhotoErrorCode = "ContextValueNotFoundFatal"
+	UnExpectedFileAlreadyExistError    FamiPhotoErrorCode = "UnExpectedFileAlreadyExistError"
 	FileNotFoundError                  FamiPhotoErrorCode = "FileNotFoundError"
 	SambaConnectFatal                  FamiPhotoErrorCode = "SambaConnectFatal"
 	SambaCreateFatal                   FamiPhotoErrorCode = "SambaCreateFatal"

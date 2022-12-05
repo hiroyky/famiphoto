@@ -162,3 +162,18 @@ func (mr *MockDriverMockRecorder) Rename(old, file interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rename", reflect.TypeOf((*MockDriver)(nil).Rename), old, file)
 }
+
+// Stat mocks base method.
+func (m *MockDriver) Stat(filePath string) (os.FileInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Stat", filePath)
+	ret0, _ := ret[0].(os.FileInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Stat indicates an expected call of Stat.
+func (mr *MockDriverMockRecorder) Stat(filePath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stat", reflect.TypeOf((*MockDriver)(nil).Stat), filePath)
+}

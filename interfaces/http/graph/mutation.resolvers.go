@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/hiroyky/famiphoto/config"
@@ -13,6 +12,7 @@ import (
 	fperrors "github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/gql"
 )
 
 // CreateUser is the resolver for the createUser field.
@@ -31,7 +31,43 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 
 // CreateGroup is the resolver for the createGroup field.
 func (r *mutationResolver) CreateGroup(ctx context.Context, input model.CreateGroupInput) (*model.Group, error) {
-	panic(fmt.Errorf("not implemented"))
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return nil, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+	group, err := r.groupUseCase.CreateGroup(ctx, input.GroupID, input.Name, sess.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewGroup(group), nil
+}
+
+// AlterGroupMembers is the resolver for the alterGroupMembers field.
+func (r *mutationResolver) AlterGroupMembers(ctx context.Context, input model.AlterGroupMembersInput) (*model.Group, error) {
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return nil, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+
+	groupID, err := gql.DecodeStrID(input.GroupID)
+	if err != nil {
+		return nil, err
+	}
+	appendUserIDs, err := gql.DecodeStrIDs(input.AppendUserIds)
+	if err != nil {
+		return nil, err
+	}
+	removeUserIDs, err := gql.DecodeStrIDs(input.RemoveUserIds)
+	if err != nil {
+		return nil, err
+	}
+
+	group, err := r.groupUseCase.AlterGroupMembers(ctx, sess.UserID, groupID, appendUserIDs, removeUserIDs)
+	if err != nil {
+		return nil, err
+	}
+	return model.NewGroup(group), nil
 }
 
 // CreateOauthClient is the resolver for the createOauthClient field.

@@ -35,6 +35,21 @@ func (m *MockGroupUseCase) EXPECT() *MockGroupUseCaseMockRecorder {
 	return m.recorder
 }
 
+// CreateGroup mocks base method.
+func (m *MockGroupUseCase) CreateGroup(ctx context.Context, groupID, groupName, userID string) (*entities.Group, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateGroup", ctx, groupID, groupName, userID)
+	ret0, _ := ret[0].(*entities.Group)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateGroup indicates an expected call of CreateGroup.
+func (mr *MockGroupUseCaseMockRecorder) CreateGroup(ctx, groupID, groupName, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGroup", reflect.TypeOf((*MockGroupUseCase)(nil).CreateGroup), ctx, groupID, groupName, userID)
+}
+
 // ExistGroup mocks base method.
 func (m *MockGroupUseCase) ExistGroup(ctx context.Context, groupID string) (bool, error) {
 	m.ctrl.T.Helper()

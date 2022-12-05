@@ -50,6 +50,20 @@ func (mr *MockGroupRepositoryMockRecorder) CountUsersByGroupID(ctx, groupID inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountUsersByGroupID", reflect.TypeOf((*MockGroupRepository)(nil).CountUsersByGroupID), ctx, groupID)
 }
 
+// CreateGroup mocks base method.
+func (m *MockGroupRepository) CreateGroup(ctx context.Context, group *dbmodels.Group, groupUser *dbmodels.GroupUser) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateGroup", ctx, group, groupUser)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateGroup indicates an expected call of CreateGroup.
+func (mr *MockGroupRepositoryMockRecorder) CreateGroup(ctx, group, groupUser interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGroup", reflect.TypeOf((*MockGroupRepository)(nil).CreateGroup), ctx, group, groupUser)
+}
+
 // ExistGroup mocks base method.
 func (m *MockGroupRepository) ExistGroup(ctx context.Context, groupID string) (bool, error) {
 	m.ctrl.T.Helper()

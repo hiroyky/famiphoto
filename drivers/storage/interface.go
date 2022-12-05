@@ -10,6 +10,7 @@ type Driver interface {
 	ReadFile(filePath string) ([]byte, error)
 	Glob(pattern string) ([]string, error)
 	Exist(filePath string) bool
+	Stat(filePath string) (os.FileInfo, error)
 	Delete(filePath string) error
 	DeleteAll(path string) error
 }

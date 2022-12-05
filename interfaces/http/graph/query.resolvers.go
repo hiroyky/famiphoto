@@ -9,6 +9,7 @@ import (
 
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
+	fperrors "github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
 	"github.com/hiroyky/famiphoto/utils/gql"
@@ -60,6 +61,35 @@ func (r *queryResolver) Group(ctx context.Context, id string) (*model.Group, err
 		return nil, err
 	}
 	return model.NewGroup(group), nil
+}
+
+// BelongingGroups is the resolver for the belongingGroups field.
+func (r *queryResolver) BelongingGroups(ctx context.Context) ([]*model.Group, error) {
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return nil, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+
+	groups, err := r.groupUseCase.GetUserBelongingGroups(ctx, sess.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.NewGroups(groups), nil
+}
+
+// IsBelongingGroup is the resolver for the isBelongingGroup field.
+func (r *queryResolver) IsBelongingGroup(ctx context.Context, id string) (bool, error) {
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return false, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+	groupID, err := gql.DecodeStrID(id)
+	if err != nil {
+		return false, err
+	}
+
+	return r.groupUseCase.IsBelongingGroup(ctx, groupID, sess.UserID)
 }
 
 // ExistGroupID is the resolver for the existGroupId field.

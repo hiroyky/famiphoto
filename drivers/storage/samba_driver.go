@@ -1,6 +1,7 @@
 package storage
 
 import (
+	native "errors"
 	"fmt"
 	"github.com/hirochachacha/go-smb2"
 	"github.com/hiroyky/famiphoto/config"
@@ -133,6 +134,17 @@ func (d *sambaDriver) Glob(pattern string) ([]string, error) {
 func (d *sambaDriver) Exist(filePath string) bool {
 	_, err := d.fs.Stat(filePath)
 	return err == nil
+}
+
+func (d *sambaDriver) Stat(filePath string) (os.FileInfo, error) {
+	stat, err := d.fs.Stat(filePath)
+	if err != nil {
+		if native.Is(err, os.ErrNotExist) {
+			return nil, errors.New(errors.FileNotFoundError, err)
+		}
+		return nil, err
+	}
+	return stat, nil
 }
 
 func (d *sambaDriver) Delete(filePath string) error {

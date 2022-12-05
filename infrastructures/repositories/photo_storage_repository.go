@@ -8,12 +8,14 @@ import (
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
 	"os"
+	"path"
 )
 
 type PhotoStorageRepository interface {
 	ReadDir(dirPath string) ([]os.FileInfo, error)
 	LoadContent(path string) ([]byte, error)
 	ParsePhotoMeta(path string) ([]models.IfdEntry, error)
+	CreateGroupUserDir(groupID, userID string) error
 }
 
 func NewPhotoStorageRepository(driver storage.Driver) PhotoStorageRepository {
@@ -22,6 +24,30 @@ func NewPhotoStorageRepository(driver storage.Driver) PhotoStorageRepository {
 
 type photoStorageRepository struct {
 	driver storage.Driver
+}
+
+func (r *photoStorageRepository) CreateGroupUserDir(groupID, userID string) error {
+	if err := r.createDirIfNotExist(groupID); err != nil {
+		return err
+	}
+	if err := r.createDirIfNotExist(path.Join(groupID, userID)); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *photoStorageRepository) createDirIfNotExist(p string) error {
+	stat, err := r.driver.Stat(p)
+	if err != nil && !errors.IsErrCode(err, errors.FileNotFoundError) {
+		return err
+	}
+	if stat == nil {
+		return r.driver.CreateDir(p, os.ModePerm)
+	}
+	if !stat.IsDir() {
+		return errors.New(errors.UnExpectedFileAlreadyExistError, nil)
+	}
+	return nil
 }
 
 func (r *photoStorageRepository) ReadDir(dirPath string) ([]os.FileInfo, error) {
