@@ -13,7 +13,7 @@ import (
 )
 
 type PhotoImportUseCase interface {
-	ImportProcess(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error
+	IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error
 	ImportPhotos(ctx context.Context, basePath string, extensions []string) error
 }
 
@@ -43,7 +43,7 @@ type photoImportUseCase struct {
 	appendBulkUnit      int
 }
 
-func (u *photoImportUseCase) ImportProcess(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error {
+func (u *photoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error {
 	targetDirPath := path.Join(rootPath, groupID, userID)
 	return u.importDirRecursive(ctx, targetDirPath, groupID, userID, extensions, fast)
 }

@@ -40,7 +40,7 @@ func main() {
 		extensions := array.Map(strings.Split(ctx.String("extensions"), ","), strings.TrimSpace)
 		fmt.Printf("%s-%s, extensions: %v, fast: %v \n", groupID, userID, extensions, ctx.Bool("fast"))
 		uc := di.NewPhotoImportUseCase()
-		return uc.ImportProcess(ctx.Context, "", groupID, userID, extensions, ctx.Bool("fast"))
+		return uc.IndexingPhotos(ctx.Context, "", groupID, userID, extensions, ctx.Bool("fast"))
 	}
 
 	if err := app.Run(os.Args); err != nil {
