@@ -50,6 +50,21 @@ func (mr *MockPhotoAdapterMockRecorder) CountPhotos(ctx interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountPhotos", reflect.TypeOf((*MockPhotoAdapter)(nil).CountPhotos), ctx)
 }
 
+// ExistPhotoFileByFilePath mocks base method.
+func (m *MockPhotoAdapter) ExistPhotoFileByFilePath(ctx context.Context, filePath string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistPhotoFileByFilePath", ctx, filePath)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistPhotoFileByFilePath indicates an expected call of ExistPhotoFileByFilePath.
+func (mr *MockPhotoAdapterMockRecorder) ExistPhotoFileByFilePath(ctx, filePath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistPhotoFileByFilePath", reflect.TypeOf((*MockPhotoAdapter)(nil).ExistPhotoFileByFilePath), ctx, filePath)
+}
+
 // GetPhotoByPhotoID mocks base method.
 func (m *MockPhotoAdapter) GetPhotoByPhotoID(ctx context.Context, photoID int) (*entities.Photo, error) {
 	m.ctrl.T.Helper()
@@ -63,6 +78,21 @@ func (m *MockPhotoAdapter) GetPhotoByPhotoID(ctx context.Context, photoID int) (
 func (mr *MockPhotoAdapterMockRecorder) GetPhotoByPhotoID(ctx, photoID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotoByPhotoID", reflect.TypeOf((*MockPhotoAdapter)(nil).GetPhotoByPhotoID), ctx, photoID)
+}
+
+// GetPhotoFileByFilePath mocks base method.
+func (m *MockPhotoAdapter) GetPhotoFileByFilePath(ctx context.Context, filePath string) (*entities.PhotoFile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhotoFileByFilePath", ctx, filePath)
+	ret0, _ := ret[0].(*entities.PhotoFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPhotoFileByFilePath indicates an expected call of GetPhotoFileByFilePath.
+func (mr *MockPhotoAdapterMockRecorder) GetPhotoFileByFilePath(ctx, filePath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotoFileByFilePath", reflect.TypeOf((*MockPhotoAdapter)(nil).GetPhotoFileByFilePath), ctx, filePath)
 }
 
 // GetPhotoFileByPhotoFileID mocks base method.

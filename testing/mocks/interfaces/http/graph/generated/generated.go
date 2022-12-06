@@ -195,6 +195,21 @@ func (m *MockMutationResolver) EXPECT() *MockMutationResolverMockRecorder {
 	return m.recorder
 }
 
+// AlterGroupMembers mocks base method.
+func (m *MockMutationResolver) AlterGroupMembers(ctx context.Context, input model.AlterGroupMembersInput) (*model.Group, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AlterGroupMembers", ctx, input)
+	ret0, _ := ret[0].(*model.Group)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AlterGroupMembers indicates an expected call of AlterGroupMembers.
+func (mr *MockMutationResolverMockRecorder) AlterGroupMembers(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlterGroupMembers", reflect.TypeOf((*MockMutationResolver)(nil).AlterGroupMembers), ctx, input)
+}
+
 // CreateGroup mocks base method.
 func (m *MockMutationResolver) CreateGroup(ctx context.Context, input model.CreateGroupInput) (*model.Group, error) {
 	m.ctrl.T.Helper()
@@ -510,6 +525,21 @@ func (m *MockQueryResolver) Group(ctx context.Context, id string) (*model.Group,
 func (mr *MockQueryResolverMockRecorder) Group(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Group", reflect.TypeOf((*MockQueryResolver)(nil).Group), ctx, id)
+}
+
+// IsBelongingGroup mocks base method.
+func (m *MockQueryResolver) IsBelongingGroup(ctx context.Context, id string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsBelongingGroup", ctx, id)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsBelongingGroup indicates an expected call of IsBelongingGroup.
+func (mr *MockQueryResolverMockRecorder) IsBelongingGroup(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsBelongingGroup", reflect.TypeOf((*MockQueryResolver)(nil).IsBelongingGroup), ctx, id)
 }
 
 // Me mocks base method.

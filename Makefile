@@ -11,7 +11,7 @@ init:
 restart:
 	docker compose stop && docker compose up -d
 
-build: build_server build_sub_import build_sub_indexing build_sub_indexing_photos
+build: build_server build_sub_indexing build_sub_indexing_photos
 
 build_prepare:
 	go mod tidy
@@ -19,9 +19,6 @@ build_prepare:
 
 build_server: build_prepare
 	go build -o $(DST_DIR)/app main.go
-
-build_sub_import: build_prepare
-	go build -o $(DST_DIR)/import_photos subsystems/import_photos/main.go
 build_sub_indexing: build_prepare
 	go build -o $(DST_DIR)/indexing subsystems/indexing/main.go
 build_sub_indexing_photos: build_prepare
@@ -34,8 +31,8 @@ test:
 
 dc_exec:
 	docker compose exec $(DOCKER) bash
-dc_exec_import:
-	docker compose exec $(DOCKER) ./dst/import_photos --base-dir yokoyama/hiro
+dc_exec_indexing_photos:
+	docker compose exec $(DOCKER) ./dst/indexing_photos
 dc_exec_indexing:
 	docker compose exec $(DOCKER) ./dst/indexing
 dc_fmt:

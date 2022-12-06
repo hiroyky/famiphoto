@@ -5,16 +5,13 @@ import (
 	"fmt"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
-	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/services"
-	"github.com/hiroyky/famiphoto/utils"
 	"path"
 )
 
 type PhotoImportUseCase interface {
 	IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error
-	ImportPhotos(ctx context.Context, basePath string, extensions []string) error
 }
 
 func NewPhotoImportUseCase(
@@ -106,48 +103,6 @@ func (u *photoImportUseCase) buildInsertSearchEngine(ctx context.Context, photoL
 		stats.NumDeleted,
 	)
 	return nil
-}
-
-func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, extensions []string) error {
-	groupID, ownerID, err := u.parseBasePath(basePath)
-	if err != nil {
-		return err
-	}
-
-	contents, err := u.storage.FindDirContents(basePath)
-	if err != nil {
-		return err
-	}
-	files := make([]*entities.StorageFileInfo, 0)
-	for _, c := range contents {
-		if c.IsDir {
-			if err := u.ImportPhotos(ctx, c.Path, extensions); err != nil {
-				return err
-			}
-		} else if c.IsMatchExt(extensions) {
-			files = append(files, c)
-		}
-	}
-
-	for _, file := range files {
-		if _, err := u.registerPhoto(ctx, file, ownerID, groupID, false); err != nil {
-			return err
-		}
-		fmt.Println(file.Path)
-	}
-
-	return nil
-}
-
-func (u *photoImportUseCase) parseBasePath(basePath string) (string, string, error) {
-	directories := utils.SplitPath(basePath)
-	fmt.Println(directories)
-	if len(directories) < 2 {
-		return "", "", errors.New(errors.InvalidFilePathFatal, fmt.Errorf(basePath))
-	}
-	groupID := directories[0]
-	ownerID := directories[1]
-	return groupID, ownerID, nil
 }
 
 func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.StorageFileInfo, ownerID, groupID string, fast bool) (*entities.Photo, error) {
