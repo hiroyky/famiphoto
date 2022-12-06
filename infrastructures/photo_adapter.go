@@ -15,9 +15,11 @@ type PhotoAdapter interface {
 	GetPhotoByPhotoID(ctx context.Context, photoID int) (*entities.Photo, error)
 	GetPhotos(ctx context.Context, limit, offset int) (entities.PhotoList, error)
 	GetPhotoFileByPhotoFileID(ctx context.Context, photoFileID int) (*entities.PhotoFile, error)
+	GetPhotoFileByFilePath(ctx context.Context, filePath string) (*entities.PhotoFile, error)
 	GetPhotoFilesByPhotoID(ctx context.Context, photoID int) ([]*entities.PhotoFile, error)
 	CountPhotos(ctx context.Context) (int, error)
 	UpsertPhotoByFilePath(ctx context.Context, photo *entities.Photo) (*entities.Photo, error)
+	ExistPhotoFileByFilePath(ctx context.Context, filePath string) (bool, error)
 	UpsertPhotoMetaItemByPhotoTagID(ctx context.Context, photoID int, metaItem *entities.PhotoMetaItem) (*entities.PhotoMetaItem, error)
 }
 
@@ -86,6 +88,14 @@ func (a *photoAdapter) GetPhotoFileByPhotoFileID(ctx context.Context, photoFileI
 	return a.toPhotoFileEntity(photoFile), err
 }
 
+func (a *photoAdapter) GetPhotoFileByFilePath(ctx context.Context, filePath string) (*entities.PhotoFile, error) {
+	photoFile, err := a.photoFileRepo.GetPhotoFileByFilePath(ctx, filePath)
+	if err != nil {
+		return nil, err
+	}
+	return a.toPhotoFileEntity(photoFile), err
+}
+
 func (a *photoAdapter) GetPhotoFilesByPhotoID(ctx context.Context, photoID int) ([]*entities.PhotoFile, error) {
 	photoFiles, err := a.photoFileRepo.GetPhotoFilesByPhotoID(ctx, photoID)
 	if err != nil {
@@ -148,6 +158,10 @@ func (a *photoAdapter) upsertPhotoFileByFilePath(ctx context.Context, photoFile 
 		return a.photoFileRepo.UpdatePhotoFile(ctx, photoFile)
 	}
 	return a.photoFileRepo.InsertPhotoFile(ctx, photoFile)
+}
+
+func (a *photoAdapter) ExistPhotoFileByFilePath(ctx context.Context, filePath string) (bool, error) {
+	return a.photoFileRepo.ExistPhotoFileByFilePath(ctx, filePath)
 }
 
 func (a *photoAdapter) toPhotoEntity(photo *dbmodels.Photo, files []*dbmodels.PhotoFile) *entities.Photo {

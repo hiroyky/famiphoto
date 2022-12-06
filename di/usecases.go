@@ -7,7 +7,7 @@ func NewOAuthUseCase() usecases.OauthUseCase {
 }
 
 func NewPhotoImportUseCase() usecases.PhotoImportUseCase {
-	return usecases.NewPhotoImportUseCase(NewPhotoService(), NewImageProcessService(), NewPhotoAdapter(), NewPhotoStorageAdapter())
+	return usecases.NewPhotoImportUseCase(NewPhotoService(), NewImageProcessService(), NewPhotoAdapter(), NewPhotoStorageAdapter(), NewSearchAdapter())
 }
 
 func NewSearchUseCase() usecases.SearchUseCase {

@@ -17,6 +17,7 @@ type PhotoFileRepository interface {
 	InsertPhotoFile(ctx context.Context, photoFile *dbmodels.PhotoFile) (*dbmodels.PhotoFile, error)
 	UpdatePhotoFile(ctx context.Context, photoFile *dbmodels.PhotoFile) (*dbmodels.PhotoFile, error)
 	GetPhotoFileByFilePath(ctx context.Context, filePath string) (*dbmodels.PhotoFile, error)
+	ExistPhotoFileByFilePath(ctx context.Context, filePath string) (bool, error)
 }
 
 func NewPhotoFileRepository(db mysql.SQLExecutor) PhotoFileRepository {
@@ -70,4 +71,8 @@ func (r *photoFileRepository) GetPhotoFileByFilePath(ctx context.Context, filePa
 		return nil, err
 	}
 	return p, nil
+}
+
+func (r *photoFileRepository) ExistPhotoFileByFilePath(ctx context.Context, filePath string) (bool, error) {
+	return dbmodels.PhotoFiles(qm.Where("file_path = ?", filePath)).Exists(ctx, r.db)
 }

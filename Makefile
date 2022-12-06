@@ -11,7 +11,7 @@ init:
 restart:
 	docker compose stop && docker compose up -d
 
-build: build_server build_sub_import build_sub_indexing
+build: build_server build_sub_import build_sub_indexing build_sub_indexing_photos
 
 build_prepare:
 	go mod tidy
@@ -22,10 +22,10 @@ build_server: build_prepare
 
 build_sub_import: build_prepare
 	go build -o $(DST_DIR)/import_photos subsystems/import_photos/main.go
-
 build_sub_indexing: build_prepare
 	go build -o $(DST_DIR)/indexing subsystems/indexing/main.go
-
+build_sub_indexing_photos: build_prepare
+	go build -o $(DST_DIR)/indexing_photos subsystems/indexing_photos/main.go
 fmt:
 	go fmt ./...
 

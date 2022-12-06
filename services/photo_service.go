@@ -9,6 +9,7 @@ import (
 )
 
 type PhotoService interface {
+	ShouldSkipToRegisterPhoto(ctx context.Context, filePath, fileHash string) (bool, error)
 	RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) (*entities.Photo, error)
 }
 
@@ -26,6 +27,20 @@ type photoService struct {
 	nowFunc             func() time.Time
 }
 
+func (s *photoService) ShouldSkipToRegisterPhoto(ctx context.Context, filePath, fileHash string) (bool, error) {
+	if exist, err := s.photoAdapter.ExistPhotoFileByFilePath(ctx, filePath); err != nil {
+		return false, err
+	} else if !exist {
+		return false, nil
+	}
+
+	photoFile, err := s.photoAdapter.GetPhotoFileByFilePath(ctx, filePath)
+	if err != nil {
+		return false, err
+	}
+
+	return fileHash == photoFile.FileHash, nil
+}
 func (s *photoService) RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) (*entities.Photo, error) {
 	now := s.nowFunc()
 
