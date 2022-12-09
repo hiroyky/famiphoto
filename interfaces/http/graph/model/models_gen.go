@@ -88,6 +88,11 @@ func (this GroupPagination) GetNodes() []Node {
 	return interfaceSlice
 }
 
+type IndexingPhotosInput struct {
+	GroupID string `json:"groupId"`
+	Fast    bool   `json:"fast"`
+}
+
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`
 	HasPreviousPage bool    `json:"hasPreviousPage"`

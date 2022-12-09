@@ -34,6 +34,20 @@ func (m *MockPhotoImportUseCase) EXPECT() *MockPhotoImportUseCaseMockRecorder {
 	return m.recorder
 }
 
+// ExecuteBatch mocks base method.
+func (m *MockPhotoImportUseCase) ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExecuteBatch", ctx, groupID, userID, fast)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ExecuteBatch indicates an expected call of ExecuteBatch.
+func (mr *MockPhotoImportUseCaseMockRecorder) ExecuteBatch(ctx, groupID, userID, fast interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteBatch", reflect.TypeOf((*MockPhotoImportUseCase)(nil).ExecuteBatch), ctx, groupID, userID, fast)
+}
+
 // IndexingPhotos mocks base method.
 func (m *MockPhotoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error {
 	m.ctrl.T.Helper()

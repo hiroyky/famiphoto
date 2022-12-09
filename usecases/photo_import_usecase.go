@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/services"
+	"os/exec"
 	"path"
 )
 
 type PhotoImportUseCase interface {
 	IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error
+	ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error
 }
 
 func NewPhotoImportUseCase(
@@ -20,6 +23,8 @@ func NewPhotoImportUseCase(
 	photoAdapter infrastructures.PhotoAdapter,
 	storage infrastructures.PhotoStorageAdapter,
 	searchAdapter infrastructures.SearchAdapter,
+	userAdapter infrastructures.UserAdapter,
+	groupAdapter infrastructures.GroupAdapter,
 ) PhotoImportUseCase {
 	return &photoImportUseCase{
 		photoService:        photoService,
@@ -27,6 +32,8 @@ func NewPhotoImportUseCase(
 		photoAdapter:        photoAdapter,
 		storage:             storage,
 		searchAdapter:       searchAdapter,
+		groupAdapter:        groupAdapter,
+		userAdapter:         userAdapter,
 		appendBulkUnit:      20,
 	}
 }
@@ -37,6 +44,8 @@ type photoImportUseCase struct {
 	photoAdapter        infrastructures.PhotoAdapter
 	storage             infrastructures.PhotoStorageAdapter
 	searchAdapter       infrastructures.SearchAdapter
+	userAdapter         infrastructures.UserAdapter
+	groupAdapter        infrastructures.GroupAdapter
 	appendBulkUnit      int
 }
 
@@ -139,4 +148,20 @@ func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.S
 		}
 	}
 	return photo, nil
+}
+
+func (u *photoImportUseCase) ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error {
+	if belong, err := u.groupAdapter.IsBelongGroupUser(ctx, groupID, userID); err != nil {
+		return err
+	} else if !belong {
+		return errors.New(errors.ForbiddenError, nil)
+	}
+
+	fastArg := "false"
+	if fast {
+		fastArg = "true"
+	}
+
+	cmd := exec.Command("dst/indexing_photos", "--user-id", userID, "--group-id", groupID, "--fast", fastArg)
+	return cmd.Start()
 }
