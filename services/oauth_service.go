@@ -19,6 +19,7 @@ type OAuthService interface {
 	AuthCode(ctx context.Context, client *entities.OauthClient, code, redirectURL string) (*entities.OAuthCode, error)
 	PublishAuthCode(ctx context.Context, clientID, userID, redirectURL string) (string, error)
 	AuthClient(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error)
+	CreateClientWithClientSecret(ctx context.Context, client *entities.OauthClient, clientSecret string) error
 	CreateClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
 	ValidateToCreateClient(ctx context.Context, client *entities.OauthClient) error
 	GetUserClient(ctx context.Context, clientID string) (*entities.OauthClient, error)
@@ -144,6 +145,17 @@ func (s *oauthService) AuthClient(ctx context.Context, clientID, clientSecret st
 		return nil, errors.New(errors.OAuthClientUnauthorizedError, nil)
 	}
 	return client, nil
+}
+
+func (s *oauthService) CreateClientWithClientSecret(ctx context.Context, client *entities.OauthClient, clientSecret string) error {
+	hashedClientSecret, err := s.passwordService.HashPassword(clientSecret)
+	if err != nil {
+		return err
+	}
+	if _, err := s.authAdapter.CreateOAuthClient(ctx, client, hashedClientSecret); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *oauthService) CreateClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error) {

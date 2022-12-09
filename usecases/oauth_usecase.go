@@ -8,6 +8,7 @@ import (
 )
 
 type OauthUseCase interface {
+	CreateSpecialOauthClient(ctx context.Context, clientID, name, clientSecret string) error
 	CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error)
 	GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error)
 	AuthClientSecret(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error)
@@ -32,6 +33,20 @@ func NewOauthUseCase(
 type oauthUseCase struct {
 	authService services.OAuthService
 	userService services.UserService
+}
+
+func (u *oauthUseCase) CreateSpecialOauthClient(ctx context.Context, clientID, name, clientSecret string) error {
+	return u.authService.CreateClientWithClientSecret(
+		ctx,
+		&entities.OauthClient{
+			OauthClientID: clientID,
+			Name:          name,
+			Scope:         "Admin",
+			ClientType:    entities.OauthClientTypeUserClient,
+			RedirectURLs:  []string{},
+		},
+		clientSecret,
+	)
 }
 
 func (u *oauthUseCase) CreateOauthClient(ctx context.Context, client *entities.OauthClient) (*entities.OauthClient, string, error) {
