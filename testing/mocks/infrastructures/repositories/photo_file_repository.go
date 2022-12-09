@@ -35,6 +35,21 @@ func (m *MockPhotoFileRepository) EXPECT() *MockPhotoFileRepositoryMockRecorder 
 	return m.recorder
 }
 
+// ExistPhotoFileByFilePath mocks base method.
+func (m *MockPhotoFileRepository) ExistPhotoFileByFilePath(ctx context.Context, filePath string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistPhotoFileByFilePath", ctx, filePath)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistPhotoFileByFilePath indicates an expected call of ExistPhotoFileByFilePath.
+func (mr *MockPhotoFileRepositoryMockRecorder) ExistPhotoFileByFilePath(ctx, filePath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistPhotoFileByFilePath", reflect.TypeOf((*MockPhotoFileRepository)(nil).ExistPhotoFileByFilePath), ctx, filePath)
+}
+
 // GetPhotoFileByFilePath mocks base method.
 func (m *MockPhotoFileRepository) GetPhotoFileByFilePath(ctx context.Context, filePath string) (*dbmodels.PhotoFile, error) {
 	m.ctrl.T.Helper()

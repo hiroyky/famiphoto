@@ -34,16 +34,30 @@ func (m *MockPhotoImportUseCase) EXPECT() *MockPhotoImportUseCaseMockRecorder {
 	return m.recorder
 }
 
-// ImportPhotos mocks base method.
-func (m *MockPhotoImportUseCase) ImportPhotos(ctx context.Context, basePath string, extensions []string) error {
+// ExecuteBatch mocks base method.
+func (m *MockPhotoImportUseCase) ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ImportPhotos", ctx, basePath, extensions)
+	ret := m.ctrl.Call(m, "ExecuteBatch", ctx, groupID, userID, fast)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// ImportPhotos indicates an expected call of ImportPhotos.
-func (mr *MockPhotoImportUseCaseMockRecorder) ImportPhotos(ctx, basePath, extensions interface{}) *gomock.Call {
+// ExecuteBatch indicates an expected call of ExecuteBatch.
+func (mr *MockPhotoImportUseCaseMockRecorder) ExecuteBatch(ctx, groupID, userID, fast interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImportPhotos", reflect.TypeOf((*MockPhotoImportUseCase)(nil).ImportPhotos), ctx, basePath, extensions)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteBatch", reflect.TypeOf((*MockPhotoImportUseCase)(nil).ExecuteBatch), ctx, groupID, userID, fast)
+}
+
+// IndexingPhotos mocks base method.
+func (m *MockPhotoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IndexingPhotos", ctx, rootPath, groupID, userID, extensions, fast)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// IndexingPhotos indicates an expected call of IndexingPhotos.
+func (mr *MockPhotoImportUseCaseMockRecorder) IndexingPhotos(ctx, rootPath, groupID, userID, extensions, fast interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IndexingPhotos", reflect.TypeOf((*MockPhotoImportUseCase)(nil).IndexingPhotos), ctx, rootPath, groupID, userID, extensions, fast)
 }

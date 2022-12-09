@@ -49,3 +49,7 @@ func NewPhotoThumbnailStorageDriver() storage.Driver {
 func NewMediaLocalStorageDriver() storage.Driver {
 	return storage.NewLocalStorageDriver("/mnt/famiphoto")
 }
+
+func NewTempStorageDriver() storage.Driver {
+	return storage.NewLocalStorageDriver("/var/famiphoto")
+}

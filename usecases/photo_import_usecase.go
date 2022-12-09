@@ -8,11 +8,13 @@ import (
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/services"
-	"github.com/hiroyky/famiphoto/utils"
+	"os/exec"
+	"path"
 )
 
 type PhotoImportUseCase interface {
-	ImportPhotos(ctx context.Context, basePath string, extensions []string) error
+	IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error
+	ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error
 }
 
 func NewPhotoImportUseCase(
@@ -20,12 +22,19 @@ func NewPhotoImportUseCase(
 	imageProcessService services.ImageProcessService,
 	photoAdapter infrastructures.PhotoAdapter,
 	storage infrastructures.PhotoStorageAdapter,
+	searchAdapter infrastructures.SearchAdapter,
+	userAdapter infrastructures.UserAdapter,
+	groupAdapter infrastructures.GroupAdapter,
 ) PhotoImportUseCase {
 	return &photoImportUseCase{
 		photoService:        photoService,
 		imageProcessService: imageProcessService,
 		photoAdapter:        photoAdapter,
 		storage:             storage,
+		searchAdapter:       searchAdapter,
+		groupAdapter:        groupAdapter,
+		userAdapter:         userAdapter,
+		appendBulkUnit:      20,
 	}
 }
 
@@ -34,22 +43,27 @@ type photoImportUseCase struct {
 	imageProcessService services.ImageProcessService
 	photoAdapter        infrastructures.PhotoAdapter
 	storage             infrastructures.PhotoStorageAdapter
+	searchAdapter       infrastructures.SearchAdapter
+	userAdapter         infrastructures.UserAdapter
+	groupAdapter        infrastructures.GroupAdapter
+	appendBulkUnit      int
 }
 
-func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, extensions []string) error {
-	groupID, ownerID, err := u.parseBasePath(basePath)
+func (u *photoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error {
+	targetDirPath := path.Join(rootPath, groupID, userID)
+	return u.importDirRecursive(ctx, targetDirPath, groupID, userID, extensions, fast)
+}
+
+func (u *photoImportUseCase) importDirRecursive(ctx context.Context, targetDirPath, groupID, userID string, extensions []string, fast bool) error {
+	contents, err := u.storage.FindDirContents(targetDirPath)
 	if err != nil {
 		return err
 	}
 
-	contents, err := u.storage.FindDirContents(basePath)
-	if err != nil {
-		return err
-	}
 	files := make([]*entities.StorageFileInfo, 0)
 	for _, c := range contents {
 		if c.IsDir {
-			if err := u.ImportPhotos(ctx, c.Path, extensions); err != nil {
+			if err := u.importDirRecursive(ctx, c.Path, groupID, userID, extensions, fast); err != nil {
 				return err
 			}
 		} else if c.IsMatchExt(extensions) {
@@ -57,36 +71,66 @@ func (u *photoImportUseCase) ImportPhotos(ctx context.Context, basePath string, 
 		}
 	}
 
+	photoList := make(entities.PhotoList, 0)
 	for _, file := range files {
-		if err := u.registerPhoto(ctx, file, ownerID, groupID); err != nil {
+		photo, err := u.registerPhoto(ctx, file, userID, groupID, fast)
+		if err != nil {
 			return err
 		}
-		fmt.Println(file.Path)
+		if photo != nil {
+			photoList = append(photoList, photo)
+		}
+		if len(photoList) > u.appendBulkUnit {
+			if err := u.buildInsertSearchEngine(ctx, photoList); err != nil {
+				return err
+			}
+			photoList = make(entities.PhotoList, 0)
+		}
 	}
 
+	return u.buildInsertSearchEngine(ctx, photoList)
+}
+
+func (u *photoImportUseCase) buildInsertSearchEngine(ctx context.Context, photoList entities.PhotoList) error {
+	if photoList == nil || len(photoList) == 0 {
+		return nil
+	}
+	stats, err := u.searchAdapter.BulkInsertPhotos(ctx, photoList)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf(
+		"NumAdded: %d, NumFlushed: %d, NumFailed: %d, NumIndex:%d, NumCreated: %d, NumUpdated:%d, NumDeleted: %d, NumRequest:%d\n",
+		stats.NumAdded,
+		stats.NumFlushed,
+		stats.NumFailed,
+		stats.NumIndexed,
+		stats.NumCreated,
+		stats.NumUpdated,
+		stats.NumDeleted,
+		stats.NumDeleted,
+	)
 	return nil
 }
 
-func (u *photoImportUseCase) parseBasePath(basePath string) (string, string, error) {
-	directories := utils.SplitPath(basePath)
-	fmt.Println(directories)
-	if len(directories) < 2 {
-		return "", "", errors.New(errors.InvalidFilePathFatal, fmt.Errorf(basePath))
-	}
-	groupID := directories[0]
-	ownerID := directories[1]
-	return groupID, ownerID, nil
-}
-
-func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.StorageFileInfo, ownerID, groupID string) error {
+func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.StorageFileInfo, ownerID, groupID string, fast bool) (*entities.Photo, error) {
 	data, err := u.storage.LoadContent(file.Path)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	if fast {
+		if skip, err := u.photoService.ShouldSkipToRegisterPhoto(ctx, file.Path, data.FileHash()); err != nil {
+			return nil, err
+		} else if skip {
+			return nil, nil
+		}
 	}
 
 	photo, err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash(), ownerID, groupID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var orientation = config.ExifOrientationNone
@@ -99,9 +143,25 @@ func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.S
 	for _, photoFile := range photo.Files {
 		if photoFile.FileType() == entities.PhotoFileTypeJPEG {
 			if err := u.imageProcessService.CreateThumbnails(ctx, photoFile, data, orientation); err != nil {
-				return err
+				return nil, err
 			}
 		}
 	}
-	return nil
+	return photo, nil
+}
+
+func (u *photoImportUseCase) ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error {
+	if belong, err := u.groupAdapter.IsBelongGroupUser(ctx, groupID, userID); err != nil {
+		return err
+	} else if !belong {
+		return errors.New(errors.ForbiddenError, nil)
+	}
+
+	fastArg := "false"
+	if fast {
+		fastArg = "true"
+	}
+
+	cmd := exec.Command("dst/indexing_photos", "--user-id", userID, "--group-id", groupID, "--fast", fastArg)
+	return cmd.Start()
 }

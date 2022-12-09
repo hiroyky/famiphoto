@@ -17,7 +17,14 @@ type localStorageDriver struct {
 }
 
 func (d *localStorageDriver) CreateFile(filePath string, data []byte) error {
-	panic("Not implemented")
+	f, err := os.Create(path.Join(d.baseDir, filePath))
+	if err != nil {
+		return err
+	}
+	if _, err := f.Write(data); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (d *localStorageDriver) CreateDir(dirPath string, perm os.FileMode) error {

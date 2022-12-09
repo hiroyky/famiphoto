@@ -35,6 +35,21 @@ func (m *MockGroupUseCase) EXPECT() *MockGroupUseCaseMockRecorder {
 	return m.recorder
 }
 
+// AlterGroupMembers mocks base method.
+func (m *MockGroupUseCase) AlterGroupMembers(ctx context.Context, executorUserID, groupID string, appendUserIDs, removeUserIDs []string) (*entities.Group, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AlterGroupMembers", ctx, executorUserID, groupID, appendUserIDs, removeUserIDs)
+	ret0, _ := ret[0].(*entities.Group)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AlterGroupMembers indicates an expected call of AlterGroupMembers.
+func (mr *MockGroupUseCaseMockRecorder) AlterGroupMembers(ctx, executorUserID, groupID, appendUserIDs, removeUserIDs interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlterGroupMembers", reflect.TypeOf((*MockGroupUseCase)(nil).AlterGroupMembers), ctx, executorUserID, groupID, appendUserIDs, removeUserIDs)
+}
+
 // CreateGroup mocks base method.
 func (m *MockGroupUseCase) CreateGroup(ctx context.Context, groupID, groupName, userID string) (*entities.Group, error) {
 	m.ctrl.T.Helper()
@@ -93,4 +108,19 @@ func (m *MockGroupUseCase) GetUserBelongingGroups(ctx context.Context, userID st
 func (mr *MockGroupUseCaseMockRecorder) GetUserBelongingGroups(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBelongingGroups", reflect.TypeOf((*MockGroupUseCase)(nil).GetUserBelongingGroups), ctx, userID)
+}
+
+// IsBelongingGroup mocks base method.
+func (m *MockGroupUseCase) IsBelongingGroup(ctx context.Context, groupID, userID string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsBelongingGroup", ctx, groupID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsBelongingGroup indicates an expected call of IsBelongingGroup.
+func (mr *MockGroupUseCaseMockRecorder) IsBelongingGroup(ctx, groupID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsBelongingGroup", reflect.TypeOf((*MockGroupUseCase)(nil).IsBelongingGroup), ctx, groupID, userID)
 }

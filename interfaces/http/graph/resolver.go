@@ -14,6 +14,7 @@ type Resolver struct {
 	searchUseCase      usecases.SearchUseCase
 	groupUseCase       usecases.GroupUseCase
 	oauthClientUseCase usecases.OauthUseCase
+	photoImportUseCase usecases.PhotoImportUseCase
 }
 
 func NewResolver(
@@ -22,6 +23,7 @@ func NewResolver(
 	searchUseCase usecases.SearchUseCase,
 	groupUseCase usecases.GroupUseCase,
 	oauthClientUseCase usecases.OauthUseCase,
+	photoImportUseCase usecases.PhotoImportUseCase,
 ) *Resolver {
 	return &Resolver{
 		userUseCase:        userUseCase,
@@ -29,5 +31,6 @@ func NewResolver(
 		searchUseCase:      searchUseCase,
 		groupUseCase:       groupUseCase,
 		oauthClientUseCase: oauthClientUseCase,
+		photoImportUseCase: photoImportUseCase,
 	}
 }

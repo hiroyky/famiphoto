@@ -49,6 +49,20 @@ func (mr *MockGroupAdapterMockRecorder) CreateGroup(ctx, group, userID interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGroup", reflect.TypeOf((*MockGroupAdapter)(nil).CreateGroup), ctx, group, userID)
 }
 
+// EditGroupMembers mocks base method.
+func (m *MockGroupAdapter) EditGroupMembers(ctx context.Context, groupID string, appendUserIDs, deleteUserIDs []string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EditGroupMembers", ctx, groupID, appendUserIDs, deleteUserIDs)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EditGroupMembers indicates an expected call of EditGroupMembers.
+func (mr *MockGroupAdapterMockRecorder) EditGroupMembers(ctx, groupID, appendUserIDs, deleteUserIDs interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditGroupMembers", reflect.TypeOf((*MockGroupAdapter)(nil).EditGroupMembers), ctx, groupID, appendUserIDs, deleteUserIDs)
+}
+
 // ExistGroup mocks base method.
 func (m *MockGroupAdapter) ExistGroup(ctx context.Context, groupID string) (bool, error) {
 	m.ctrl.T.Helper()
