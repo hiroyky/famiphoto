@@ -19,9 +19,9 @@ fi
 
 ## begin docker compose
 
-docker-compose --file docker-compose-prod.yaml build --no-cache
-docker-compose --file docker-compose-prod.yaml up -d
+docker compose --file docker-compose-prod.yaml build --no-cache
+docker compose --file docker-compose-prod.yaml up -d
 
 if [ -n "${CLIENT_SECRET}" ]; then
-  docker-compose exec famiphoto ./dst/register_client --client-id famiphoto --name "FAMIPHOTO" --client-secret ${CLIENT_SECRET}
+  docker compose exec famiphoto ./dst/register_client --client-id famiphoto --name "FAMIPHOTO" --client-secret ${CLIENT_SECRET}
 fi

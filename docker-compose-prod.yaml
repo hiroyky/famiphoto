@@ -12,7 +12,6 @@ services:
       - famiphoto_network
     env_file:
       - .env.local
-      - dst/.env.prod
     volumes:
       - ./home/famiphoto:/mnt/famiphoto
   famiphoto_web:
