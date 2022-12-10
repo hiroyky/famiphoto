@@ -16,7 +16,11 @@ RUN mkdir -p /var/famiphoto
 FROM golang:1.18
 ENV GO111MODULE=on
 WORKDIR /go/src/github.com/hiroyky/famiphoto
+COPY ../.. .
 
 RUN apt-get update
 RUN apt-get install -y libmagickwand-dev
+RUN make build
 RUN mkdir -p /var/famiphoto
+
+CMD ["./dst/app"]

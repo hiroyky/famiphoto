@@ -11,7 +11,7 @@ init:
 restart:
 	docker compose stop && docker compose up -d
 
-build: build_server build_sub_indexing build_sub_indexing_photos
+build: build_server build_sub_indexing build_sub_indexing_photos build_register_client
 
 build_prepare:
 	go mod tidy
@@ -23,6 +23,8 @@ build_sub_indexing: build_prepare
 	go build -o $(DST_DIR)/indexing subsystems/indexing/main.go
 build_sub_indexing_photos: build_prepare
 	go build -o $(DST_DIR)/indexing_photos subsystems/indexing_photos/main.go
+build_register_client: build_prepare
+	go build -o $(DST_DIR)/register_client subsystems/register_client/main.go
 fmt:
 	go fmt ./...
 
@@ -58,3 +60,7 @@ $(MOCK_TARGETS):
 clean:
 	rm -rf ./testing/mocks/
 	rm -rf ./dst
+
+prodinit:
+	docker-compose --file docker-compose-prod.yaml build --no-cache
+	docker-compose --file docker-compose-prod.yaml up -d
