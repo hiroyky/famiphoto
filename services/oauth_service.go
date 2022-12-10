@@ -138,7 +138,7 @@ func (s *oauthService) AuthClient(ctx context.Context, clientID, clientSecret st
 	if err != nil {
 		return nil, err
 	}
-
+	
 	if match, err := s.passwordService.MatchPassword(clientSecret, client.ClientSecretHashed); err != nil {
 		return nil, err
 	} else if !match {

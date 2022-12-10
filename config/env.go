@@ -5,6 +5,8 @@ import "github.com/kelseyhightower/envconfig"
 type FamiPhotoEnv struct {
 	AppEnv                     string   `envconfig:"APP_ENV"`
 	Port                       int64    `envconfig:"PORT"`
+	WebClientID                string   `envconfig:"WEB_CLIENT_ID"`
+	WebClientSecret            string   `envconfig:"WEB_CLIENT_SECRET"`
 	MySQLUserName              string   `envconfig:"MYSQL_USER_NAME"`
 	MySQLPassword              string   `envconfig:"MYSQL_PASSWORD"`
 	MySQLHostName              string   `envconfig:"MYSQL_HOST_NAME"`
