@@ -15,10 +15,13 @@ services:
       - dst/.env.prod
     volumes:
       - ./home/famiphoto:/mnt/famiphoto
+    depends_on:
+      - mysql
   famiphoto_web:
     container_name: famiphoto_web
+    image: famiphoto_web
     build:
-      context: https://github.com/hiroyky/famiphoto_web
+      context: github.com/hiroyky/famiphoto_web.git#main
     env_file:
       - dst/.env.web.prod
     ports:

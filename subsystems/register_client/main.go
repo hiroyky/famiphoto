@@ -26,12 +26,16 @@ func main() {
 
 	app.Action = func(ctx *cli.Context) error {
 		uc := di.NewOAuthUseCase()
-		return uc.CreateSpecialOauthClient(
+		err := uc.CreateSpecialOauthClient(
 			ctx.Context,
 			ctx.String("client-id"),
 			ctx.String("name"),
 			ctx.String("client-secret"),
 		)
+		if err != nil {
+			log.Warn(err)
+		}
+		return nil
 	}
 
 	if err := app.Run(os.Args); err != nil {

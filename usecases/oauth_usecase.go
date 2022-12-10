@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/services"
 	"time"
@@ -67,6 +68,10 @@ func (u *oauthUseCase) GetOauthClientRedirectURLs(ctx context.Context, oauthClie
 }
 
 func (u *oauthUseCase) AuthClientSecret(ctx context.Context, clientID, clientSecret string) (*entities.OauthClient, error) {
+	if clientID == config.Env.WebClientID && clientSecret == config.Env.WebClientSecret {
+		return u.authService.GetUserClient(ctx, clientID)
+	}
+
 	return u.authService.AuthClient(ctx, clientID, clientSecret)
 }
 
