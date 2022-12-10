@@ -14,11 +14,11 @@ services:
       - .env.local
       - dst/.env.prod
     volumes:
-      - ./samba/photos:/mnt/famiphoto
+      - ./home/famiphoto:/mnt/famiphoto
   famiphoto_web:
     container_name: famiphoto_web
     build:
-      context: /Users/hirokazu/Documents/workspace/famiphoto_web
+      context: https://github.com/hiroyky/famiphoto_web
     env_file:
       - dst/.env.web.prod
     ports:
