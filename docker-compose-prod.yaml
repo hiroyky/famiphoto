@@ -17,6 +17,7 @@ services:
       - ./home/famiphoto:/mnt/famiphoto
     depends_on:
       - mysql
+    restart: always
   famiphoto_web:
     container_name: famiphoto_web
     image: famiphoto_web
@@ -28,6 +29,7 @@ services:
       - 3000:3000
     networks:
       - famiphoto_network
+    restart: always
   elasticsearch:
     build:
       context: .
@@ -40,11 +42,13 @@ services:
       - "discovery.type=single-node"
       - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
       - "xpack.security.enabled=false"
+    restart: always
   kibana:
     image: docker.elastic.co/kibana/kibana:8.1.3
     container_name: kibana
     networks:
       - famiphoto_network
+    restart: always
     #ports:
     #  - 5601:5601
     environment:
@@ -66,9 +70,11 @@ services:
       - famiphoto_network
     ports:
       - 7001:3306
+    restart: always
   redis_oauth:
     image: redis:6.2
     container_name: redis_oauth
     platform: linux/amd64
     networks:
       - famiphoto_network
+    restart: always
