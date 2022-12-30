@@ -34,6 +34,7 @@ func New() *echo.Echo {
 	})
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: di.NewResolver()}))
+	srv.SetErrorPresenter(middlewares.HandleGraphQLError)
 	e.POST(
 		"/graphql",
 		func(ctx echo.Context) error {
