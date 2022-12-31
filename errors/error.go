@@ -44,6 +44,7 @@ const (
 	OAuthClientUnauthorizedError       FamiPhotoErrorCode = "OAuthClientUnauthorizedError"
 	OAuthClientInvalidRedirectURLError FamiPhotoErrorCode = "OAuthClientInvalidRedirectURLError"
 	OAuthAccessTokenNotFoundError      FamiPhotoErrorCode = "OAuthAccessTokenNotFoundError"
+	PhotoUploadSignNotFoundError       FamiPhotoErrorCode = "PhotoUploadSignNotFoundError"
 	UserAuthNotFoundError              FamiPhotoErrorCode = "UserAuthNotFoundError"
 	UnauthorizedError                  FamiPhotoErrorCode = "UnauthorizedError"
 	DBColumnNotFoundError              FamiPhotoErrorCode = "DBColumnNotFoundError"

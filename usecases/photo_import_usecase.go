@@ -10,9 +10,11 @@ import (
 	"github.com/hiroyky/famiphoto/services"
 	"os/exec"
 	"path"
+	"time"
 )
 
 type PhotoImportUseCase interface {
+	GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadInfo, error)
 	IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error
 	ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error
 }
@@ -30,7 +32,7 @@ func NewPhotoImportUseCase(
 		photoService:        photoService,
 		imageProcessService: imageProcessService,
 		photoAdapter:        photoAdapter,
-		storage:             storage,
+		storageAdapter:      storage,
 		searchAdapter:       searchAdapter,
 		groupAdapter:        groupAdapter,
 		userAdapter:         userAdapter,
@@ -42,11 +44,28 @@ type photoImportUseCase struct {
 	photoService        services.PhotoService
 	imageProcessService services.ImageProcessService
 	photoAdapter        infrastructures.PhotoAdapter
-	storage             infrastructures.PhotoStorageAdapter
+	storageAdapter      infrastructures.PhotoStorageAdapter
 	searchAdapter       infrastructures.SearchAdapter
 	userAdapter         infrastructures.UserAdapter
 	groupAdapter        infrastructures.GroupAdapter
 	appendBulkUnit      int
+}
+
+func (u *photoImportUseCase) GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadInfo, error) {
+	if belonging, err := u.groupAdapter.IsBelongGroupUser(ctx, groupID, userID); err != nil {
+		return nil, err
+	} else if !belonging {
+		return nil, errors.New(errors.ForbiddenError, nil)
+	}
+
+	token, err := u.storageAdapter.GenerateSignToSavePhoto(ctx, userID, groupID, config.PhotoUploadSignExpireInSec)
+	if err != nil {
+		return nil, err
+	}
+	return &entities.PhotoUploadInfo{
+		SignToken: token,
+		ExpireAt:  config.PhotoUploadSignExpireInSec + int(now.Unix()),
+	}, nil
 }
 
 func (u *photoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error {
@@ -55,7 +74,7 @@ func (u *photoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, group
 }
 
 func (u *photoImportUseCase) importDirRecursive(ctx context.Context, targetDirPath, groupID, userID string, extensions []string, fast bool) error {
-	contents, err := u.storage.FindDirContents(targetDirPath)
+	contents, err := u.storageAdapter.FindDirContents(targetDirPath)
 	if err != nil {
 		return err
 	}
@@ -115,7 +134,7 @@ func (u *photoImportUseCase) buildInsertSearchEngine(ctx context.Context, photoL
 }
 
 func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.StorageFileInfo, ownerID, groupID string, fast bool) (*entities.Photo, error) {
-	data, err := u.storage.LoadContent(file.Path)
+	data, err := u.storageAdapter.LoadContent(file.Path)
 	if err != nil {
 		return nil, err
 	}

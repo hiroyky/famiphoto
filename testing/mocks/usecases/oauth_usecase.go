@@ -98,6 +98,20 @@ func (mr *MockOauthUseCaseMockRecorder) CreateOauthClient(ctx, client interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOauthClient", reflect.TypeOf((*MockOauthUseCase)(nil).CreateOauthClient), ctx, client)
 }
 
+// CreateSpecialOauthClient mocks base method.
+func (m *MockOauthUseCase) CreateSpecialOauthClient(ctx context.Context, clientID, name, clientSecret string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSpecialOauthClient", ctx, clientID, name, clientSecret)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateSpecialOauthClient indicates an expected call of CreateSpecialOauthClient.
+func (mr *MockOauthUseCaseMockRecorder) CreateSpecialOauthClient(ctx, clientID, name, clientSecret interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSpecialOauthClient", reflect.TypeOf((*MockOauthUseCase)(nil).CreateSpecialOauthClient), ctx, clientID, name, clientSecret)
+}
+
 // GetOauthClientRedirectURLs mocks base method.
 func (m *MockOauthUseCase) GetOauthClientRedirectURLs(ctx context.Context, oauthClientID string) ([]*entities.OAuthClientRedirectURL, error) {
 	m.ctrl.T.Helper()

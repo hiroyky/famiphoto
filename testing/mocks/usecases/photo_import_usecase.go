@@ -7,8 +7,10 @@ package mock_usecases
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
+	entities "github.com/hiroyky/famiphoto/entities"
 )
 
 // MockPhotoImportUseCase is a mock of PhotoImportUseCase interface.
@@ -46,6 +48,21 @@ func (m *MockPhotoImportUseCase) ExecuteBatch(ctx context.Context, groupID, user
 func (mr *MockPhotoImportUseCaseMockRecorder) ExecuteBatch(ctx, groupID, userID, fast interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteBatch", reflect.TypeOf((*MockPhotoImportUseCase)(nil).ExecuteBatch), ctx, groupID, userID, fast)
+}
+
+// GenerateUploadURL mocks base method.
+func (m *MockPhotoImportUseCase) GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateUploadURL", ctx, userID, groupID, now)
+	ret0, _ := ret[0].(*entities.PhotoUploadInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateUploadURL indicates an expected call of GenerateUploadURL.
+func (mr *MockPhotoImportUseCaseMockRecorder) GenerateUploadURL(ctx, userID, groupID, now interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateUploadURL", reflect.TypeOf((*MockPhotoImportUseCase)(nil).GenerateUploadURL), ctx, userID, groupID, now)
 }
 
 // IndexingPhotos mocks base method.

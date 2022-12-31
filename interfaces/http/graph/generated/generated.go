@@ -72,6 +72,7 @@ type ComplexityRoot struct {
 		CreateOauthClient func(childComplexity int, input model.CreateOauthClientInput) int
 		CreateUser        func(childComplexity int, input model.CreateUserInput) int
 		IndexingPhotos    func(childComplexity int, input *model.IndexingPhotosInput) int
+		UploadPhoto       func(childComplexity int, input *model.UploadPhotoInput) int
 	}
 
 	OauthClient struct {
@@ -141,6 +142,11 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	PhotoUploadInfo struct {
+		ExpireAt  func(childComplexity int) int
+		UploadURL func(childComplexity int) int
+	}
+
 	Query struct {
 		BelongingGroups  func(childComplexity int) int
 		ExistGroupID     func(childComplexity int, id string) int
@@ -191,6 +197,7 @@ type MutationResolver interface {
 	AlterGroupMembers(ctx context.Context, input model.AlterGroupMembersInput) (*model.Group, error)
 	CreateOauthClient(ctx context.Context, input model.CreateOauthClientInput) (*model.OauthClient, error)
 	IndexingPhotos(ctx context.Context, input *model.IndexingPhotosInput) (bool, error)
+	UploadPhoto(ctx context.Context, input *model.UploadPhotoInput) (*model.PhotoUploadInfo, error)
 }
 type OauthClientResolver interface {
 	RedirectUrls(ctx context.Context, obj *model.OauthClient) ([]string, error)
@@ -365,6 +372,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.IndexingPhotos(childComplexity, args["input"].(*model.IndexingPhotosInput)), true
+
+	case "Mutation.uploadPhoto":
+		if e.complexity.Mutation.UploadPhoto == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_uploadPhoto_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UploadPhoto(childComplexity, args["input"].(*model.UploadPhotoInput)), true
 
 	case "OauthClient.clientId":
 		if e.complexity.OauthClient.ClientID == nil {
@@ -688,6 +707,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PhotoPagination.PageInfo(childComplexity), true
 
+	case "PhotoUploadInfo.expireAt":
+		if e.complexity.PhotoUploadInfo.ExpireAt == nil {
+			break
+		}
+
+		return e.complexity.PhotoUploadInfo.ExpireAt(childComplexity), true
+
+	case "PhotoUploadInfo.uploadUrl":
+		if e.complexity.PhotoUploadInfo.UploadURL == nil {
+			break
+		}
+
+		return e.complexity.PhotoUploadInfo.UploadURL(childComplexity), true
+
 	case "Query.belongingGroups":
 		if e.complexity.Query.BelongingGroups == nil {
 			break
@@ -927,6 +960,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateOauthClientInput,
 		ec.unmarshalInputCreateUserInput,
 		ec.unmarshalInputIndexingPhotosInput,
+		ec.unmarshalInputUploadPhotoInput,
 	)
 	first := true
 
@@ -1051,6 +1085,7 @@ type GroupPagination implements Pagination {
     alterGroupMembers(input: AlterGroupMembersInput!): Group!
     createOauthClient(input: CreateOauthClientInput!): OauthClient!
     indexingPhotos(input: IndexingPhotosInput): Boolean!
+    uploadPhoto(input: UploadPhotoInput): PhotoUploadInfo!
 }
 
 input CreateUserInput {
@@ -1085,6 +1120,15 @@ input CreateOauthClientInput {
 input IndexingPhotosInput {
     groupId: ID!
     fast: Boolean!
+}
+
+input UploadPhotoInput {
+    groupId: ID!
+}
+
+type PhotoUploadInfo {
+    uploadUrl: String!
+    expireAt: Int!
 }`, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/oauth_clients.graphqls", Input: `type OauthClient implements Node{
     id: ID!
@@ -1293,6 +1337,21 @@ func (ec *executionContext) field_Mutation_indexingPhotos_args(ctx context.Conte
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOIndexingPhotosInput2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐIndexingPhotosInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_uploadPhoto_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.UploadPhotoInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOUploadPhotoInput2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUploadPhotoInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2280,6 +2339,67 @@ func (ec *executionContext) fieldContext_Mutation_indexingPhotos(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_indexingPhotos_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_uploadPhoto(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_uploadPhoto(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UploadPhoto(rctx, fc.Args["input"].(*model.UploadPhotoInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PhotoUploadInfo)
+	fc.Result = res
+	return ec.marshalNPhotoUploadInfo2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐPhotoUploadInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_uploadPhoto(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "uploadUrl":
+				return ec.fieldContext_PhotoUploadInfo_uploadUrl(ctx, field)
+			case "expireAt":
+				return ec.fieldContext_PhotoUploadInfo_expireAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PhotoUploadInfo", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_uploadPhoto_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4446,6 +4566,94 @@ func (ec *executionContext) fieldContext_PhotoPagination_nodes(ctx context.Conte
 				return ec.fieldContext_Photo_files(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Photo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PhotoUploadInfo_uploadUrl(ctx context.Context, field graphql.CollectedField, obj *model.PhotoUploadInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PhotoUploadInfo_uploadUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UploadURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PhotoUploadInfo_uploadUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PhotoUploadInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PhotoUploadInfo_expireAt(ctx context.Context, field graphql.CollectedField, obj *model.PhotoUploadInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PhotoUploadInfo_expireAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpireAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PhotoUploadInfo_expireAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PhotoUploadInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7988,6 +8196,34 @@ func (ec *executionContext) unmarshalInputIndexingPhotosInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUploadPhotoInput(ctx context.Context, obj interface{}) (model.UploadPhotoInput, error) {
+	var it model.UploadPhotoInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"groupId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "groupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+			it.GroupID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -8307,6 +8543,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_indexingPhotos(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "uploadPhoto":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_uploadPhoto(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -8872,6 +9117,41 @@ func (ec *executionContext) _PhotoPagination(ctx context.Context, sel ast.Select
 		case "nodes":
 
 			out.Values[i] = ec._PhotoPagination_nodes(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var photoUploadInfoImplementors = []string{"PhotoUploadInfo"}
+
+func (ec *executionContext) _PhotoUploadInfo(ctx context.Context, sel ast.SelectionSet, obj *model.PhotoUploadInfo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, photoUploadInfoImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PhotoUploadInfo")
+		case "uploadUrl":
+
+			out.Values[i] = ec._PhotoUploadInfo_uploadUrl(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "expireAt":
+
+			out.Values[i] = ec._PhotoUploadInfo_expireAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -10071,6 +10351,20 @@ func (ec *executionContext) marshalNPhotoPagination2ᚖgithubᚗcomᚋhiroykyᚋ
 	return ec._PhotoPagination(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPhotoUploadInfo2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐPhotoUploadInfo(ctx context.Context, sel ast.SelectionSet, v model.PhotoUploadInfo) graphql.Marshaler {
+	return ec._PhotoUploadInfo(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPhotoUploadInfo2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐPhotoUploadInfo(ctx context.Context, sel ast.SelectionSet, v *model.PhotoUploadInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PhotoUploadInfo(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -10616,6 +10910,14 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOUploadPhotoInput2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUploadPhotoInput(ctx context.Context, v interface{}) (*model.UploadPhotoInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUploadPhotoInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

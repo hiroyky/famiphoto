@@ -4,6 +4,7 @@ type Mutation {
     alterGroupMembers(input: AlterGroupMembersInput!): Group!
     createOauthClient(input: CreateOauthClientInput!): OauthClient!
     indexingPhotos(input: IndexingPhotosInput): Boolean!
+    uploadPhoto(input: UploadPhotoInput): PhotoUploadInfo!
 }
 
 input CreateUserInput {
@@ -38,4 +39,13 @@ input CreateOauthClientInput {
 input IndexingPhotosInput {
     groupId: ID!
     fast: Boolean!
+}
+
+input UploadPhotoInput {
+    groupId: ID!
+}
+
+type PhotoUploadInfo {
+    uploadUrl: String!
+    expireAt: Int!
 }
