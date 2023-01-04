@@ -85,7 +85,6 @@ func (u *photoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileNam
 	if err != nil {
 		return err
 	}
-
 	photo, err := u.registerPhoto(ctx, dstFile, info.UserID, info.GroupID, false)
 	if err != nil {
 		return err
@@ -177,7 +176,6 @@ func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.S
 	if err != nil {
 		return nil, err
 	}
-
 	var orientation = config.ExifOrientationNone
 	orientationMeta, err := u.photoAdapter.GetPhotoMetaItemByPhotoIDTagID(ctx, photo.PhotoID, config.ExifTagOrientation)
 	if err == nil {

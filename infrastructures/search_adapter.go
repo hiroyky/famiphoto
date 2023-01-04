@@ -35,14 +35,12 @@ type searchAdapter struct {
 }
 
 func (a *searchAdapter) InsertPhoto(ctx context.Context, photo *entities.Photo) error {
-	dateTimeOriginalTag, err := a.exifRepo.GetPhotoMetaItemByTagID(ctx, photo.PhotoID, config.ExifTagIDDateTimeOriginal)
-	if err != nil {
-		return err
-	}
-
+	dateTimeOriginalTag, _ := a.exifRepo.GetPhotoMetaItemByTagID(ctx, photo.PhotoID, config.ExifTagIDDateTimeOriginal)
 	var dateTimeOriginalEpoc int64
-	if dateTimeOriginal, err := a.parseExifDatetime(dateTimeOriginalTag.ValueString); err == nil {
-		dateTimeOriginalEpoc = dateTimeOriginal.Unix()
+	if dateTimeOriginalTag != nil {
+		if dateTimeOriginal, err := a.parseExifDatetime(dateTimeOriginalTag.ValueString); err == nil {
+			dateTimeOriginalEpoc = dateTimeOriginal.Unix()
+		}
 	}
 
 	photoIndex := models.NewPhotoIndex(photo, dateTimeOriginalEpoc)

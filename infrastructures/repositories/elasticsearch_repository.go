@@ -81,16 +81,8 @@ func (r *elasticSearchRepository) parsePhotoResult(body map[string]any) (*models
 }
 
 func (r *elasticSearchRepository) InsertPhoto(ctx context.Context, photo *models.PhotoIndex) error {
-	req := esapi.CreateRequest{
-		Index:      "photo",
-		DocumentID: photo.PhotoIndexID(),
-		Body:       esutil.NewJSONReader(photo),
-	}
-	_, err := req.Do(ctx, r.searchClient)
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err := r.BulkInsertPhotos(ctx, []*models.PhotoIndex{photo})
+	return err
 }
 
 func (r *elasticSearchRepository) BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex) (*esutil.BulkIndexerStats, error) {

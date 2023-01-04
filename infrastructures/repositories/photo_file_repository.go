@@ -31,7 +31,7 @@ type photoFileRepository struct {
 func (r *photoFileRepository) GetPhotoFileByPhotoFileID(ctx context.Context, photoFileID int) (*dbmodels.PhotoFile, error) {
 	file, err := dbmodels.FindPhotoFile(ctx, r.db, photoFileID)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, errors.New(errors.DBColumnNotFoundError, err)
+		return nil, errors.New(errors.DBRowNotFoundError, err)
 	}
 	return file, nil
 }
@@ -66,7 +66,7 @@ func (r *photoFileRepository) GetPhotoFileByFilePath(ctx context.Context, filePa
 	p, err := dbmodels.PhotoFiles(qm.Where("file_path = ?", filePath)).One(ctx, r.db)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New(errors.DBColumnNotFoundError, err)
+			return nil, errors.New(errors.DBRowNotFoundError, err)
 		}
 		return nil, err
 	}

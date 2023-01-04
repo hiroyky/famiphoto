@@ -37,7 +37,7 @@ type PhotoIndex struct {
 	ThumbnailURL     string   `json:"thumbnail_url"`
 }
 
-func (m PhotoIndex) PhotoIndexID() string {
+func (m *PhotoIndex) PhotoIndexID() string {
 	id := fmt.Sprintf("Photo:%d", m.PhotoID)
 	return base64.StdEncoding.EncodeToString([]byte(id))
 }

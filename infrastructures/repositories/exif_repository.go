@@ -34,7 +34,7 @@ func (r *exifRepository) GetPhotoMetaItemByTagID(ctx context.Context, photoID, t
 	m, err := dbmodels.Exifs(qm.Where("photo_id = ?", photoID), qm.Where("tag_id = ?", tagID)).One(ctx, r.db)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New(errors.DBColumnNotFoundError, err)
+			return nil, errors.New(errors.DBRowNotFoundError, err)
 		}
 		return nil, err
 	}

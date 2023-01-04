@@ -62,7 +62,7 @@ type PhotoFile struct {
 func (f PhotoFile) FileType() PhotoFileType {
 	ext := filepath.Ext(f.FilePath)
 	switch strings.ToLower(ext) {
-	case ".jpg":
+	case ".jpeg", ".jpg":
 		return PhotoFileTypeJPEG
 	case ".arw":
 		return PhotoFileTypeRAW
@@ -134,9 +134,9 @@ func (l PhotoFileTypeList) ToStrings() []string {
 }
 
 const (
-	PhotoFileTypeJPEG    = "jpeg"
-	PhotoFileTypeRAW     = "raw"
-	PhotoFileTypeUnknown = "unknown"
+	PhotoFileTypeJPEG    PhotoFileType = "jpeg"
+	PhotoFileTypeRAW     PhotoFileType = "raw"
+	PhotoFileTypeUnknown PhotoFileType = "unknown"
 )
 
 type PhotoMetaItem struct {

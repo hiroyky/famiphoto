@@ -47,7 +47,7 @@ const (
 	PhotoUploadSignNotFoundError       FamiPhotoErrorCode = "PhotoUploadSignNotFoundError"
 	UserAuthNotFoundError              FamiPhotoErrorCode = "UserAuthNotFoundError"
 	UnauthorizedError                  FamiPhotoErrorCode = "UnauthorizedError"
-	DBColumnNotFoundError              FamiPhotoErrorCode = "DBColumnNotFoundError"
+	DBRowNotFoundError                 FamiPhotoErrorCode = "DBRowNotFoundError"
 	InvalidFilePathFatal               FamiPhotoErrorCode = "InvalidFilePathFatal"
 	ForbiddenError                     FamiPhotoErrorCode = "ForbiddenError"
 	TxnRollbackFatal                   FamiPhotoErrorCode = "TxnRollbackFatal"

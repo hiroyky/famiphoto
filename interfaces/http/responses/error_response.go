@@ -21,7 +21,7 @@ func GetStatusCode(err error) int {
 	case errors.ForbiddenError:
 		return http.StatusForbidden
 	case errors.UserNotFoundError,
-		errors.DBColumnNotFoundError,
+		errors.DBRowNotFoundError,
 		errors.GroupNotFoundError,
 		errors.UserPasswordNotFoundError,
 		errors.OAuthClientNotFoundError,
