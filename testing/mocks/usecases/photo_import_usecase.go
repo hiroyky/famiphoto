@@ -51,10 +51,10 @@ func (mr *MockPhotoImportUseCaseMockRecorder) ExecuteBatch(ctx, groupID, userID,
 }
 
 // GenerateUploadURL mocks base method.
-func (m *MockPhotoImportUseCase) GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadInfo, error) {
+func (m *MockPhotoImportUseCase) GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadSign, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GenerateUploadURL", ctx, userID, groupID, now)
-	ret0, _ := ret[0].(*entities.PhotoUploadInfo)
+	ret0, _ := ret[0].(*entities.PhotoUploadSign)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -77,4 +77,18 @@ func (m *MockPhotoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, g
 func (mr *MockPhotoImportUseCaseMockRecorder) IndexingPhotos(ctx, rootPath, groupID, userID, extensions, fast interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IndexingPhotos", reflect.TypeOf((*MockPhotoImportUseCase)(nil).IndexingPhotos), ctx, rootPath, groupID, userID, extensions, fast)
+}
+
+// UploadPhoto mocks base method.
+func (m *MockPhotoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileName string, body []byte) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadPhoto", ctx, signToken, fileName, body)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadPhoto indicates an expected call of UploadPhoto.
+func (mr *MockPhotoImportUseCaseMockRecorder) UploadPhoto(ctx, signToken, fileName, body interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockPhotoImportUseCase)(nil).UploadPhoto), ctx, signToken, fileName, body)
 }

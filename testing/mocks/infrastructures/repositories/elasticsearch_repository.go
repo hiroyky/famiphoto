@@ -52,6 +52,20 @@ func (mr *MockElasticSearchRepositoryMockRecorder) BulkInsertPhotos(ctx, photos 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkInsertPhotos", reflect.TypeOf((*MockElasticSearchRepository)(nil).BulkInsertPhotos), ctx, photos)
 }
 
+// InsertPhoto mocks base method.
+func (m *MockElasticSearchRepository) InsertPhoto(ctx context.Context, photo *models.PhotoIndex) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertPhoto", ctx, photo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// InsertPhoto indicates an expected call of InsertPhoto.
+func (mr *MockElasticSearchRepositoryMockRecorder) InsertPhoto(ctx, photo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertPhoto", reflect.TypeOf((*MockElasticSearchRepository)(nil).InsertPhoto), ctx, photo)
+}
+
 // SearchPhotos mocks base method.
 func (m *MockElasticSearchRepository) SearchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*models.PhotoResult, error) {
 	m.ctrl.T.Helper()

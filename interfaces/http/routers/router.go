@@ -26,6 +26,7 @@ func New() *echo.Echo {
 	e.Renderer = responses.NewHtmlTemplateRenderer()
 	authMiddleware := di.NewAuthMiddleware()
 	authController := di.NewAuthController()
+	uploadController := di.NewUploadController()
 	downloadController := di.NewDownloadController()
 	oauthController := di.NewOAuthController()
 
@@ -53,7 +54,7 @@ func New() *echo.Echo {
 	e.POST("/auth/login", authController.Login, authMiddleware.MustAuthClientSecret, authMiddleware.MustVerifyAdminClient)
 
 	e.POST("/oauth/v2/token", oauthController.PostToken, authMiddleware.MustAuthClientSecret)
-
+	e.POST("/upload_photo/:sign_token", uploadController.UploadPhoto)
 	e.Group("assets").Use(middleware.StaticWithConfig(middleware.StaticConfig{Root: "assets"}))
 	download := e.Group("/download",
 		echo.WrapMiddleware(authMiddleware.AuthClientSecret()),

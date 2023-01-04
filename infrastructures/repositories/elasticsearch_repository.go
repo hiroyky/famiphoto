@@ -22,6 +22,7 @@ func NewElasticSearchRepository(searchClient *elasticsearch.Client, newBulkIndex
 }
 
 type ElasticSearchRepository interface {
+	InsertPhoto(ctx context.Context, photo *models.PhotoIndex) error
 	BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex) (*esutil.BulkIndexerStats, error)
 	SearchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*models.PhotoResult, error)
 }
@@ -77,6 +78,19 @@ func (r *elasticSearchRepository) parsePhotoResult(body map[string]any) (*models
 		Total:  int(total),
 		Photos: photos,
 	}, nil
+}
+
+func (r *elasticSearchRepository) InsertPhoto(ctx context.Context, photo *models.PhotoIndex) error {
+	req := esapi.CreateRequest{
+		Index:      "photo",
+		DocumentID: photo.PhotoIndexID(),
+		Body:       esutil.NewJSONReader(photo),
+	}
+	_, err := req.Do(ctx, r.searchClient)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *elasticSearchRepository) BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex) (*esutil.BulkIndexerStats, error) {

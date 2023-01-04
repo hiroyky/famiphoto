@@ -7,7 +7,7 @@ import (
 	"path"
 )
 
-func NewPhotoUploadInfo(sign *entities.PhotoUploadInfo) *PhotoUploadInfo {
+func NewPhotoUploadInfo(sign *entities.PhotoUploadSign) *PhotoUploadInfo {
 	u, err := url.Parse(config.Env.PhotoUploadBaseURL)
 	if err != nil {
 		panic(err)
