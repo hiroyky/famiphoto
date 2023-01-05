@@ -8,3 +8,4 @@ const RefreshTokenLength = 1024
 const ElasticsearchPhotoIndexName = "photo"
 const AssetPreviewImageName = "preview"
 const AssetThumbnailImageName = "thumbnail"
+const PhotoUploadSignExpireInSec = 300

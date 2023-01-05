@@ -13,3 +13,7 @@ func NewOAuthController() controllers.OauthController {
 func NewDownloadController() controllers.DownloadController {
 	return controllers.NewDownloadController(NewDownloadUseCase())
 }
+
+func NewUploadController() controllers.UploadController {
+	return controllers.NewUploadController(NewPhotoImportUseCase())
+}

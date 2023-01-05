@@ -73,7 +73,7 @@ func (u *searchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int) (*enti
 		return nil, err
 	}
 	if len(res.Items) == 0 {
-		return nil, errors.New(errors.DBColumnNotFoundError, nil)
+		return nil, errors.New(errors.DBRowNotFoundError, nil)
 	}
 	return res.Items[0], nil
 }

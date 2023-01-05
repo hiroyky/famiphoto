@@ -97,6 +97,20 @@ func (mr *MockOAuthServiceMockRecorder) CreateClient(ctx, client interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateClient", reflect.TypeOf((*MockOAuthService)(nil).CreateClient), ctx, client)
 }
 
+// CreateClientWithClientSecret mocks base method.
+func (m *MockOAuthService) CreateClientWithClientSecret(ctx context.Context, client *entities.OauthClient, clientSecret string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateClientWithClientSecret", ctx, client, clientSecret)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateClientWithClientSecret indicates an expected call of CreateClientWithClientSecret.
+func (mr *MockOAuthServiceMockRecorder) CreateClientWithClientSecret(ctx, client, clientSecret interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateClientWithClientSecret", reflect.TypeOf((*MockOAuthService)(nil).CreateClientWithClientSecret), ctx, client, clientSecret)
+}
+
 // GetOAuthClientRedirectURLsByOAuthClientID mocks base method.
 func (m *MockOAuthService) GetOAuthClientRedirectURLsByOAuthClientID(ctx context.Context, clientID string) (entities.OAuthClientRedirectURLList, error) {
 	m.ctrl.T.Helper()

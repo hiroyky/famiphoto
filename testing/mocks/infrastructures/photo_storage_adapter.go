@@ -50,6 +50,21 @@ func (mr *MockPhotoStorageAdapterMockRecorder) FindDirContents(dirPath interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindDirContents", reflect.TypeOf((*MockPhotoStorageAdapter)(nil).FindDirContents), dirPath)
 }
 
+// GenerateSignToSavePhoto mocks base method.
+func (m *MockPhotoStorageAdapter) GenerateSignToSavePhoto(ctx context.Context, userID, groupID string, expireIn int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateSignToSavePhoto", ctx, userID, groupID, expireIn)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateSignToSavePhoto indicates an expected call of GenerateSignToSavePhoto.
+func (mr *MockPhotoStorageAdapterMockRecorder) GenerateSignToSavePhoto(ctx, userID, groupID, expireIn interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateSignToSavePhoto", reflect.TypeOf((*MockPhotoStorageAdapter)(nil).GenerateSignToSavePhoto), ctx, userID, groupID, expireIn)
+}
+
 // LoadContent mocks base method.
 func (m *MockPhotoStorageAdapter) LoadContent(path string) (entities.StorageFileData, error) {
 	m.ctrl.T.Helper()
@@ -80,6 +95,21 @@ func (mr *MockPhotoStorageAdapterMockRecorder) ParsePhotoMeta(path interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParsePhotoMeta", reflect.TypeOf((*MockPhotoStorageAdapter)(nil).ParsePhotoMeta), path)
 }
 
+// SavePhotoFile mocks base method.
+func (m *MockPhotoStorageAdapter) SavePhotoFile(ctx context.Context, userID, groupID, fileName string, data []byte) (*entities.StorageFileInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SavePhotoFile", ctx, userID, groupID, fileName, data)
+	ret0, _ := ret[0].(*entities.StorageFileInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SavePhotoFile indicates an expected call of SavePhotoFile.
+func (mr *MockPhotoStorageAdapterMockRecorder) SavePhotoFile(ctx, userID, groupID, fileName, data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SavePhotoFile", reflect.TypeOf((*MockPhotoStorageAdapter)(nil).SavePhotoFile), ctx, userID, groupID, fileName, data)
+}
+
 // SavePreview mocks base method.
 func (m *MockPhotoStorageAdapter) SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
 	m.ctrl.T.Helper()
@@ -106,4 +136,19 @@ func (m *MockPhotoStorageAdapter) SaveThumbnail(ctx context.Context, photoID int
 func (mr *MockPhotoStorageAdapterMockRecorder) SaveThumbnail(ctx, photoID, data, groupID, ownerID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveThumbnail", reflect.TypeOf((*MockPhotoStorageAdapter)(nil).SaveThumbnail), ctx, photoID, data, groupID, ownerID)
+}
+
+// VerifySignToken mocks base method.
+func (m *MockPhotoStorageAdapter) VerifySignToken(ctx context.Context, token string) (*entities.PhotoUploadInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifySignToken", ctx, token)
+	ret0, _ := ret[0].(*entities.PhotoUploadInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifySignToken indicates an expected call of VerifySignToken.
+func (mr *MockPhotoStorageAdapterMockRecorder) VerifySignToken(ctx, token interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifySignToken", reflect.TypeOf((*MockPhotoStorageAdapter)(nil).VerifySignToken), ctx, token)
 }

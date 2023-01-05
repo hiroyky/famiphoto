@@ -23,10 +23,12 @@ type FamiPhotoEnv struct {
 	UserAccessTokenExpireInSec int64    `envconfig:"USER_ACCESS_TOKEN_EXPIRE_IN_SEC"`
 	AccessTokenHashedPrefix    string   `envconfig:"ACCESS_TOKEN_HASHED_PREFIX"`
 	LoginTokenHashedPrefix     string   `envconfig:"LOGIN_TOKEN_HASHED_PREFIX"`
+	UploadTokenHashedPrefix    string   `envconfig:"UPLOAD_TOKEN_HASHED_PREFIX"`
 	LoginTokenExpireSec        int64    `envconfig:"LOGIN_TOKEN_EXPIRE_SEC"`
 	ElasticsearchAddresses     []string `envconfig:"ELASTICSEARCH_ADDRESSES"`
-	AssetBaseURL               string   `envconfig:"ASSET_BASE_URL"`
 	ExifTimezone               string   `envconfig:"EXIF_TIMEZONE"`
+	AssetBaseURL               string   `envconfig:"ASSET_BASE_URL"`
+	PhotoUploadBaseURL         string   `envconfig:"PHOTO_UPLOAD_BASE_URL"`
 }
 
 var Env FamiPhotoEnv

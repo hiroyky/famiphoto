@@ -15,6 +15,7 @@ import (
 )
 
 type SearchAdapter interface {
+	InsertPhoto(ctx context.Context, photo *entities.Photo) error
 	BulkInsertPhotos(ctx context.Context, photos entities.PhotoList) (*esutil.BulkIndexerStats, error)
 	SearchPhotos(ctx context.Context, q *filters.PhotoSearchQuery) (*entities.PhotoSearchResult, error)
 }
@@ -33,6 +34,19 @@ type searchAdapter struct {
 	nowFunc  func() time.Time
 }
 
+func (a *searchAdapter) InsertPhoto(ctx context.Context, photo *entities.Photo) error {
+	dateTimeOriginalTag, _ := a.exifRepo.GetPhotoMetaItemByTagID(ctx, photo.PhotoID, config.ExifTagIDDateTimeOriginal)
+	var dateTimeOriginalEpoc int64
+	if dateTimeOriginalTag != nil {
+		if dateTimeOriginal, err := a.parseExifDatetime(dateTimeOriginalTag.ValueString); err == nil {
+			dateTimeOriginalEpoc = dateTimeOriginal.Unix()
+		}
+	}
+
+	photoIndex := models.NewPhotoIndex(photo, dateTimeOriginalEpoc)
+	return a.esRepo.InsertPhoto(ctx, photoIndex)
+}
+
 func (a *searchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.PhotoList) (*esutil.BulkIndexerStats, error) {
 	dateTimeOriginals, err := a.exifRepo.GetPhotoMetaItemsByPhotoIDsTagID(ctx, photos.PhotoIDs(), config.ExifTagIDDateTimeOriginal)
 	if err != nil {
@@ -43,24 +57,12 @@ func (a *searchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.Ph
 		var dateTimeOriginalEpoc int64
 		dateTimeOriginalTag := array.Filter(dateTimeOriginals, func(t *dbmodels.Exif) bool { return t.PhotoID == photo.PhotoID })
 		if len(dateTimeOriginalTag) > 0 {
-			if dateTimeOriginal, err := utils.ParseDatetime(dateTimeOriginalTag[0].ValueString, utils.MustLoadLocation(config.Env.ExifTimezone)); err == nil {
+			if dateTimeOriginal, err := a.parseExifDatetime(dateTimeOriginalTag[0].ValueString); err == nil {
 				dateTimeOriginalEpoc = dateTimeOriginal.Unix()
 			}
 		}
 
-		return &models.PhotoIndex{
-			PhotoID: photo.PhotoID,
-			OwnerID: photo.OwnerID,
-			GroupID: photo.GroupID,
-			FileTypes: array.Map(photo.Files.FindFileTypesByPhotoID(photo.PhotoID), func(t entities.PhotoFileType) string {
-				return t.ToString()
-			}),
-			Name:             photo.Name,
-			ImportedAt:       photo.ImportedAt.Unix(),
-			DateTimeOriginal: dateTimeOriginalEpoc,
-			PreviewURL:       photo.PreviewURL(),
-			ThumbnailURL:     photo.ThumbnailURL(),
-		}
+		return models.NewPhotoIndex(photo, dateTimeOriginalEpoc)
 	})
 
 	stats, err := a.esRepo.BulkInsertPhotos(ctx, photoIndexes)
@@ -68,6 +70,10 @@ func (a *searchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.Ph
 		return nil, err
 	}
 	return stats, nil
+}
+
+func (a *searchAdapter) parseExifDatetime(valueString string) (time.Time, error) {
+	return utils.ParseDatetime(valueString, utils.MustLoadLocation(config.Env.ExifTimezone))
 }
 
 func (a *searchAdapter) SearchPhotos(ctx context.Context, q *filters.PhotoSearchQuery) (*entities.PhotoSearchResult, error) {

@@ -53,7 +53,11 @@ func newExifRepository() repositories.ExifRepository {
 }
 
 func NewPhotoStorageAdapter() infrastructures.PhotoStorageAdapter {
-	return infrastructures.NewPhotoStorageAdapter(newPhotoStorageRepository(), newPhotoThumbnailRepository())
+	return infrastructures.NewPhotoStorageAdapter(newPhotoStorageRepository(), newPhotoThumbnailRepository(), newPhotoUploadSignRepository())
+}
+
+func newPhotoUploadSignRepository() repositories.PhotoUploadSignRepository {
+	return repositories.NewPhotoUploadSignRepository(newRedis())
 }
 
 func newPhotoThumbnailRepository() repositories.PhotoThumbnailRepository {
@@ -73,7 +77,7 @@ func newElasticSearchRepo() repositories.ElasticSearchRepository {
 }
 
 func NewUserAdapter() infrastructures.UserAdapter {
-	return infrastructures.NewUserAdapter(newUserRepository(), newGroupRepository(), newUserPasswordRepository())
+	return infrastructures.NewUserAdapter(newUserRepository(), newGroupRepository(), newUserPasswordRepository(), newPhotoStorageRepository())
 }
 
 func newUserRepository() repositories.UserRepository {

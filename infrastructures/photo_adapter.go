@@ -138,7 +138,7 @@ func (a *photoAdapter) UpsertPhotoByFilePath(ctx context.Context, photo *entitie
 
 func (a *photoAdapter) upsertPhotoByFilePath(ctx context.Context, photo *dbmodels.Photo) (*dbmodels.Photo, error) {
 	existPhoto, err := a.photoRepo.GetPhotoByFilePath(ctx, photo.FileNameHash)
-	if err != nil && !errors.IsErrCode(err, errors.DBColumnNotFoundError) {
+	if err != nil && !errors.IsErrCode(err, errors.DBRowNotFoundError) {
 		return nil, err
 	}
 	if err == nil && existPhoto != nil {
@@ -150,7 +150,7 @@ func (a *photoAdapter) upsertPhotoByFilePath(ctx context.Context, photo *dbmodel
 
 func (a *photoAdapter) upsertPhotoFileByFilePath(ctx context.Context, photoFile *dbmodels.PhotoFile) (*dbmodels.PhotoFile, error) {
 	exist, err := a.photoFileRepo.GetPhotoFileByFilePath(ctx, photoFile.FilePath)
-	if err != nil && !errors.IsErrCode(err, errors.DBColumnNotFoundError) {
+	if err != nil && !errors.IsErrCode(err, errors.DBRowNotFoundError) {
 		return nil, err
 	}
 	if err == nil && exist != nil {

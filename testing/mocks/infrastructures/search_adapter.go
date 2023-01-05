@@ -52,6 +52,20 @@ func (mr *MockSearchAdapterMockRecorder) BulkInsertPhotos(ctx, photos interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkInsertPhotos", reflect.TypeOf((*MockSearchAdapter)(nil).BulkInsertPhotos), ctx, photos)
 }
 
+// InsertPhoto mocks base method.
+func (m *MockSearchAdapter) InsertPhoto(ctx context.Context, photo *entities.Photo) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertPhoto", ctx, photo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// InsertPhoto indicates an expected call of InsertPhoto.
+func (mr *MockSearchAdapterMockRecorder) InsertPhoto(ctx, photo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertPhoto", reflect.TypeOf((*MockSearchAdapter)(nil).InsertPhoto), ctx, photo)
+}
+
 // SearchPhotos mocks base method.
 func (m *MockSearchAdapter) SearchPhotos(ctx context.Context, q *filters.PhotoSearchQuery) (*entities.PhotoSearchResult, error) {
 	m.ctrl.T.Helper()

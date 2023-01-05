@@ -270,6 +270,21 @@ func (mr *MockMutationResolverMockRecorder) IndexingPhotos(ctx, input interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IndexingPhotos", reflect.TypeOf((*MockMutationResolver)(nil).IndexingPhotos), ctx, input)
 }
 
+// UploadPhoto mocks base method.
+func (m *MockMutationResolver) UploadPhoto(ctx context.Context, input *model.UploadPhotoInput) (*model.PhotoUploadInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadPhoto", ctx, input)
+	ret0, _ := ret[0].(*model.PhotoUploadInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadPhoto indicates an expected call of UploadPhoto.
+func (mr *MockMutationResolverMockRecorder) UploadPhoto(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockMutationResolver)(nil).UploadPhoto), ctx, input)
+}
+
 // MockOauthClientResolver is a mock of OauthClientResolver interface.
 type MockOauthClientResolver struct {
 	ctrl     *gomock.Controller

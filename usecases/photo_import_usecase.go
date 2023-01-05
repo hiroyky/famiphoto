@@ -10,9 +10,12 @@ import (
 	"github.com/hiroyky/famiphoto/services"
 	"os/exec"
 	"path"
+	"time"
 )
 
 type PhotoImportUseCase interface {
+	GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadSign, error)
+	UploadPhoto(ctx context.Context, signToken, fileName string, body []byte) error
 	IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error
 	ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error
 }
@@ -30,7 +33,7 @@ func NewPhotoImportUseCase(
 		photoService:        photoService,
 		imageProcessService: imageProcessService,
 		photoAdapter:        photoAdapter,
-		storage:             storage,
+		storageAdapter:      storage,
 		searchAdapter:       searchAdapter,
 		groupAdapter:        groupAdapter,
 		userAdapter:         userAdapter,
@@ -42,11 +45,52 @@ type photoImportUseCase struct {
 	photoService        services.PhotoService
 	imageProcessService services.ImageProcessService
 	photoAdapter        infrastructures.PhotoAdapter
-	storage             infrastructures.PhotoStorageAdapter
+	storageAdapter      infrastructures.PhotoStorageAdapter
 	searchAdapter       infrastructures.SearchAdapter
 	userAdapter         infrastructures.UserAdapter
 	groupAdapter        infrastructures.GroupAdapter
 	appendBulkUnit      int
+}
+
+func (u *photoImportUseCase) GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadSign, error) {
+	if belonging, err := u.groupAdapter.IsBelongGroupUser(ctx, groupID, userID); err != nil {
+		return nil, err
+	} else if !belonging {
+		return nil, errors.New(errors.ForbiddenError, nil)
+	}
+
+	token, err := u.storageAdapter.GenerateSignToSavePhoto(ctx, userID, groupID, config.PhotoUploadSignExpireInSec)
+	if err != nil {
+		return nil, err
+	}
+	return &entities.PhotoUploadSign{
+		SignToken: token,
+		ExpireAt:  config.PhotoUploadSignExpireInSec + int(now.Unix()),
+	}, nil
+}
+
+func (u *photoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileName string, body []byte) error {
+	info, err := u.storageAdapter.VerifySignToken(ctx, signToken)
+	if err != nil {
+		return err
+	}
+
+	if belonging, err := u.groupAdapter.IsBelongGroupUser(ctx, info.GroupID, info.UserID); err != nil {
+		return err
+	} else if !belonging {
+		return errors.New(errors.ForbiddenError, nil)
+	}
+
+	dstFile, err := u.storageAdapter.SavePhotoFile(ctx, info.UserID, info.GroupID, fileName, body)
+	if err != nil {
+		return err
+	}
+	photo, err := u.registerPhoto(ctx, dstFile, info.UserID, info.GroupID, false)
+	if err != nil {
+		return err
+	}
+
+	return u.searchAdapter.InsertPhoto(ctx, photo)
 }
 
 func (u *photoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error {
@@ -55,7 +99,7 @@ func (u *photoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, group
 }
 
 func (u *photoImportUseCase) importDirRecursive(ctx context.Context, targetDirPath, groupID, userID string, extensions []string, fast bool) error {
-	contents, err := u.storage.FindDirContents(targetDirPath)
+	contents, err := u.storageAdapter.FindDirContents(targetDirPath)
 	if err != nil {
 		return err
 	}
@@ -115,7 +159,7 @@ func (u *photoImportUseCase) buildInsertSearchEngine(ctx context.Context, photoL
 }
 
 func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.StorageFileInfo, ownerID, groupID string, fast bool) (*entities.Photo, error) {
-	data, err := u.storage.LoadContent(file.Path)
+	data, err := u.storageAdapter.LoadContent(file.Path)
 	if err != nil {
 		return nil, err
 	}
@@ -132,11 +176,9 @@ func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.S
 	if err != nil {
 		return nil, err
 	}
-
 	var orientation = config.ExifOrientationNone
 	orientationMeta, err := u.photoAdapter.GetPhotoMetaItemByPhotoIDTagID(ctx, photo.PhotoID, config.ExifTagOrientation)
 	if err == nil {
-		fmt.Println(photo.Name, orientationMeta.ValueString)
 		orientation = orientationMeta.ValueInt()
 	}
 

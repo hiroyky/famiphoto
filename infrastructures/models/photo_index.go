@@ -5,8 +5,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/utils/array"
 	"time"
 )
+
+func NewPhotoIndex(p *entities.Photo, dateTimeOriginalEpoc int64) *PhotoIndex {
+	return &PhotoIndex{
+		PhotoID: p.PhotoID,
+		OwnerID: p.OwnerID,
+		GroupID: p.GroupID,
+		FileTypes: array.Map(p.Files.FindFileTypesByPhotoID(p.PhotoID), func(t entities.PhotoFileType) string {
+			return t.ToString()
+		}),
+		Name:             p.Name,
+		ImportedAt:       p.ImportedAt.Unix(),
+		DateTimeOriginal: dateTimeOriginalEpoc,
+		PreviewURL:       p.PreviewURL(),
+		ThumbnailURL:     p.ThumbnailURL(),
+	}
+}
 
 type PhotoIndex struct {
 	PhotoID          int      `json:"photo_id"`
@@ -20,7 +37,7 @@ type PhotoIndex struct {
 	ThumbnailURL     string   `json:"thumbnail_url"`
 }
 
-func (m PhotoIndex) PhotoIndexID() string {
+func (m *PhotoIndex) PhotoIndexID() string {
 	id := fmt.Sprintf("Photo:%d", m.PhotoID)
 	return base64.StdEncoding.EncodeToString([]byte(id))
 }

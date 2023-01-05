@@ -137,6 +137,15 @@ func (this PhotoPagination) GetNodes() []Node {
 	return interfaceSlice
 }
 
+type PhotoUploadInfo struct {
+	UploadURL string `json:"uploadUrl"`
+	ExpireAt  int    `json:"expireAt"`
+}
+
+type UploadPhotoInput struct {
+	GroupID string `json:"groupId"`
+}
+
 type UserEdge struct {
 	Cursor string `json:"cursor"`
 	Node   *User  `json:"node"`

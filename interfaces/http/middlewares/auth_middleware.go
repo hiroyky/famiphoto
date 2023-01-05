@@ -98,12 +98,11 @@ func (m *authMiddleware) AuthAccessToken() func(handler http.Handler) http.Handl
 
 			sess, client, err := m.oauthUseCase.AuthAccessToken(ctx, token)
 			if err != nil {
-				code := responses.GetStatusCode(responses.ConvertIfNotFatal(err, errors.UnauthorizedError))
-				http.Error(writer, http.StatusText(code), code)
+				next.ServeHTTP(writer, req)
 				return
 			}
 			if sess == nil {
-				http.Error(writer, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				next.ServeHTTP(writer, req)
 				return
 			}
 			ctx = context.WithValue(ctx, config.ClientSessionKey, sess)

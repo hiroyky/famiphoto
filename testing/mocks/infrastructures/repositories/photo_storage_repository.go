@@ -93,3 +93,18 @@ func (mr *MockPhotoStorageRepositoryMockRecorder) ReadDir(dirPath interface{}) *
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadDir", reflect.TypeOf((*MockPhotoStorageRepository)(nil).ReadDir), dirPath)
 }
+
+// SaveContent mocks base method.
+func (m *MockPhotoStorageRepository) SaveContent(groupID, userID, fileName string, data []byte) (os.FileInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveContent", groupID, userID, fileName, data)
+	ret0, _ := ret[0].(os.FileInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SaveContent indicates an expected call of SaveContent.
+func (mr *MockPhotoStorageRepositoryMockRecorder) SaveContent(groupID, userID, fileName, data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveContent", reflect.TypeOf((*MockPhotoStorageRepository)(nil).SaveContent), groupID, userID, fileName, data)
+}

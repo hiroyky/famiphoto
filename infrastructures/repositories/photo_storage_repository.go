@@ -12,6 +12,7 @@ import (
 )
 
 type PhotoStorageRepository interface {
+	SaveContent(groupID, userID, fileName string, data []byte) (os.FileInfo, string, error)
 	ReadDir(dirPath string) ([]os.FileInfo, error)
 	LoadContent(path string) ([]byte, error)
 	ParsePhotoMeta(path string) ([]models.IfdEntry, error)
@@ -24,6 +25,23 @@ func NewPhotoStorageRepository(driver storage.Driver) PhotoStorageRepository {
 
 type photoStorageRepository struct {
 	driver storage.Driver
+}
+
+func (r *photoStorageRepository) SaveContent(groupID, userID, fileName string, data []byte) (os.FileInfo, string, error) {
+	p := path.Join(groupID, userID, fileName)
+	if exist := r.driver.Exist(p); exist {
+		return nil, "", errors.New(errors.FileAlreadyExistError, nil)
+	}
+
+	if err := r.driver.CreateFile(p, data); err != nil {
+		return nil, "", err
+	}
+
+	info, err := r.driver.Stat(p)
+	if err != nil {
+		return nil, "", err
+	}
+	return info, p, nil
 }
 
 func (r *photoStorageRepository) CreateGroupUserDir(groupID, userID string) error {

@@ -22,11 +22,17 @@ type UserAdapter interface {
 	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
 }
 
-func NewUserAdapter(userRepo repositories.UserRepository, groupRepo repositories.GroupRepository, userPasswordRepo repositories.UserPasswordRepository) UserAdapter {
+func NewUserAdapter(
+	userRepo repositories.UserRepository,
+	groupRepo repositories.GroupRepository,
+	userPasswordRepo repositories.UserPasswordRepository,
+	photoStorageRepo repositories.PhotoStorageRepository,
+) UserAdapter {
 	return &userAdapter{
 		userRepo:         userRepo,
 		groupRepo:        groupRepo,
 		userPasswordRepo: userPasswordRepo,
+		photoStorageRepo: photoStorageRepo,
 	}
 }
 
@@ -34,6 +40,7 @@ type userAdapter struct {
 	userRepo         repositories.UserRepository
 	groupRepo        repositories.GroupRepository
 	userPasswordRepo repositories.UserPasswordRepository
+	photoStorageRepo repositories.PhotoStorageRepository
 }
 
 func (a *userAdapter) GetUser(ctx context.Context, userID string) (*entities.User, error) {
@@ -91,6 +98,10 @@ func (a *userAdapter) CreateUser(ctx context.Context, user *entities.User, group
 
 	dstDBUser, err := a.userRepo.CreateUser(ctx, dbUser, dbGroup, dbPassword)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := a.photoStorageRepo.CreateGroupUserDir(dbGroup.GroupID, dbUser.UserID); err != nil {
 		return nil, err
 	}
 
