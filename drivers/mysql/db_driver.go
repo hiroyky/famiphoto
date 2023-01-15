@@ -22,7 +22,7 @@ func NewDatabaseDriver() SQLExecutor {
 
 	source := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		config.Env.MySQLUserName,
+		config.Env.MySQLUser,
 		config.Env.MySQLPassword,
 		config.Env.MySQLHostName,
 		config.Env.MySQLPort,

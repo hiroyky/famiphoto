@@ -1,24 +1,33 @@
 #!/bin/sh
 
-## generate .env for famiphoto_web
+function random_str() {
+    cat /dev/urandom |LC_CTYPE=C tr -dc '[:alnum:]' | fold -w $1 |head -n 1
+}
+
+CLIENT_SECRET=`random_str 50`
 
 mkdir -p ./dst
+
+## generate .env for famiphoto_web
+
 WEB_ENV=./dst/.env.web.prod
-API_ENV=./dst/.env.prod
 
 echo "API_BASE_URL=http://famiphoto:8080" > ${WEB_ENV}
 echo "IS_DEBUG=0" >> ${WEB_ENV}
-
-CLIENT_SECRET=`cat /dev/urandom |LC_CTYPE=C tr -dc '[:alnum:]' | fold -w 50 |head -n 1`
-SESSION_SECRET=`cat /dev/urandom |LC_CTYPE=C tr -dc '[:alnum:]' | fold -w 32 |head -n 1`
-
 echo "CLIENT_ID=famiphoto_web" >> ${WEB_ENV}
 echo "CLIENT_SECRET=${CLIENT_SECRET}" >> ${WEB_ENV}
-echo "SESSION_SECRET=${SESSION_SECRET}" >> ${WEB_ENV}
+echo "SESSION_SECRET=`random_str 32`" >> ${WEB_ENV}
 
-echo "WEB_CLIENT_ID=famiphoto_web" > ${API_ENV}
+## generate .env for famiphoto api
+API_ENV=./dst/.env.prod
+
+echo "# APP ENV Prod Appendix" > ${API_ENV}
 echo "WEB_CLIENT_SECRET=${CLIENT_SECRET}" >> ${API_ENV}
-
+echo "MYSQL_PASSWORD=`random_str 32`" >> ${API_ENV}
+echo "HMAC_KEY=`random_str 32`" >> ${API_ENV}
+echo "ACCESS_TOKEN_HASHED_PREFIX=`random_str 16`" >> ${API_ENV}
+echo "UPLOAD_TOKEN_HASHED_PREFIX=`random_str 16`" >> ${API_ENV}
+echo "LOGIN_TOKEN_HASHED_PREFIX=`random_str 16`" >> ${API_ENV}
 
 ## begin docker compose
 
