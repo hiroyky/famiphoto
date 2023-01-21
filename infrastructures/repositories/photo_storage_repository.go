@@ -2,20 +2,21 @@ package repositories
 
 import (
 	"fmt"
-	"github.com/dsoprea/go-exif"
-	log "github.com/dsoprea/go-logging"
 	"github.com/hiroyky/famiphoto/drivers/storage"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
+	"github.com/hiroyky/famiphoto/utils"
+	"github.com/hiroyky/famiphoto/utils/array"
 	"os"
 	"path"
+	"time"
 )
 
 type PhotoStorageRepository interface {
-	SaveContent(groupID, userID, fileName string, data []byte) (os.FileInfo, string, error)
+	SaveContent(groupID, userID, fileName string, dateTimeOriginal time.Time, data []byte) (os.FileInfo, string, error)
 	ReadDir(dirPath string) ([]os.FileInfo, error)
 	LoadContent(path string) ([]byte, error)
-	ParsePhotoMeta(path string) ([]models.IfdEntry, error)
+	ParsePhotoMetaFromFile(path string) ([]models.IfdEntry, error)
 	CreateGroupUserDir(groupID, userID string) error
 }
 
@@ -27,8 +28,12 @@ type photoStorageRepository struct {
 	driver storage.Driver
 }
 
-func (r *photoStorageRepository) SaveContent(groupID, userID, fileName string, data []byte) (os.FileInfo, string, error) {
-	p := path.Join(groupID, userID, fileName)
+func (r *photoStorageRepository) SaveContent(groupID, userID, fileName string, dateTimeOriginal time.Time, data []byte) (os.FileInfo, string, error) {
+	dateTimeOriginalName := fmt.Sprintf("%04d-%02d-%02d", dateTimeOriginal.Year(), dateTimeOriginal.Month(), dateTimeOriginal.Day())
+	if err := r.createDirIfNotExist(path.Join(groupID, userID, dateTimeOriginalName)); err != nil {
+		return nil, "", err
+	}
+	p := path.Join(groupID, userID, dateTimeOriginalName, fileName)
 	if exist := r.driver.Exist(p); exist {
 		return nil, "", errors.New(errors.FileAlreadyExistError, nil)
 	}
@@ -79,89 +84,31 @@ func (r *photoStorageRepository) LoadContent(path string) ([]byte, error) {
 	return r.driver.ReadFile(path)
 }
 
-func (r *photoStorageRepository) ParsePhotoMeta(path string) ([]models.IfdEntry, error) {
+func (r *photoStorageRepository) ParsePhotoMetaFromFile(path string) ([]models.IfdEntry, error) {
 	data, err := r.LoadContent(path)
 	if err != nil {
 		return nil, err
 	}
 
-	ifdList, err := r.parseExif(data)
+	list, err := utils.ParseExifItemsAll(data)
 	if err != nil {
 		return nil, err
 	}
+
+	ifdList := array.Map(list, func(i *utils.ExifItem) models.IfdEntry {
+		return models.IfdEntry{
+			IfdPath:     i.IfdPath,
+			FqIfdPath:   i.FqIfdPath,
+			IfdIndex:    i.IfdIndex,
+			TagId:       i.TagId,
+			TagName:     i.TagName,
+			TagTypeId:   i.TagTypeId,
+			TagTypeName: i.TagTypeName,
+			UnitCount:   i.UnitCount,
+			Value:       i.Value,
+			ValueString: i.ValueString,
+		}
+	})
 
 	return ifdList, nil
-}
-
-func (r *photoStorageRepository) parseExif(data []byte) ([]models.IfdEntry, error) {
-	rawExif, err := exif.SearchAndExtractExif(data)
-	if err != nil {
-		if errors.Is(err, exif.ErrNoExif) {
-			return make([]models.IfdEntry, 0), nil
-		}
-		return nil, err
-	}
-
-	im := exif.NewIfdMappingWithStandard()
-	ti := exif.NewTagIndex()
-
-	entries := make([]models.IfdEntry, 0)
-	visitorFunc := func(fqIfdPath string, ifdIndex int, tagId uint16, tagType exif.TagType, valueContext exif.ValueContext) (err error) {
-		ifdPath, err := im.StripPathPhraseIndices(fqIfdPath)
-		if err != nil {
-			return err
-		}
-
-		it, err := ti.Get(ifdPath, tagId)
-		if err != nil {
-			if log.Is(err, exif.ErrTagNotFound) {
-				fmt.Printf("WARNING: Unknown tag: [%s] (%04x)\n", ifdPath, tagId)
-				return nil
-			}
-			return err
-		}
-
-		valueString := ""
-		var value interface{}
-		if tagType.Type() == exif.TypeUndefined {
-			var err error
-			value, err = valueContext.Undefined()
-			if err != nil {
-				if err == exif.ErrUnhandledUnknownTypedTag {
-					value = nil
-				} else {
-					return err
-				}
-			}
-
-			valueString = fmt.Sprintf("%v", value)
-		} else {
-			valueString, err = valueContext.FormatFirst()
-			//log.PanicIf(err)
-
-			value = valueString
-		}
-
-		entry := models.IfdEntry{
-			IfdPath:     ifdPath,
-			FqIfdPath:   fqIfdPath,
-			IfdIndex:    ifdIndex,
-			TagId:       tagId,
-			TagName:     it.Name,
-			TagTypeId:   tagType.Type(),
-			TagTypeName: tagType.Name(),
-			UnitCount:   valueContext.UnitCount(),
-			Value:       value,
-			ValueString: valueString,
-		}
-
-		entries = append(entries, entry)
-
-		return nil
-	}
-
-	if _, err := exif.Visit(exif.IfdStandard, im, ti, rawExif, visitorFunc); err != nil {
-		return nil, err
-	}
-	return entries, nil
 }

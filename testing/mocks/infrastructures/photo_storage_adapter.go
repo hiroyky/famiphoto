@@ -7,6 +7,7 @@ package mock_infrastructures
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 	entities "github.com/hiroyky/famiphoto/entities"
@@ -96,18 +97,18 @@ func (mr *MockPhotoStorageAdapterMockRecorder) ParsePhotoMeta(path interface{}) 
 }
 
 // SavePhotoFile mocks base method.
-func (m *MockPhotoStorageAdapter) SavePhotoFile(ctx context.Context, userID, groupID, fileName string, data []byte) (*entities.StorageFileInfo, error) {
+func (m *MockPhotoStorageAdapter) SavePhotoFile(ctx context.Context, userID, groupID, fileName string, dateTimeOriginal time.Time, data []byte) (*entities.StorageFileInfo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SavePhotoFile", ctx, userID, groupID, fileName, data)
+	ret := m.ctrl.Call(m, "SavePhotoFile", ctx, userID, groupID, fileName, dateTimeOriginal, data)
 	ret0, _ := ret[0].(*entities.StorageFileInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SavePhotoFile indicates an expected call of SavePhotoFile.
-func (mr *MockPhotoStorageAdapterMockRecorder) SavePhotoFile(ctx, userID, groupID, fileName, data interface{}) *gomock.Call {
+func (mr *MockPhotoStorageAdapterMockRecorder) SavePhotoFile(ctx, userID, groupID, fileName, dateTimeOriginal, data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SavePhotoFile", reflect.TypeOf((*MockPhotoStorageAdapter)(nil).SavePhotoFile), ctx, userID, groupID, fileName, data)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SavePhotoFile", reflect.TypeOf((*MockPhotoStorageAdapter)(nil).SavePhotoFile), ctx, userID, groupID, fileName, dateTimeOriginal, data)
 }
 
 // SavePreview mocks base method.
