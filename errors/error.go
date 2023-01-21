@@ -59,6 +59,7 @@ const (
 	ContextValueNotFoundFatal          FamiPhotoErrorCode = "ContextValueNotFoundFatal"
 	UnExpectedFileAlreadyExistError    FamiPhotoErrorCode = "UnExpectedFileAlreadyExistError"
 	FileNotFoundError                  FamiPhotoErrorCode = "FileNotFoundError"
+	PhotoNotFoundError                 FamiPhotoErrorCode = "PhotoNotFoundError"
 	FileAlreadyExistError              FamiPhotoErrorCode = "FileAlreadyExistError"
 	SambaConnectFatal                  FamiPhotoErrorCode = "SambaConnectFatal"
 	SambaCreateFatal                   FamiPhotoErrorCode = "SambaCreateFatal"

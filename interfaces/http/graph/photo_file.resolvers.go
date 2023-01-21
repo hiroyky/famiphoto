@@ -18,7 +18,12 @@ func (r *photoFileResolver) Photo(ctx context.Context, obj *model.PhotoFile) (*m
 	if err != nil {
 		return nil, err
 	}
-	photo, err := r.searchUseCase.SearchPhotoByPhotoID(ctx, photoID)
+	groupID, err := gql.DecodeStrID(obj.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	photo, err := r.searchUseCase.SearchPhotoByPhotoID(ctx, photoID, groupID)
 	if err != nil {
 		return nil, err
 	}

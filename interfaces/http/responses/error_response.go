@@ -27,6 +27,7 @@ func GetStatusCode(err error) int {
 		errors.OAuthClientNotFoundError,
 		errors.PhotoUploadSignNotFoundError,
 		errors.RedisKeyNotFoundError,
+		errors.PhotoNotFoundError,
 		errors.FileNotFoundError:
 		return http.StatusNotFound
 	case errors.UserAlreadyExists,

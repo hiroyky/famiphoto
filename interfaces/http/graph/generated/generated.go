@@ -157,7 +157,7 @@ type ComplexityRoot struct {
 		Photo            func(childComplexity int, id string) int
 		PhotoFile        func(childComplexity int, id string) int
 		PhotoFiles       func(childComplexity int, photoID string) int
-		Photos           func(childComplexity int, id *string, ownerID *string, groupID *string, limit *int, offset *int) int
+		Photos           func(childComplexity int, groupID string, id *string, ownerID *string, limit *int, offset *int) int
 		User             func(childComplexity int, id string) int
 		Users            func(childComplexity int, id *string, limit *int, offset *int) int
 	}
@@ -228,7 +228,7 @@ type QueryResolver interface {
 	ExistGroupID(ctx context.Context, id string) (bool, error)
 	Me(ctx context.Context) (*model.User, error)
 	Photo(ctx context.Context, id string) (*model.Photo, error)
-	Photos(ctx context.Context, id *string, ownerID *string, groupID *string, limit *int, offset *int) (*model.PhotoPagination, error)
+	Photos(ctx context.Context, groupID string, id *string, ownerID *string, limit *int, offset *int) (*model.PhotoPagination, error)
 	PhotoFile(ctx context.Context, id string) (*model.PhotoFile, error)
 	PhotoFiles(ctx context.Context, photoID string) ([]*model.PhotoFile, error)
 }
@@ -829,7 +829,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Photos(childComplexity, args["id"].(*string), args["ownerId"].(*string), args["groupId"].(*string), args["limit"].(*int), args["offset"].(*int)), true
+		return e.complexity.Query.Photos(childComplexity, args["groupId"].(string), args["id"].(*string), args["ownerId"].(*string), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -1199,9 +1199,9 @@ type PhotoPagination implements Pagination {
     me: User
     photo(id: ID!): Photo
     photos(
+        groupId: ID!,
         id: ID,
         ownerId: ID,
-        groupId: ID,
         limit: Int,
         offset: Int
     ): PhotoPagination!
@@ -1483,33 +1483,33 @@ func (ec *executionContext) field_Query_photo_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_photos_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+	var arg0 string
+	if tmp, ok := rawArgs["groupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["id"] = arg0
+	args["groupId"] = arg0
 	var arg1 *string
-	if tmp, ok := rawArgs["ownerId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId"))
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 		arg1, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["ownerId"] = arg1
+	args["id"] = arg1
 	var arg2 *string
-	if tmp, ok := rawArgs["groupId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+	if tmp, ok := rawArgs["ownerId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId"))
 		arg2, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["groupId"] = arg2
+	args["ownerId"] = arg2
 	var arg3 *int
 	if tmp, ok := rawArgs["limit"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
@@ -5219,7 +5219,7 @@ func (ec *executionContext) _Query_photos(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Photos(rctx, fc.Args["id"].(*string), fc.Args["ownerId"].(*string), fc.Args["groupId"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Query().Photos(rctx, fc.Args["groupId"].(string), fc.Args["id"].(*string), fc.Args["ownerId"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
