@@ -122,7 +122,7 @@ func (a *oauthAdapter) SetClientCredentialAccessToken(ctx context.Context, clien
 		ClientType: models.OauthClientTypeClientCredential,
 		Scope:      models.OauthScopeAdmin,
 	}
-	return a.oauthAccessTokenRepo.SetClientCredentialAccessToken(ctx, m, accessToken, expireAt)
+	return a.oauthAccessTokenRepo.SetAccessToken(ctx, m, accessToken, expireAt)
 }
 
 func (a *oauthAdapter) SetUserAccessToken(ctx context.Context, clientID, userID, accessToken string, scope entities.OauthScope, expireIn int64) error {
@@ -132,7 +132,7 @@ func (a *oauthAdapter) SetUserAccessToken(ctx context.Context, clientID, userID,
 		Scope:      models.OauthAccessTokenFromEntity(scope),
 		UserID:     userID,
 	}
-	return a.oauthAccessTokenRepo.SetClientCredentialAccessToken(ctx, m, accessToken, expireIn)
+	return a.oauthAccessTokenRepo.SetAccessToken(ctx, m, accessToken, expireIn)
 }
 func (a *oauthAdapter) GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error) {
 	val, err := a.oauthAccessTokenRepo.GetSession(ctx, accessToken)

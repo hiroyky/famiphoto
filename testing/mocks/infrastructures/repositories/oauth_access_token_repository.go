@@ -51,30 +51,16 @@ func (mr *MockOauthAccessTokenRepositoryMockRecorder) GetSession(ctx, accessToke
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockOauthAccessTokenRepository)(nil).GetSession), ctx, accessToken)
 }
 
-// SetClientCredentialAccessToken mocks base method.
-func (m *MockOauthAccessTokenRepository) SetClientCredentialAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error {
+// SetAccessToken mocks base method.
+func (m *MockOauthAccessTokenRepository) SetAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetClientCredentialAccessToken", ctx, oauthAccessToken, accessToken, expireIn)
+	ret := m.ctrl.Call(m, "SetAccessToken", ctx, oauthAccessToken, accessToken, expireIn)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SetClientCredentialAccessToken indicates an expected call of SetClientCredentialAccessToken.
-func (mr *MockOauthAccessTokenRepositoryMockRecorder) SetClientCredentialAccessToken(ctx, oauthAccessToken, accessToken, expireIn interface{}) *gomock.Call {
+// SetAccessToken indicates an expected call of SetAccessToken.
+func (mr *MockOauthAccessTokenRepositoryMockRecorder) SetAccessToken(ctx, oauthAccessToken, accessToken, expireIn interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetClientCredentialAccessToken", reflect.TypeOf((*MockOauthAccessTokenRepository)(nil).SetClientCredentialAccessToken), ctx, oauthAccessToken, accessToken, expireIn)
-}
-
-// SetUserAccessToken mocks base method.
-func (m *MockOauthAccessTokenRepository) SetUserAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetUserAccessToken", ctx, oauthAccessToken, accessToken, expireIn)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SetUserAccessToken indicates an expected call of SetUserAccessToken.
-func (mr *MockOauthAccessTokenRepositoryMockRecorder) SetUserAccessToken(ctx, oauthAccessToken, accessToken, expireIn interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetUserAccessToken", reflect.TypeOf((*MockOauthAccessTokenRepository)(nil).SetUserAccessToken), ctx, oauthAccessToken, accessToken, expireIn)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAccessToken", reflect.TypeOf((*MockOauthAccessTokenRepository)(nil).SetAccessToken), ctx, oauthAccessToken, accessToken, expireIn)
 }

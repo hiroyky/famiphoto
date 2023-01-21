@@ -15,8 +15,7 @@ import (
 )
 
 type OauthAccessTokenRepository interface {
-	SetClientCredentialAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error
-	SetUserAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error
+	SetAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error
 	GetSession(ctx context.Context, accessToken string) (*entities.OauthSession, error)
 }
 
@@ -32,16 +31,7 @@ type oauthAccessTokenRepository struct {
 	prefix string
 }
 
-func (r *oauthAccessTokenRepository) SetClientCredentialAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error {
-	val, err := oauthAccessToken.String()
-	if err != nil {
-		return err
-	}
-
-	return r.db.SetEx(ctx, r.toHash(accessToken), val, time.Duration(expireIn)*time.Second)
-}
-
-func (r *oauthAccessTokenRepository) SetUserAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error {
+func (r *oauthAccessTokenRepository) SetAccessToken(ctx context.Context, oauthAccessToken *models.OauthAccessToken, accessToken string, expireIn int64) error {
 	val, err := oauthAccessToken.String()
 	if err != nil {
 		return err
