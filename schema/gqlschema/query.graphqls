@@ -9,9 +9,9 @@ type Query {
     me: User
     photo(id: ID!): Photo
     photos(
+        groupId: ID!,
         id: ID,
         ownerId: ID,
-        groupId: ID,
         limit: Int,
         offset: Int
     ): PhotoPagination!

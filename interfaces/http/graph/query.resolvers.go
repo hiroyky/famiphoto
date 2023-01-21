@@ -113,11 +113,16 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 
 // Photo is the resolver for the photo field.
 func (r *queryResolver) Photo(ctx context.Context, id string) (*model.Photo, error) {
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return nil, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+
 	photoID, err := gql.DecodeIntID(id)
 	if err != nil {
 		return nil, err
 	}
-	photo, err := r.searchUseCase.SearchPhotoByPhotoID(ctx, photoID)
+	photo, err := r.searchUseCase.SearchPhotoByPhotoID(ctx, photoID, sess.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +130,12 @@ func (r *queryResolver) Photo(ctx context.Context, id string) (*model.Photo, err
 }
 
 // Photos is the resolver for the photos field.
-func (r *queryResolver) Photos(ctx context.Context, id *string, ownerID *string, groupID *string, limit *int, offset *int) (*model.PhotoPagination, error) {
+func (r *queryResolver) Photos(ctx context.Context, groupID string, id *string, ownerID *string, limit *int, offset *int) (*model.PhotoPagination, error) {
+	sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+	if !ok {
+		return nil, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+
 	dstLimit := pagination.GetLimitOrDefault(limit, 20, 100)
 	dstOffset := pagination.GetOffsetOrDefault(offset)
 	decodedID, err := gql.DecodeIntIDPtr(id)
@@ -136,11 +146,11 @@ func (r *queryResolver) Photos(ctx context.Context, id *string, ownerID *string,
 	if err != nil {
 		return nil, err
 	}
-	groupDecodedID, err := gql.DecodeStrIDPtr(groupID)
+	groupDecodedID, err := gql.DecodeStrID(groupID)
 	if err != nil {
 		return nil, err
 	}
-	result, err := r.searchUseCase.SearchPhotos(ctx, decodedID, ownerDecodedID, groupDecodedID, dstLimit, dstOffset)
+	result, err := r.searchUseCase.SearchPhotos(ctx, groupDecodedID, sess.UserID, decodedID, ownerDecodedID, dstLimit, dstOffset)
 	if err != nil {
 		return nil, err
 	}

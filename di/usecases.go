@@ -11,7 +11,7 @@ func NewPhotoImportUseCase() usecases.PhotoImportUseCase {
 }
 
 func NewSearchUseCase() usecases.SearchUseCase {
-	return usecases.NewSearchUseCase(NewSearchAdapter(), NewPhotoAdapter())
+	return usecases.NewSearchUseCase(NewSearchAdapter(), NewPhotoAdapter(), NewGroupAdapter())
 }
 
 func NewUserUseCase() usecases.UserUseCase {
