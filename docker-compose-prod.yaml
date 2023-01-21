@@ -11,7 +11,7 @@ services:
     networks:
       - famiphoto_network
     env_file:
-      - .env.local
+      - .env.prod
       - dst/.env.prod
     volumes:
       - ./home/famiphoto:/mnt/famiphoto
@@ -42,7 +42,6 @@ services:
       - "discovery.type=single-node"
       - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
       - "xpack.security.enabled=false"
-    restart: always
   kibana:
     image: docker.elastic.co/kibana/kibana:8.1.3
     container_name: kibana
@@ -62,15 +61,15 @@ services:
     container_name: famiphoto_mysqldb
     platform: linux/amd64
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: password
+    env_file:
+      - .env.prod
+      - dst/.env.prod
     volumes:
       - ./schema/dbschema/generator/:/docker-entrypoint-initdb.d/
     networks:
       - famiphoto_network
     ports:
       - 7001:3306
-    restart: always
   redis_oauth:
     image: redis:6.2
     container_name: redis_oauth

@@ -7,7 +7,7 @@ type FamiPhotoEnv struct {
 	Port                       int64    `envconfig:"PORT"`
 	WebClientID                string   `envconfig:"WEB_CLIENT_ID"`
 	WebClientSecret            string   `envconfig:"WEB_CLIENT_SECRET"`
-	MySQLUserName              string   `envconfig:"MYSQL_USER_NAME"`
+	MySQLUser                  string   `envconfig:"MYSQL_USER"`
 	MySQLPassword              string   `envconfig:"MYSQL_PASSWORD"`
 	MySQLHostName              string   `envconfig:"MYSQL_HOST_NAME"`
 	MySQLPort                  string   `envconfig:"MYSQL_PORT"`
