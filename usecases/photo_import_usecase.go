@@ -8,6 +8,7 @@ import (
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/services"
+	"github.com/hiroyky/famiphoto/utils"
 	"os/exec"
 	"path"
 	"time"
@@ -38,6 +39,8 @@ func NewPhotoImportUseCase(
 		groupAdapter:        groupAdapter,
 		userAdapter:         userAdapter,
 		appendBulkUnit:      20,
+		parseExifItemFunc:   utils.ParseExifItem,
+		nowFunc:             time.Now,
 	}
 }
 
@@ -50,6 +53,8 @@ type photoImportUseCase struct {
 	userAdapter         infrastructures.UserAdapter
 	groupAdapter        infrastructures.GroupAdapter
 	appendBulkUnit      int
+	parseExifItemFunc   func(data []byte, tagID int) (*utils.ExifItem, error)
+	nowFunc             func() time.Time
 }
 
 func (u *photoImportUseCase) GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadSign, error) {
@@ -81,7 +86,16 @@ func (u *photoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileNam
 		return errors.New(errors.ForbiddenError, nil)
 	}
 
-	dstFile, err := u.storageAdapter.SavePhotoFile(ctx, info.UserID, info.GroupID, fileName, body)
+	dateTimeOriginal := utils.MustLocalTime(time.Now(), config.Env.ExifTimezone)
+	exifDateTimeOriginal, err := u.parseExifItemFunc(body, config.ExifTagIDDateTimeOriginal)
+	if err == nil {
+		dt, err := utils.ParseDatetime(exifDateTimeOriginal.ValueString, utils.MustLoadLocation(config.Env.ExifTimezone))
+		if err == nil {
+			dateTimeOriginal = dt
+		}
+	}
+
+	dstFile, err := u.storageAdapter.SavePhotoFile(ctx, info.UserID, info.GroupID, fileName, dateTimeOriginal, body)
 	if err != nil {
 		return err
 	}

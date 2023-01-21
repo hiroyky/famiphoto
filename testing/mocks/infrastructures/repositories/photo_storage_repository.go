@@ -7,6 +7,7 @@ package mock_repositories
 import (
 	os "os"
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/hiroyky/famiphoto/infrastructures/models"
@@ -64,19 +65,19 @@ func (mr *MockPhotoStorageRepositoryMockRecorder) LoadContent(path interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadContent", reflect.TypeOf((*MockPhotoStorageRepository)(nil).LoadContent), path)
 }
 
-// ParsePhotoMeta mocks base method.
-func (m *MockPhotoStorageRepository) ParsePhotoMeta(path string) ([]models.IfdEntry, error) {
+// ParsePhotoMetaFromFile mocks base method.
+func (m *MockPhotoStorageRepository) ParsePhotoMetaFromFile(path string) ([]models.IfdEntry, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParsePhotoMeta", path)
+	ret := m.ctrl.Call(m, "ParsePhotoMetaFromFile", path)
 	ret0, _ := ret[0].([]models.IfdEntry)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ParsePhotoMeta indicates an expected call of ParsePhotoMeta.
-func (mr *MockPhotoStorageRepositoryMockRecorder) ParsePhotoMeta(path interface{}) *gomock.Call {
+// ParsePhotoMetaFromFile indicates an expected call of ParsePhotoMetaFromFile.
+func (mr *MockPhotoStorageRepositoryMockRecorder) ParsePhotoMetaFromFile(path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParsePhotoMeta", reflect.TypeOf((*MockPhotoStorageRepository)(nil).ParsePhotoMeta), path)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParsePhotoMetaFromFile", reflect.TypeOf((*MockPhotoStorageRepository)(nil).ParsePhotoMetaFromFile), path)
 }
 
 // ReadDir mocks base method.
@@ -95,16 +96,17 @@ func (mr *MockPhotoStorageRepositoryMockRecorder) ReadDir(dirPath interface{}) *
 }
 
 // SaveContent mocks base method.
-func (m *MockPhotoStorageRepository) SaveContent(groupID, userID, fileName string, data []byte) (os.FileInfo, error) {
+func (m *MockPhotoStorageRepository) SaveContent(groupID, userID, fileName string, dateTimeOriginal time.Time, data []byte) (os.FileInfo, string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveContent", groupID, userID, fileName, data)
+	ret := m.ctrl.Call(m, "SaveContent", groupID, userID, fileName, dateTimeOriginal, data)
 	ret0, _ := ret[0].(os.FileInfo)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // SaveContent indicates an expected call of SaveContent.
-func (mr *MockPhotoStorageRepositoryMockRecorder) SaveContent(groupID, userID, fileName, data interface{}) *gomock.Call {
+func (mr *MockPhotoStorageRepositoryMockRecorder) SaveContent(groupID, userID, fileName, dateTimeOriginal, data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveContent", reflect.TypeOf((*MockPhotoStorageRepository)(nil).SaveContent), groupID, userID, fileName, data)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveContent", reflect.TypeOf((*MockPhotoStorageRepository)(nil).SaveContent), groupID, userID, fileName, dateTimeOriginal, data)
 }

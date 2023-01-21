@@ -11,6 +11,7 @@ import (
 	"github.com/hiroyky/famiphoto/utils/random"
 	"path"
 	"path/filepath"
+	"time"
 )
 
 type PhotoStorageAdapter interface {
@@ -19,7 +20,7 @@ type PhotoStorageAdapter interface {
 	ParsePhotoMeta(path string) (entities.PhotoMeta, error)
 	SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
 	SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
-	SavePhotoFile(ctx context.Context, userID, groupID, fileName string, data []byte) (*entities.StorageFileInfo, error)
+	SavePhotoFile(ctx context.Context, userID, groupID, fileName string, dateTimeOriginal time.Time, data []byte) (*entities.StorageFileInfo, error)
 	GenerateSignToSavePhoto(ctx context.Context, userID, groupID string, expireIn int64) (string, error)
 	VerifySignToken(ctx context.Context, token string) (*entities.PhotoUploadInfo, error)
 }
@@ -67,7 +68,7 @@ func (a *photoStorageAdapter) LoadContent(path string) (entities.StorageFileData
 }
 
 func (a *photoStorageAdapter) ParsePhotoMeta(path string) (entities.PhotoMeta, error) {
-	ifdList, err := a.photoStorageRepo.ParsePhotoMeta(path)
+	ifdList, err := a.photoStorageRepo.ParsePhotoMetaFromFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -92,11 +93,11 @@ func (a *photoStorageAdapter) SaveThumbnail(ctx context.Context, photoID int, da
 	return a.thumbnailRepo.SaveThumbnail(ctx, photoID, data, groupID, ownerID)
 }
 
-func (a *photoStorageAdapter) SavePhotoFile(ctx context.Context, userID, groupID, fileName string, data []byte) (*entities.StorageFileInfo, error) {
-	fileInfo, p, err := a.photoStorageRepo.SaveContent(groupID, userID, fileName, data)
+func (a *photoStorageAdapter) SavePhotoFile(ctx context.Context, userID, groupID, fileName string, dateTimeOriginal time.Time, data []byte) (*entities.StorageFileInfo, error) {
+	fileInfo, p, err := a.photoStorageRepo.SaveContent(groupID, userID, fileName, dateTimeOriginal, data)
 	if err != nil {
 		if errors.IsErrCode(err, errors.FileAlreadyExistError) {
-			return a.SavePhotoFile(ctx, userID, groupID, utils.IncrementFileNameSuffix(fileName), data)
+			return a.SavePhotoFile(ctx, userID, groupID, utils.IncrementFileNameSuffix(fileName), dateTimeOriginal, data)
 		}
 		return nil, err
 	}
