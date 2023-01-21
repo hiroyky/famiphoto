@@ -4,7 +4,7 @@ networks:
 services:
   famiphoto:
     image: famiphoto
-    container_name: famiphoto_api
+    container_name: famiphoto
     build:
       context: .
       dockerfile: docker/famiphoto/Dockerfile
@@ -14,7 +14,7 @@ services:
       - .env.prod
       - dst/.env.prod
     volumes:
-      - ./home/famiphoto:/mnt/famiphoto
+      - /home/famiphoto:/mnt/famiphoto
     depends_on:
       - mysql
     restart: always
