@@ -98,8 +98,6 @@ func (r *photoStorageRepository) ParsePhotoMetaFromFile(path string) ([]models.I
 	ifdList := array.Map(list, func(i *utils.ExifItem) models.IfdEntry {
 		return models.IfdEntry{
 			IfdPath:     i.IfdPath,
-			FqIfdPath:   i.FqIfdPath,
-			IfdIndex:    i.IfdIndex,
 			TagId:       i.TagId,
 			TagName:     i.TagName,
 			TagTypeId:   i.TagTypeId,
