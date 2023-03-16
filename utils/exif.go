@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/dsoprea/go-exif/v3"
 	exifcommon "github.com/dsoprea/go-exif/v3/common"
 	"github.com/hiroyky/famiphoto/errors"
@@ -55,6 +56,34 @@ func ParseExifItem(data []byte, exifTagID int) (*ExifItem, error) {
 	}
 
 	return nil, errors.New(errors.NoExifError, nil)
+}
+
+func ExtractThumbnail(data []byte) ([]byte, error) {
+	rawExif, err := exif.SearchAndExtractExif(data)
+	if err != nil {
+		// Exifデータ無し、取得失敗
+		return nil, err
+	}
+
+	im, err := exifcommon.NewIfdMappingWithStandard()
+	if err != nil {
+		return nil, err
+	}
+
+	ti := exif.NewTagIndex()
+	_, index, err := exif.Collect(im, ti, rawExif)
+	if err != nil {
+		return nil, err
+	}
+
+	dt, err := index.RootIfd.NextIfd().Thumbnail()
+	if err != nil {
+		fmt.Println("extract fail")
+		return nil, err
+	}
+	fmt.Println(len(dt))
+
+	return dt, nil
 }
 
 type ExifItem struct {
