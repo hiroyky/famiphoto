@@ -81,7 +81,6 @@ func ExtractThumbnail(data []byte) ([]byte, error) {
 		fmt.Println("extract fail")
 		return nil, err
 	}
-	fmt.Println(len(dt))
 
 	return dt, nil
 }

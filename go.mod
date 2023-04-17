@@ -6,7 +6,6 @@ require (
 	github.com/99designs/gqlgen v0.17.13
 	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/disintegration/imaging v1.6.2
-	github.com/dsoprea/go-exif v0.0.0-20210625224831-a6301f85c82b
 	github.com/dsoprea/go-exif/v3 v3.0.0-20221012082141-d21ac8e2de85
 	github.com/elastic/go-elasticsearch/v8 v8.2.0
 	github.com/friendsofgo/errors v0.9.2

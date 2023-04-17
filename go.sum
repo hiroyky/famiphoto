@@ -210,8 +210,6 @@ github.com/docker/docker v1.4.2-0.20200319182547-c7ad2b866182/go.mod h1:eEKB0N0r
 github.com/docker/go-connections v0.4.0/go.mod h1:Gbd7IOopHjR8Iph03tsViu4nIes5XhDvyHbTtUxmeec=
 github.com/docker/go-units v0.4.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/docker/spdystream v0.0.0-20160310174837-449fdfce4d96/go.mod h1:Qh8CwZgvJUkLughtfhJv5dyTYa91l1fOUCrgjqmcifM=
-github.com/dsoprea/go-exif v0.0.0-20210625224831-a6301f85c82b h1:hoVHc4m/v8Al8mbWyvKJWr4Z37yM4QUSVh/NY6A5Sbc=
-github.com/dsoprea/go-exif v0.0.0-20210625224831-a6301f85c82b/go.mod h1:lOaOt7+UEppOgyvRy749v3do836U/hw0YVJNjoyPaEs=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200321225314-640175a69fe4/go.mod h1:Lm2lMM2zx8p4a34ZemkaUV95AnMl4ZvLbCUbwOvLC2E=
 github.com/dsoprea/go-exif/v3 v3.0.0-20200717053412-08f1b6708903/go.mod h1:0nsO1ce0mh5czxGeLo4+OCZ/C6Eo6ZlMWsz7rH/Gxv8=
 github.com/dsoprea/go-exif/v3 v3.0.0-20210625224831-a6301f85c82b/go.mod h1:cg5SNYKHMmzxsr9X6ZeLh/nfBRHHp5PngtEPcujONtk=
