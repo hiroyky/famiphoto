@@ -12,10 +12,6 @@ type FamiPhotoEnv struct {
 	MySQLHostName              string   `envconfig:"MYSQL_HOST_NAME"`
 	MySQLPort                  string   `envconfig:"MYSQL_PORT"`
 	MySQLDatabase              string   `envconfig:"MYSQL_DATABASE"`
-	MediaSambaHostName         string   `envconfig:"MEDIA_SAMBA_HOST_NAME"`
-	MediaSambaUserName         string   `envconfig:"MEDIA_SAMBA_USER_NAME"`
-	MediaSambaPassword         string   `envconfig:"MEDIA_SAMBA_PASSWORD"`
-	MediaSambaShareName        string   `envconfig:"MEDIA_SAMBA_SHARE_NAME"`
 	OauthRedisHostName         string   `envconfig:"OAUTH_REDIS_HOST_NAME"`
 	OauthRedisDatabase         int64    `envconfig:"OAUTH_REDIS_DATABASE"`
 	HMacKey                    string   `envconfig:"HMAC_KEY"`
