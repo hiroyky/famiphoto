@@ -73,7 +73,7 @@ func NewSearchAdapter() infrastructures.SearchAdapter {
 }
 
 func newElasticSearchRepo() repositories.ElasticSearchRepository {
-	return repositories.NewElasticSearchRepository(NewElasticsearchClient(), es.NewBulkClient)
+	return repositories.NewElasticSearchRepository(NewSearch(), es.NewBulkClient)
 }
 
 func NewUserAdapter() infrastructures.UserAdapter {

@@ -1,7 +1,6 @@
 package di
 
 import (
-	"github.com/elastic/go-elasticsearch/v8"
 	native "github.com/go-redis/redis/v8"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/drivers/es"
@@ -10,8 +9,21 @@ import (
 	"github.com/hiroyky/famiphoto/drivers/storage"
 )
 
-func NewElasticsearchClient() *elasticsearch.Client {
-	return es.NewSearchClient()
+var search es.Search = nil
+
+func NewSearch() es.Search {
+	if search != nil {
+		return search
+	}
+
+	s := es.NewSearch(
+		config.Env.ElasticsearchAddresses,
+		config.Env.ElasticsearchUserName,
+		config.Env.ElasticsearchPassword,
+		config.Env.ElasticsearchFingerPrint,
+	)
+	search = s
+	return search
 }
 
 func NewMySQLDriver() mysql.SQLExecutor {

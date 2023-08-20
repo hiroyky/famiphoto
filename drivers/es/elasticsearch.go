@@ -1,36 +1,77 @@
 package es
 
 import (
+	"fmt"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/hiroyky/famiphoto/config"
+	"github.com/hiroyky/famiphoto/errors"
+	"io"
+	"net/http"
 	"runtime"
 	"time"
 )
 
-var searchClient *elasticsearch.Client = nil
+type Search interface {
+	CreateIndex(index string, mapping Mapping) error
+	Index(index string, body IndexBody) error
+	Search(index string, body *SearchRequestBody) (*SearchResponse, error)
+}
 
-func NewSearchClient() *elasticsearch.Client {
-	if searchClient != nil {
-		return searchClient
-	}
-
-	cfg := elasticsearch.Config{
-		Addresses:              config.Env.ElasticsearchAddresses,
-		Username:               config.Env.ElasticsearchUserName,
-		Password:               config.Env.ElasticsearchPassword,
-		CertificateFingerprint: config.Env.ElasticsearchFingerPrint,
-	}
-
-	c, err := elasticsearch.NewClient(cfg)
+func NewSearch(addresses []string, userName, password, fingerPrint string) Search {
+	client, err := elasticsearch.NewClient(elasticsearch.Config{
+		Addresses:               addresses,
+		Username:                userName,
+		Password:                password,
+		CloudID:                 "",
+		APIKey:                  "",
+		ServiceToken:            "",
+		CertificateFingerprint:  fingerPrint,
+		Header:                  nil,
+		CACert:                  nil,
+		RetryOnStatus:           nil,
+		DisableRetry:            false,
+		MaxRetries:              0,
+		RetryOnError:            nil,
+		CompressRequestBody:     false,
+		DiscoverNodesOnStart:    false,
+		DiscoverNodesInterval:   0,
+		EnableMetrics:           false,
+		EnableDebugLogger:       false,
+		EnableCompatibilityMode: false,
+		DisableMetaHeader:       false,
+		RetryBackoff:            nil,
+		Transport:               nil,
+		Logger:                  nil,
+		Selector:                nil,
+		ConnectionPoolFunc:      nil,
+	})
 	if err != nil {
 		panic(err)
 	}
 
-	searchClient = c
+	return &driver{
+		client: client,
+	}
+}
 
-	return searchClient
+type driver struct {
+	client *elasticsearch.Client
+}
+
+func (d *driver) handleError(res *esapi.Response, err error) error {
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode >= http.StatusBadRequest {
+		body, _ := io.ReadAll(res.Body)
+		return errors.New(errors.ElasticSearchFatal, fmt.Errorf(string(body)))
+	}
+
+	return nil
 }
 
 func NewBulkClient() esutil.BulkIndexer {
