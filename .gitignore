@@ -22,3 +22,4 @@ assets/thumbnails/*
 # vendor/
 .idea/
 .DS_Store
+.note/

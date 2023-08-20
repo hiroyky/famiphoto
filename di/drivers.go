@@ -38,10 +38,6 @@ func newRedis() redis.Driver {
 	return db
 }
 
-func NewMediaSambaStorageDriver() storage.Driver {
-	return storage.NewMediaSambaStorage()
-}
-
 func NewPhotoThumbnailStorageDriver() storage.Driver {
 	return storage.NewPhotoThumbnailDriver()
 }
