@@ -22,6 +22,9 @@ type FamiPhotoEnv struct {
 	UploadTokenHashedPrefix    string   `envconfig:"UPLOAD_TOKEN_HASHED_PREFIX"`
 	LoginTokenExpireSec        int64    `envconfig:"LOGIN_TOKEN_EXPIRE_SEC"`
 	ElasticsearchAddresses     []string `envconfig:"ELASTICSEARCH_ADDRESSES"`
+	ElasticsearchUserName      string   `envconfig:"ELASTICSEARCH_USERNAME" default:"elastic"`
+	ElasticsearchPassword      string   `envconfig:"ELASTICSEARCH_PASSWORD"`
+	ElasticsearchFingerPrint   string   `envconfig:"ELASTICSEARCH_FINGER_PRINT"`
 	ExifTimezone               string   `envconfig:"EXIF_TIMEZONE"`
 	AssetBaseURL               string   `envconfig:"ASSET_BASE_URL"`
 	PhotoUploadBaseURL         string   `envconfig:"PHOTO_UPLOAD_BASE_URL"`

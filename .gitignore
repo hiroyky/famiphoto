@@ -23,3 +23,4 @@ assets/thumbnails/*
 .idea/
 .DS_Store
 .note/
+.env

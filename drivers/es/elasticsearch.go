@@ -17,9 +17,10 @@ func NewSearchClient() *elasticsearch.Client {
 	}
 
 	cfg := elasticsearch.Config{
-		Addresses: config.Env.ElasticsearchAddresses,
-		Username:  "",
-		Password:  "",
+		Addresses:              config.Env.ElasticsearchAddresses,
+		Username:               config.Env.ElasticsearchUserName,
+		Password:               config.Env.ElasticsearchPassword,
+		CertificateFingerprint: config.Env.ElasticsearchFingerPrint,
 	}
 
 	c, err := elasticsearch.NewClient(cfg)
