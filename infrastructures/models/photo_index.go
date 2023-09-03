@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/utils/array"
+	"io"
+	"strings"
 	"time"
 )
 
@@ -35,6 +37,14 @@ type PhotoIndex struct {
 	DateTimeOriginal int64    `json:"date_time_original"`
 	PreviewURL       string   `json:"preview_url"`
 	ThumbnailURL     string   `json:"thumbnail_url"`
+}
+
+func (m *PhotoIndex) BodyReader() (io.Reader, error) {
+	jsonData, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+	return strings.NewReader(string(jsonData)), nil
 }
 
 func (m *PhotoIndex) PhotoIndexID() string {

@@ -1,27 +1,9 @@
 package filters
 
 import (
-	"bytes"
-	"encoding/json"
+	"github.com/hiroyky/famiphoto/drivers/es"
+	"github.com/hiroyky/famiphoto/utils/cast"
 )
-
-type searchBody map[string]any
-
-func (b searchBody) Buffer() (*bytes.Buffer, error) {
-	var buf bytes.Buffer
-	if err := json.NewEncoder(&buf).Encode(b); err != nil {
-		return nil, err
-	}
-	return &buf, nil
-}
-
-func (b searchBody) MustBuffer() *bytes.Buffer {
-	buf, err := b.Buffer()
-	if err != nil {
-		panic(err)
-	}
-	return buf
-}
 
 type PhotoSearchQuery struct {
 	Limit   *int
@@ -32,18 +14,19 @@ type PhotoSearchQuery struct {
 	Name    *string
 }
 
-func (r *PhotoSearchQuery) Body() searchBody {
-	q := map[string]any{}
+func (r *PhotoSearchQuery) Body() *es.SearchRequestBody {
+	q := &es.SearchRequestBody{}
 
 	if r == nil {
 		return q
 	}
 
 	if r.Limit != nil {
-		q["size"] = *r.Limit
+		q.Size = cast.IntPtrToInt64Ptr(r.Limit)
 	}
 	if r.Offset != nil {
-		q["from"] = *r.Offset
+		offset := cast.IntPtrToInt64Ptr(r.Offset)
+		q.From = *offset
 	}
 
 	mustMatches := make([]map[string]any, 0)
@@ -57,7 +40,7 @@ func (r *PhotoSearchQuery) Body() searchBody {
 		mustMatches = append(mustMatches, map[string]any{"match": map[string]any{"group_id": *r.GroupID}})
 	}
 
-	q["query"] = map[string]any{
+	q.Query = map[string]any{
 		"bool": map[string]any{
 			"must": mustMatches,
 		},
