@@ -1,0 +1,13 @@
+[Unit]
+Description=Famiphoto API Server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/famiphoto_api
+Restart=always
+User=famihpoto
+Group=famiphoto
+EnvironmentFile=/etc/famiphoto/env
+
+[Install]
+WantedBy=multi-user.target

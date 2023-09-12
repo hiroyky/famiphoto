@@ -1,6 +1,7 @@
 # Makefile
 
 DST_DIR=./dst
+PKG_DIR=$(DST_DIR)/pkg/famiphoto_api
 DOCKER=famiphoto
 MOCK_TARGETS=$(shell find . -type f -name "*.go" | grep -v "testing/" | grep -v "_test.go" | grep -v "dst/")
 
@@ -25,6 +26,13 @@ build_sub_indexing_photos: build_prepare
 	go build -o $(DST_DIR)/indexing_photos subsystems/indexing_photos/main.go
 build_register_client: build_prepare
 	go build -o $(DST_DIR)/register_client subsystems/register_client/main.go
+
+pkg: build
+	mkdir -p $(PKG_DIR)/usr/bin
+	cp $(DST_DIR)/app $(PKG_DIR)/usr/bin/famiphoto_api
+	cp -r pkg/. $(PKG_DIR)
+	dpkg-deb --build $(PKG_DIR) $(DST_DIR)
+
 fmt:
 	go fmt ./...
 
@@ -51,6 +59,8 @@ dc_gengql:
 	docker compose exec $(DOCKER) gqlgen
 dc_genmock:
 	docker compose exec $(DOCKER) make mockgen -B -j3
+dc_pkg:
+	docker compose exec builder make pkg -B -j3
 
 mockgen: $(MOCK_TARGETS)
 
