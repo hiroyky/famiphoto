@@ -13,7 +13,6 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/mock v1.6.0
-	github.com/hirochachacha/go-smb2 v1.1.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.7.0
@@ -45,7 +44,6 @@ require (
 	github.com/dsoprea/go-utility/v2 v2.0.0-20221003172846-a3e1774ef349 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.1.0 // indirect
-	github.com/geoffgarside/ber v1.1.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
