@@ -108,8 +108,6 @@ func (a *photoAdapter) UpsertPhotoByFilePath(ctx context.Context, photo *entitie
 	dstDBPhoto, err := a.upsertPhotoByFilePath(ctx, &dbmodels.Photo{
 		Name:         photo.Name,
 		ImportedAt:   photo.ImportedAt,
-		GroupID:      photo.GroupID,
-		OwnerID:      photo.OwnerID,
 		FileNameHash: photo.FileNameHash,
 	})
 	if err != nil {
@@ -123,8 +121,6 @@ func (a *photoAdapter) UpsertPhotoByFilePath(ctx context.Context, photo *entitie
 			FileType:   file.FileType().ToString(),
 			FilePath:   file.FilePath,
 			ImportedAt: file.ImportedAt,
-			GroupID:    file.GroupID,
-			OwnerID:    file.OwnerID,
 			FileHash:   file.FileHash,
 		})
 		if err != nil {
@@ -174,8 +170,6 @@ func (a *photoAdapter) toPhotoEntity(photo *dbmodels.Photo, files []*dbmodels.Ph
 		PhotoID:      photo.PhotoID,
 		Name:         photo.Name,
 		ImportedAt:   photo.ImportedAt,
-		GroupID:      photo.GroupID,
-		OwnerID:      photo.OwnerID,
 		FileNameHash: photo.FileNameHash,
 		Files:        photoFileEntities,
 	}
@@ -187,8 +181,6 @@ func (a *photoAdapter) toPhotoFileEntity(t *dbmodels.PhotoFile) *entities.PhotoF
 		PhotoID:     t.PhotoID,
 		FilePath:    t.FilePath,
 		ImportedAt:  t.ImportedAt,
-		GroupID:     t.GroupID,
-		OwnerID:     t.OwnerID,
 		FileHash:    t.FileHash,
 	}
 }

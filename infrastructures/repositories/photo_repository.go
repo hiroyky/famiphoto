@@ -68,8 +68,6 @@ func (r *photoRepository) InsertPhoto(ctx context.Context, photo *dbmodels.Photo
 func (r *photoRepository) UpdatePhoto(ctx context.Context, photo *dbmodels.Photo) (*dbmodels.Photo, error) {
 	if _, err := photo.Update(ctx, r.db, boil.Blacklist(
 		dbmodels.PhotoColumns.ImportedAt,
-		dbmodels.PhotoColumns.GroupID,
-		dbmodels.PhotoColumns.OwnerID,
 	)); err != nil {
 		return nil, err
 	}

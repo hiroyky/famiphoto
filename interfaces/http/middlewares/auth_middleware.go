@@ -5,11 +5,9 @@ import (
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
-	"github.com/hiroyky/famiphoto/interfaces/http/requests"
 	"github.com/hiroyky/famiphoto/interfaces/http/responses"
 	"github.com/hiroyky/famiphoto/usecases"
 	"github.com/hiroyky/famiphoto/utils"
-	"github.com/hiroyky/famiphoto/utils/gql"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -131,22 +129,9 @@ func (m *authMiddleware) VerifyClient() func(handler http.Handler) http.Handler 
 func (m *authMiddleware) VerifyFileDownloadPermission(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		sess, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
+		_, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession)
 		if !ok {
 			return errors.New(errors.UserUnauthorizedError, nil)
-		}
-
-		var req requests.FileDownloadRequest
-		if err := req.Bind(c); err != nil {
-			return err
-		}
-		fileID, err := gql.DecodeIntID(req.FileID)
-		if err != nil {
-			return errors.New(errors.FileNotFoundError, err)
-		}
-
-		if err := m.downloadUseCase.VerifyDownloadPermission(ctx, fileID, sess.UserID); err != nil {
-			return err
 		}
 
 		return next(c)

@@ -32,21 +32,6 @@ type Pagination interface {
 	GetNodes() []Node
 }
 
-type AlterGroupInput struct {
-	Name string `json:"name"`
-}
-
-type AlterGroupMembersInput struct {
-	GroupID       string   `json:"groupId"`
-	AppendUserIds []string `json:"appendUserIds"`
-	RemoveUserIds []string `json:"removeUserIds"`
-}
-
-type CreateGroupInput struct {
-	GroupID string `json:"groupId"`
-	Name    string `json:"name"`
-}
-
 type CreateOauthClientInput struct {
 	ClientID     string           `json:"clientId"`
 	Name         string           `json:"name"`
@@ -61,43 +46,15 @@ type CreateUserInput struct {
 	Password string `json:"password"`
 }
 
-type GroupEdge struct {
-	Cursor string `json:"cursor"`
-	Node   *Group `json:"node"`
-}
-
-func (GroupEdge) IsEdge()                {}
-func (this GroupEdge) GetCursor() string { return this.Cursor }
-func (this GroupEdge) GetNode() Node     { return *this.Node }
-
-type GroupPagination struct {
-	PageInfo *PaginationInfo `json:"pageInfo"`
-	Nodes    []*Group        `json:"nodes"`
-}
-
-func (GroupPagination) IsPagination()                     {}
-func (this GroupPagination) GetPageInfo() *PaginationInfo { return this.PageInfo }
-func (this GroupPagination) GetNodes() []Node {
-	if this.Nodes == nil {
-		return nil
-	}
-	interfaceSlice := make([]Node, 0, len(this.Nodes))
-	for _, concrete := range this.Nodes {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
 type IndexingPhotosInput struct {
-	GroupID string `json:"groupId"`
-	Fast    bool   `json:"fast"`
+	Fast bool `json:"fast"`
 }
 
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`
 	HasPreviousPage bool    `json:"hasPreviousPage"`
-	StartCursor     *string `json:"startCursor"`
-	EndCursor       *string `json:"endCursor"`
+	StartCursor     *string `json:"startCursor,omitempty"`
+	EndCursor       *string `json:"endCursor,omitempty"`
 }
 
 type PaginationInfo struct {
@@ -140,10 +97,6 @@ func (this PhotoPagination) GetNodes() []Node {
 type PhotoUploadInfo struct {
 	UploadURL string `json:"uploadUrl"`
 	ExpireAt  int    `json:"expireAt"`
-}
-
-type UploadPhotoInput struct {
-	GroupID string `json:"groupId"`
 }
 
 type UserEdge struct {

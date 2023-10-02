@@ -7,19 +7,15 @@ func NewOAuthUseCase() usecases.OauthUseCase {
 }
 
 func NewPhotoImportUseCase() usecases.PhotoImportUseCase {
-	return usecases.NewPhotoImportUseCase(NewPhotoService(), NewImageProcessService(), NewPhotoAdapter(), NewPhotoStorageAdapter(), NewSearchAdapter(), NewUserAdapter(), NewGroupAdapter())
+	return usecases.NewPhotoImportUseCase(NewPhotoService(), NewImageProcessService(), NewPhotoAdapter(), NewPhotoStorageAdapter(), NewSearchAdapter(), NewUserAdapter())
 }
 
 func NewSearchUseCase() usecases.SearchUseCase {
-	return usecases.NewSearchUseCase(NewSearchAdapter(), NewPhotoAdapter(), NewGroupAdapter())
+	return usecases.NewSearchUseCase(NewSearchAdapter(), NewPhotoAdapter())
 }
 
 func NewUserUseCase() usecases.UserUseCase {
-	return usecases.NewUserUseCase(NewUserAdapter(), NewGroupAdapter(), NewUserService(), NewAuthService(), newPasswordService())
-}
-
-func NewGroupUseCase() usecases.GroupUseCase {
-	return usecases.NewGroupUseCase(NewGroupAdapter())
+	return usecases.NewUserUseCase(NewUserAdapter(), NewUserService(), NewAuthService(), newPasswordService())
 }
 
 func NewPhotoUseCase() usecases.PhotoUseCase {
@@ -27,5 +23,5 @@ func NewPhotoUseCase() usecases.PhotoUseCase {
 }
 
 func NewDownloadUseCase() usecases.DownloadUseCase {
-	return usecases.NewDownloadUseCase(NewPhotoAdapter(), NewGroupAdapter(), NewPhotoStorageAdapter())
+	return usecases.NewDownloadUseCase(NewPhotoAdapter(), NewPhotoStorageAdapter())
 }

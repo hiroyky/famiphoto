@@ -1,9 +1,5 @@
 type Photo implements Node {
     id: ID!
-    ownerId: ID!
-    owner: User!
-    groupId: ID!
-    group: Group!
     name: String!
     importedAt: Timestamp!
     dateTimeOriginal: Timestamp!

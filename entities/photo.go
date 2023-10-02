@@ -15,8 +15,6 @@ type Photo struct {
 	PhotoID      int
 	Name         string
 	ImportedAt   time.Time
-	GroupID      string
-	OwnerID      string
 	FileNameHash string
 	Files        PhotoFileList
 }
@@ -29,14 +27,14 @@ func (e Photo) PreviewURL() string {
 	if !e.HasJpeg() {
 		return ""
 	}
-	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.GroupID, e.OwnerID, e.PhotoID, config.AssetPreviewImageName)
+	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.PhotoID, config.AssetPreviewImageName)
 }
 
 func (e Photo) ThumbnailURL() string {
 	if !e.HasJpeg() {
 		return ""
 	}
-	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.GroupID, e.OwnerID, e.PhotoID, config.AssetThumbnailImageName)
+	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.PhotoID, config.AssetThumbnailImageName)
 }
 
 type PhotoList []*Photo
@@ -54,8 +52,6 @@ type PhotoFile struct {
 	PhotoID     int
 	FilePath    string
 	ImportedAt  time.Time
-	GroupID     string
-	OwnerID     string
 	FileHash    string
 }
 
@@ -170,8 +166,6 @@ func (m PhotoMeta) Sort() PhotoMeta {
 
 type PhotoSearchResultItem struct {
 	PhotoID          int
-	OwnerID          string
-	GroupID          string
 	FileTypes        []string
 	Name             string
 	ImportedAt       time.Time

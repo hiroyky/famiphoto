@@ -3,3 +3,76 @@
 
 // Package mock_es is a generated GoMock package.
 package mock_es
+
+import (
+	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
+	es "github.com/hiroyky/famiphoto/drivers/es"
+)
+
+// MockSearch is a mock of Search interface.
+type MockSearch struct {
+	ctrl     *gomock.Controller
+	recorder *MockSearchMockRecorder
+}
+
+// MockSearchMockRecorder is the mock recorder for MockSearch.
+type MockSearchMockRecorder struct {
+	mock *MockSearch
+}
+
+// NewMockSearch creates a new mock instance.
+func NewMockSearch(ctrl *gomock.Controller) *MockSearch {
+	mock := &MockSearch{ctrl: ctrl}
+	mock.recorder = &MockSearchMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSearch) EXPECT() *MockSearchMockRecorder {
+	return m.recorder
+}
+
+// CreateIndex mocks base method.
+func (m *MockSearch) CreateIndex(index string, mapping es.Mapping) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateIndex", index, mapping)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateIndex indicates an expected call of CreateIndex.
+func (mr *MockSearchMockRecorder) CreateIndex(index, mapping interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateIndex", reflect.TypeOf((*MockSearch)(nil).CreateIndex), index, mapping)
+}
+
+// Index mocks base method.
+func (m *MockSearch) Index(index string, body es.IndexBody) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Index", index, body)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Index indicates an expected call of Index.
+func (mr *MockSearchMockRecorder) Index(index, body interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Index", reflect.TypeOf((*MockSearch)(nil).Index), index, body)
+}
+
+// Search mocks base method.
+func (m *MockSearch) Search(index string, body *es.SearchRequestBody) (*es.SearchResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Search", index, body)
+	ret0, _ := ret[0].(*es.SearchResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Search indicates an expected call of Search.
+func (mr *MockSearchMockRecorder) Search(index, body interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockSearch)(nil).Search), index, body)
+}

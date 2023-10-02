@@ -19,8 +19,6 @@ func NewPhotoFile(e *entities.PhotoFile) *PhotoFile {
 		PhotoID:    gql.EncodeIntID(PhotoName, e.PhotoID),
 		FileType:   e.FileType().ToString(),
 		ImportedAt: e.ImportedAt.Format(time.RFC3339),
-		GroupID:    gql.EncodeStrID(GroupName, e.GroupID),
-		OwnerID:    gql.EncodeStrID(UserName, e.OwnerID),
 		FileHash:   e.FileHash,
 	}
 }

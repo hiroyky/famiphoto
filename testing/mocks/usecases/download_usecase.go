@@ -50,17 +50,3 @@ func (mr *MockDownloadUseCaseMockRecorder) LoadPhotoFile(ctx, fileID interface{}
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadPhotoFile", reflect.TypeOf((*MockDownloadUseCase)(nil).LoadPhotoFile), ctx, fileID)
 }
-
-// VerifyDownloadPermission mocks base method.
-func (m *MockDownloadUseCase) VerifyDownloadPermission(ctx context.Context, fileID int, userID string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VerifyDownloadPermission", ctx, fileID, userID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// VerifyDownloadPermission indicates an expected call of VerifyDownloadPermission.
-func (mr *MockDownloadUseCaseMockRecorder) VerifyDownloadPermission(ctx, fileID, userID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyDownloadPermission", reflect.TypeOf((*MockDownloadUseCase)(nil).VerifyDownloadPermission), ctx, fileID, userID)
-}

@@ -9,8 +9,6 @@ type PhotoSearchQuery struct {
 	Limit   *int
 	Offset  *int
 	PhotoID *int
-	OwnerID *string
-	GroupID *string
 	Name    *string
 }
 
@@ -33,12 +31,6 @@ func (r *PhotoSearchQuery) Body() *es.SearchRequestBody {
 	if r.PhotoID != nil {
 		mustMatches = append(mustMatches, map[string]any{"match": map[string]any{"photo_id": *r.PhotoID}})
 	}
-	if r.OwnerID != nil {
-		mustMatches = append(mustMatches, map[string]any{"match": map[string]any{"owner_id": *r.OwnerID}})
-	}
-	if r.GroupID != nil {
-		mustMatches = append(mustMatches, map[string]any{"match": map[string]any{"group_id": *r.GroupID}})
-	}
 
 	q.Query = map[string]any{
 		"bool": map[string]any{
@@ -49,13 +41,11 @@ func (r *PhotoSearchQuery) Body() *es.SearchRequestBody {
 	return q
 }
 
-func NewPhotoSearchQuery(id *int, ownerID, groupID *string, limit, offset int) *PhotoSearchQuery {
+func NewPhotoSearchQuery(id *int, limit, offset int) *PhotoSearchQuery {
 	q := &PhotoSearchQuery{
 		Limit:   &limit,
 		Offset:  &offset,
 		PhotoID: id,
-		OwnerID: ownerID,
-		GroupID: groupID,
 		Name:    nil,
 	}
 	return q
@@ -67,8 +57,6 @@ func NewSinglePhotoSearchQuery(id int) *PhotoSearchQuery {
 		Limit:   &limit,
 		Offset:  nil,
 		PhotoID: &id,
-		OwnerID: nil,
-		GroupID: nil,
 		Name:    nil,
 	}
 	return q

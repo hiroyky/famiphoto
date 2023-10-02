@@ -11,19 +11,17 @@ import (
 
 type SearchUseCase interface {
 	AppendAllPhotoDocuments(ctx context.Context) error
-	SearchPhotoByPhotoID(ctx context.Context, id int, userID string) (*entities.PhotoSearchResultItem, error)
-	SearchPhotos(ctx context.Context, groupID, userID string, id *int, ownerID *string, limit, offset int) (*entities.PhotoSearchResult, error)
+	SearchPhotoByPhotoID(ctx context.Context, id int) (*entities.PhotoSearchResultItem, error)
+	SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error)
 }
 
 func NewSearchUseCase(
 	searchAdapter infrastructures.SearchAdapter,
 	photoAdapter infrastructures.PhotoAdapter,
-	groupAdapter infrastructures.GroupAdapter,
 ) SearchUseCase {
 	return &searchUseCase{
 		searchAdapter:  searchAdapter,
 		photoAdapter:   photoAdapter,
-		groupAdapter:   groupAdapter,
 		appendBulkUnit: 500,
 	}
 }
@@ -31,7 +29,6 @@ func NewSearchUseCase(
 type searchUseCase struct {
 	searchAdapter  infrastructures.SearchAdapter
 	photoAdapter   infrastructures.PhotoAdapter
-	groupAdapter   infrastructures.GroupAdapter
 	appendBulkUnit int
 }
 
@@ -69,7 +66,7 @@ func (u *searchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 	return nil
 }
 
-func (u *searchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int, userID string) (*entities.PhotoSearchResultItem, error) {
+func (u *searchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int) (*entities.PhotoSearchResultItem, error) {
 	query := filters.NewSinglePhotoSearchQuery(id)
 	res, err := u.searchAdapter.SearchPhotos(ctx, query)
 	if err != nil {
@@ -80,23 +77,11 @@ func (u *searchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int, userID
 	}
 
 	item := res.Items[0]
-	if belonging, err := u.groupAdapter.IsBelongGroupUser(ctx, item.GroupID, userID); err != nil {
-		return nil, err
-	} else if !belonging {
-		return nil, errors.New(errors.PhotoNotFoundError, nil)
-	}
-
 	return item, nil
 }
 
-func (u *searchUseCase) SearchPhotos(ctx context.Context, groupID, userID string, id *int, ownerID *string, limit, offset int) (*entities.PhotoSearchResult, error) {
-	if belonging, err := u.groupAdapter.IsBelongGroupUser(ctx, groupID, userID); err != nil {
-		return nil, err
-	} else if !belonging {
-		return nil, errors.New(errors.ForbiddenError, nil)
-	}
-
-	query := filters.NewPhotoSearchQuery(id, ownerID, &groupID, limit, offset)
+func (u *searchUseCase) SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error) {
+	query := filters.NewPhotoSearchQuery(id, limit, offset)
 	res, err := u.searchAdapter.SearchPhotos(ctx, query)
 	if err != nil {
 		return nil, err

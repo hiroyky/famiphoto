@@ -36,18 +36,18 @@ func (m *MockPhotoService) EXPECT() *MockPhotoServiceMockRecorder {
 }
 
 // RegisterPhoto mocks base method.
-func (m *MockPhotoService) RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) (*entities.Photo, error) {
+func (m *MockPhotoService) RegisterPhoto(ctx context.Context, filePath, fileHash string) (*entities.Photo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegisterPhoto", ctx, filePath, fileHash, ownerID, groupID)
+	ret := m.ctrl.Call(m, "RegisterPhoto", ctx, filePath, fileHash)
 	ret0, _ := ret[0].(*entities.Photo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RegisterPhoto indicates an expected call of RegisterPhoto.
-func (mr *MockPhotoServiceMockRecorder) RegisterPhoto(ctx, filePath, fileHash, ownerID, groupID interface{}) *gomock.Call {
+func (mr *MockPhotoServiceMockRecorder) RegisterPhoto(ctx, filePath, fileHash interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterPhoto", reflect.TypeOf((*MockPhotoService)(nil).RegisterPhoto), ctx, filePath, fileHash, ownerID, groupID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterPhoto", reflect.TypeOf((*MockPhotoService)(nil).RegisterPhoto), ctx, filePath, fileHash)
 }
 
 // ShouldSkipToRegisterPhoto mocks base method.

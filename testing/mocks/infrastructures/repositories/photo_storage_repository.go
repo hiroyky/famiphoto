@@ -36,18 +36,18 @@ func (m *MockPhotoStorageRepository) EXPECT() *MockPhotoStorageRepositoryMockRec
 	return m.recorder
 }
 
-// CreateGroupUserDir mocks base method.
-func (m *MockPhotoStorageRepository) CreateGroupUserDir(groupID, userID string) error {
+// CreateUserDir mocks base method.
+func (m *MockPhotoStorageRepository) CreateUserDir(userID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateGroupUserDir", groupID, userID)
+	ret := m.ctrl.Call(m, "CreateUserDir", userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CreateGroupUserDir indicates an expected call of CreateGroupUserDir.
-func (mr *MockPhotoStorageRepositoryMockRecorder) CreateGroupUserDir(groupID, userID interface{}) *gomock.Call {
+// CreateUserDir indicates an expected call of CreateUserDir.
+func (mr *MockPhotoStorageRepositoryMockRecorder) CreateUserDir(userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGroupUserDir", reflect.TypeOf((*MockPhotoStorageRepository)(nil).CreateGroupUserDir), groupID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserDir", reflect.TypeOf((*MockPhotoStorageRepository)(nil).CreateUserDir), userID)
 }
 
 // LoadContent mocks base method.
@@ -96,9 +96,9 @@ func (mr *MockPhotoStorageRepositoryMockRecorder) ReadDir(dirPath interface{}) *
 }
 
 // SaveContent mocks base method.
-func (m *MockPhotoStorageRepository) SaveContent(groupID, userID, fileName string, dateTimeOriginal time.Time, data []byte) (os.FileInfo, string, error) {
+func (m *MockPhotoStorageRepository) SaveContent(userID, fileName string, dateTimeOriginal time.Time, data []byte) (os.FileInfo, string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveContent", groupID, userID, fileName, dateTimeOriginal, data)
+	ret := m.ctrl.Call(m, "SaveContent", userID, fileName, dateTimeOriginal, data)
 	ret0, _ := ret[0].(os.FileInfo)
 	ret1, _ := ret[1].(string)
 	ret2, _ := ret[2].(error)
@@ -106,7 +106,7 @@ func (m *MockPhotoStorageRepository) SaveContent(groupID, userID, fileName strin
 }
 
 // SaveContent indicates an expected call of SaveContent.
-func (mr *MockPhotoStorageRepositoryMockRecorder) SaveContent(groupID, userID, fileName, dateTimeOriginal, data interface{}) *gomock.Call {
+func (mr *MockPhotoStorageRepositoryMockRecorder) SaveContent(userID, fileName, dateTimeOriginal, data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveContent", reflect.TypeOf((*MockPhotoStorageRepository)(nil).SaveContent), groupID, userID, fileName, dateTimeOriginal, data)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveContent", reflect.TypeOf((*MockPhotoStorageRepository)(nil).SaveContent), userID, fileName, dateTimeOriginal, data)
 }

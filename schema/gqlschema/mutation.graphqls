@@ -1,10 +1,8 @@
 type Mutation {
     createUser(input: CreateUserInput!): User!
-    createGroup(input: CreateGroupInput!): Group!
-    alterGroupMembers(input: AlterGroupMembersInput!): Group!
     createOauthClient(input: CreateOauthClientInput!): OauthClient!
     indexingPhotos(input: IndexingPhotosInput): Boolean!
-    uploadPhoto(input: UploadPhotoInput): PhotoUploadInfo!
+    uploadPhoto: PhotoUploadInfo!
 }
 
 input CreateUserInput {
@@ -13,20 +11,6 @@ input CreateUserInput {
     password: String!
 }
 
-input CreateGroupInput {
-    groupId: String!
-    name: String!
-}
-
-input AlterGroupInput {
-    name: String!
-}
-
-input AlterGroupMembersInput {
-    groupId: ID!
-    appendUserIds: [ID!]
-    removeUserIds: [ID!]
-}
 
 input CreateOauthClientInput {
     clientId: String!
@@ -37,12 +21,7 @@ input CreateOauthClientInput {
 }
 
 input IndexingPhotosInput {
-    groupId: ID!
     fast: Boolean!
-}
-
-input UploadPhotoInput {
-    groupId: ID!
 }
 
 type PhotoUploadInfo {

@@ -35,29 +35,29 @@ func (m *MockPhotoThumbnailRepository) EXPECT() *MockPhotoThumbnailRepositoryMoc
 }
 
 // SavePreview mocks base method.
-func (m *MockPhotoThumbnailRepository) SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
+func (m *MockPhotoThumbnailRepository) SavePreview(ctx context.Context, photoID int, data []byte) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SavePreview", ctx, photoID, data, groupID, ownerID)
+	ret := m.ctrl.Call(m, "SavePreview", ctx, photoID, data)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SavePreview indicates an expected call of SavePreview.
-func (mr *MockPhotoThumbnailRepositoryMockRecorder) SavePreview(ctx, photoID, data, groupID, ownerID interface{}) *gomock.Call {
+func (mr *MockPhotoThumbnailRepositoryMockRecorder) SavePreview(ctx, photoID, data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SavePreview", reflect.TypeOf((*MockPhotoThumbnailRepository)(nil).SavePreview), ctx, photoID, data, groupID, ownerID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SavePreview", reflect.TypeOf((*MockPhotoThumbnailRepository)(nil).SavePreview), ctx, photoID, data)
 }
 
 // SaveThumbnail mocks base method.
-func (m *MockPhotoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
+func (m *MockPhotoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int, data []byte) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveThumbnail", ctx, photoID, data, groupID, ownerID)
+	ret := m.ctrl.Call(m, "SaveThumbnail", ctx, photoID, data)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SaveThumbnail indicates an expected call of SaveThumbnail.
-func (mr *MockPhotoThumbnailRepositoryMockRecorder) SaveThumbnail(ctx, photoID, data, groupID, ownerID interface{}) *gomock.Call {
+func (mr *MockPhotoThumbnailRepositoryMockRecorder) SaveThumbnail(ctx, photoID, data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveThumbnail", reflect.TypeOf((*MockPhotoThumbnailRepository)(nil).SaveThumbnail), ctx, photoID, data, groupID, ownerID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveThumbnail", reflect.TypeOf((*MockPhotoThumbnailRepository)(nil).SaveThumbnail), ctx, photoID, data)
 }

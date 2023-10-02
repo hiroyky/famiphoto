@@ -17,7 +17,7 @@ type UserRepository interface {
 	GetUsers(ctx context.Context, filter *filters.UserFilter, limit, offset int) ([]*dbmodels.User, error)
 	CountUsers(ctx context.Context, filter *filters.UserFilter) (int, error)
 	ExistUser(ctx context.Context, userID string) (bool, error)
-	CreateUser(ctx context.Context, user *dbmodels.User, group *dbmodels.Group, password *dbmodels.UserPassword) (*dbmodels.User, error)
+	CreateUser(ctx context.Context, user *dbmodels.User, password *dbmodels.UserPassword) (*dbmodels.User, error)
 }
 
 func NewUserRepository(db mysql.SQLExecutor) UserRepository {
@@ -64,7 +64,7 @@ func (r *userRepository) ExistUser(ctx context.Context, userID string) (bool, er
 	return dbmodels.UserExists(ctx, r.db, userID)
 }
 
-func (r *userRepository) CreateUser(ctx context.Context, user *dbmodels.User, group *dbmodels.Group, password *dbmodels.UserPassword) (*dbmodels.User, error) {
+func (r *userRepository) CreateUser(ctx context.Context, user *dbmodels.User, password *dbmodels.UserPassword) (*dbmodels.User, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, errors.New(errors.TxnBeginFatal, err)
@@ -74,16 +74,6 @@ func (r *userRepository) CreateUser(ctx context.Context, user *dbmodels.User, gr
 		return nil, err
 	}
 	if err := password.Insert(ctx, tx, boil.Infer()); err != nil {
-		return nil, err
-	}
-	if err := group.Insert(ctx, tx, boil.Infer()); err != nil {
-		return nil, err
-	}
-	groupUser := &dbmodels.GroupUser{
-		GroupID: group.GroupID,
-		UserID:  user.UserID,
-	}
-	if err := groupUser.Insert(ctx, tx, boil.Infer()); err != nil {
 		return nil, err
 	}
 

@@ -15,7 +15,7 @@ import (
 
 type PhotoUploadSignRepository interface {
 	GetSign(ctx context.Context, token string) (*models.PhotoUploadSign, error)
-	SetSignToken(ctx context.Context, token, userID, groupID string, expireIn int64) error
+	SetSignToken(ctx context.Context, token, userID string, expireIn int64) error
 }
 
 func NewPhotoUploadSignRepository(db redis.Driver) PhotoUploadSignRepository {
@@ -46,10 +46,9 @@ func (r *photoUploadSignRepository) GetSign(ctx context.Context, token string) (
 	return &val, nil
 }
 
-func (r *photoUploadSignRepository) SetSignToken(ctx context.Context, token, userID, groupID string, expireIn int64) error {
+func (r *photoUploadSignRepository) SetSignToken(ctx context.Context, token, userID string, expireIn int64) error {
 	m := &models.PhotoUploadSign{
-		UserID:  userID,
-		GroupID: groupID,
+		UserID: userID,
 	}
 	val, err := json.Marshal(m)
 	if err != nil {
