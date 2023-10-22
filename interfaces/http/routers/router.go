@@ -48,7 +48,15 @@ func New() *echo.Echo {
 	)
 
 	if config.Env.IsDebug() {
-		e.GET("/debug/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/graphql")))
+		e.GET("/debug/graphql", echo.WrapHandler(playground.Handler("GraphQL playground", "/debug/graphql")))
+		e.POST(
+			"debug/graphql",
+			func(ctx echo.Context) error {
+				srv.ServeHTTP(ctx.Response(), ctx.Request())
+				return nil
+			},
+			echo.WrapMiddleware(authMiddleware.AuthClientSecret()),
+			echo.WrapMiddleware(authMiddleware.AuthAccessToken()))
 	}
 
 	e.POST("/auth/login", authController.Login, authMiddleware.MustAuthClientSecret, authMiddleware.MustVerifyAdminClient)
