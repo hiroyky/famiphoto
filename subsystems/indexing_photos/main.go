@@ -16,14 +16,6 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
-			Name:     "group-id",
-			Required: true,
-		},
-		&cli.StringFlag{
-			Name:     "user-id",
-			Required: true,
-		},
-		&cli.StringFlag{
 			Name:        "extensions",
 			Usage:       "You can specify file extensions",
 			Value:       ".jpeg, .jpg, .arw, .raw",
@@ -36,28 +28,28 @@ func main() {
 		},
 	}
 
-	f, _ := os.Create("/var/famiphoto/index_photo")
+	f, _ := os.Create("/var/log/famiphoto/index_photo")
 	log.SetOutput(f)
 
 	app.Action = func(ctx *cli.Context) error {
-		groupID := ctx.String("group-id")
-		userID := ctx.String("user-id")
-		pFilePath := fmt.Sprintf("%s-%s", groupID, userID)
+		// インデックス中フラグを立ててプロセスを二重実行しないようにする
+		pFilePath := "indexing"
 		storage := di.NewTempStorageDriver()
 		defer func() {
 			storage.Delete(pFilePath)
 		}()
 		if storage.Exist(pFilePath) {
-			log.Infof("%s-%s is already running", groupID, userID)
+			log.Infof("%s-%s is already running")
 			return nil
 		}
 		if err := storage.CreateFile(pFilePath, []byte(fmt.Sprintf("%d", time.Now().Unix()))); err != nil {
 			return err
 		}
+
 		extensions := array.Map(strings.Split(ctx.String("extensions"), ","), strings.TrimSpace)
-		log.Infof("%s-%s, extensions: %v, fast: %v \n", groupID, userID, extensions, ctx.Bool("fast"))
+		log.Infof("extensions: %v, fast: %v \n", extensions, ctx.Bool("fast"))
 		uc := di.NewPhotoImportUseCase()
-		return uc.IndexingPhotos(ctx.Context, "", groupID, userID, extensions, ctx.Bool("fast"))
+		return uc.IndexingPhotos(ctx.Context, "", extensions, ctx.Bool("fast"))
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal("[FATAL]", err)
