@@ -46,6 +46,10 @@ type CreateUserInput struct {
 	Password string `json:"password"`
 }
 
+type GqlStatus struct {
+	Status string `json:"status"`
+}
+
 type IndexingPhotosInput struct {
 	Fast bool `json:"fast"`
 }

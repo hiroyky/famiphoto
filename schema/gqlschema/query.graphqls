@@ -1,4 +1,5 @@
 type Query {
+    gqlStatus: GqlStatus!
     user(id: ID!): User
     users(id: ID, limit: Int, offset: Int): UserPagination!
     existUserId(id: String!): Boolean!

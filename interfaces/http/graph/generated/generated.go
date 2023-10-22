@@ -23,6 +23,7 @@ import (
 // NewExecutableSchema creates an ExecutableSchema from the ResolverRoot interface.
 func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 	return &executableSchema{
+		schema:     cfg.Schema,
 		resolvers:  cfg.Resolvers,
 		directives: cfg.Directives,
 		complexity: cfg.Complexity,
@@ -30,6 +31,7 @@ func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 }
 
 type Config struct {
+	Schema     *ast.Schema
 	Resolvers  ResolverRoot
 	Directives DirectiveRoot
 	Complexity ComplexityRoot
@@ -48,6 +50,10 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	GqlStatus struct {
+		Status func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateOauthClient func(childComplexity int, input model.CreateOauthClientInput) int
 		CreateUser        func(childComplexity int, input model.CreateUserInput) int
@@ -121,6 +127,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		ExistUserID func(childComplexity int, id string) int
+		GqlStatus   func(childComplexity int) int
 		Me          func(childComplexity int) int
 		Photo       func(childComplexity int, id string) int
 		PhotoFile   func(childComplexity int, id string) int
@@ -173,6 +180,7 @@ type PhotoFileResolver interface {
 	Photo(ctx context.Context, obj *model.PhotoFile) (*model.Photo, error)
 }
 type QueryResolver interface {
+	GqlStatus(ctx context.Context) (*model.GqlStatus, error)
 	User(ctx context.Context, id string) (*model.User, error)
 	Users(ctx context.Context, id *string, limit *int, offset *int) (*model.UserPagination, error)
 	ExistUserID(ctx context.Context, id string) (bool, error)
@@ -187,12 +195,16 @@ type UserResolver interface {
 }
 
 type executableSchema struct {
+	schema     *ast.Schema
 	resolvers  ResolverRoot
 	directives DirectiveRoot
 	complexity ComplexityRoot
 }
 
 func (e *executableSchema) Schema() *ast.Schema {
+	if e.schema != nil {
+		return e.schema
+	}
 	return parsedSchema
 }
 
@@ -200,6 +212,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "GqlStatus.status":
+		if e.complexity.GqlStatus.Status == nil {
+			break
+		}
+
+		return e.complexity.GqlStatus.Status(childComplexity), true
 
 	case "Mutation.createOauthClient":
 		if e.complexity.Mutation.CreateOauthClient == nil {
@@ -536,6 +555,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ExistUserID(childComplexity, args["id"].(string)), true
 
+	case "Query.gqlStatus":
+		if e.complexity.Query.GqlStatus == nil {
+			break
+		}
+
+		return e.complexity.Query.GqlStatus(childComplexity), true
+
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
@@ -796,14 +822,14 @@ func (ec *executionContext) introspectSchema() (*introspection.Schema, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapSchema(parsedSchema), nil
+	return introspection.WrapSchema(ec.Schema()), nil
 }
 
 func (ec *executionContext) introspectType(name string) (*introspection.Type, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
+	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
 var sources = []*ast.Source{
@@ -846,6 +872,10 @@ type PageInfo {
     hasPreviousPage: Boolean!
     startCursor: Cursor
     endCursor: Cursor
+}
+`, BuiltIn: false},
+	{Name: "../../../../schema/gqlschema/gql_status.graphqls", Input: `type GqlStatus {
+    status: String!
 }
 `, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/mutation.graphqls", Input: `type Mutation {
@@ -929,6 +959,7 @@ type PhotoPagination implements Pagination {
     fileHash: String!
 }`, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/query.graphqls", Input: `type Query {
+    gqlStatus: GqlStatus!
     user(id: ID!): User
     users(id: ID, limit: Int, offset: Int): UserPagination!
     existUserId(id: String!): Boolean!
@@ -1217,6 +1248,50 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _GqlStatus_status(ctx context.Context, field graphql.CollectedField, obj *model.GqlStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GqlStatus_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GqlStatus_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GqlStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createUser(ctx, field)
@@ -3285,6 +3360,54 @@ func (ec *executionContext) fieldContext_PhotoUploadInfo_expireAt(ctx context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_gqlStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_gqlStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GqlStatus(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GqlStatus)
+	fc.Result = res
+	return ec.marshalNGqlStatus2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGqlStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_gqlStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_GqlStatus_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GqlStatus", field.Name)
 		},
 	}
 	return fc, nil
@@ -6512,6 +6635,45 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 
 // region    **************************** object.gotpl ****************************
 
+var gqlStatusImplementors = []string{"GqlStatus"}
+
+func (ec *executionContext) _GqlStatus(ctx context.Context, sel ast.SelectionSet, obj *model.GqlStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, gqlStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GqlStatus")
+		case "status":
+			out.Values[i] = ec._GqlStatus_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -7188,6 +7350,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "gqlStatus":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_gqlStatus(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "user":
 			field := field
 
@@ -7971,6 +8155,20 @@ func (ec *executionContext) marshalNCursor2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNGqlStatus2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGqlStatus(ctx context.Context, sel ast.SelectionSet, v model.GqlStatus) graphql.Marshaler {
+	return ec._GqlStatus(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGqlStatus2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGqlStatus(ctx context.Context, sel ast.SelectionSet, v *model.GqlStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GqlStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
