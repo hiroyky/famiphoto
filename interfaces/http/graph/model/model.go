@@ -21,6 +21,7 @@ type PhotoFile struct {
 	FileType   string `json:"fileType"`
 	ImportedAt string `json:"importedAt"`
 	FileHash   string `json:"fileHash"`
+	FileName   string `json:"fileName"`
 }
 
 func (PhotoFile) IsNode()         {}

@@ -108,6 +108,7 @@ type ComplexityRoot struct {
 
 	PhotoFile struct {
 		FileHash   func(childComplexity int) int
+		FileName   func(childComplexity int) int
 		FileType   func(childComplexity int) int
 		ID         func(childComplexity int) int
 		ImportedAt func(childComplexity int) int
@@ -479,6 +480,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PhotoFile.FileHash(childComplexity), true
+
+	case "PhotoFile.fileName":
+		if e.complexity.PhotoFile.FileName == nil {
+			break
+		}
+
+		return e.complexity.PhotoFile.FileName(childComplexity), true
 
 	case "PhotoFile.fileType":
 		if e.complexity.PhotoFile.FileType == nil {
@@ -957,6 +965,7 @@ type PhotoPagination implements Pagination {
     fileType: String!
     importedAt: Timestamp!
     fileHash: String!
+    fileName: String!
 }`, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/query.graphqls", Input: `type Query {
     gqlStatus: GqlStatus!
@@ -2688,6 +2697,8 @@ func (ec *executionContext) fieldContext_Photo_files(ctx context.Context, field 
 				return ec.fieldContext_PhotoFile_importedAt(ctx, field)
 			case "fileHash":
 				return ec.fieldContext_PhotoFile_fileHash(ctx, field)
+			case "fileName":
+				return ec.fieldContext_PhotoFile_fileName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PhotoFile", field.Name)
 		},
@@ -3143,6 +3154,50 @@ func (ec *executionContext) _PhotoFile_fileHash(ctx context.Context, field graph
 }
 
 func (ec *executionContext) fieldContext_PhotoFile_fileHash(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PhotoFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PhotoFile_fileName(ctx context.Context, field graphql.CollectedField, obj *model.PhotoFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PhotoFile_fileName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FileName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PhotoFile_fileName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PhotoFile",
 		Field:      field,
@@ -3827,6 +3882,8 @@ func (ec *executionContext) fieldContext_Query_photoFile(ctx context.Context, fi
 				return ec.fieldContext_PhotoFile_importedAt(ctx, field)
 			case "fileHash":
 				return ec.fieldContext_PhotoFile_fileHash(ctx, field)
+			case "fileName":
+				return ec.fieldContext_PhotoFile_fileName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PhotoFile", field.Name)
 		},
@@ -3896,6 +3953,8 @@ func (ec *executionContext) fieldContext_Query_photoFiles(ctx context.Context, f
 				return ec.fieldContext_PhotoFile_importedAt(ctx, field)
 			case "fileHash":
 				return ec.fieldContext_PhotoFile_fileHash(ctx, field)
+			case "fileName":
+				return ec.fieldContext_PhotoFile_fileName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PhotoFile", field.Name)
 		},
@@ -7217,6 +7276,11 @@ func (ec *executionContext) _PhotoFile(ctx context.Context, sel ast.SelectionSet
 			}
 		case "fileHash":
 			out.Values[i] = ec._PhotoFile_fileHash(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "fileName":
+			out.Values[i] = ec._PhotoFile_fileName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

@@ -27,14 +27,14 @@ func (e Photo) PreviewURL() string {
 	if !e.HasJpeg() {
 		return ""
 	}
-	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.PhotoID, config.AssetPreviewImageName)
+	return fmt.Sprintf("%s/thumbnails/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.PhotoID, config.AssetPreviewImageName)
 }
 
 func (e Photo) ThumbnailURL() string {
 	if !e.HasJpeg() {
 		return ""
 	}
-	return fmt.Sprintf("%s/thumbnails/%s/%s/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.PhotoID, config.AssetThumbnailImageName)
+	return fmt.Sprintf("%s/thumbnails/%d-%s.jpg", utils.RemoveTrailingSlash(config.Env.AssetBaseURL), e.PhotoID, config.AssetThumbnailImageName)
 }
 
 type PhotoList []*Photo

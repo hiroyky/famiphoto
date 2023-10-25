@@ -4,6 +4,7 @@ import (
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/utils/array"
 	"github.com/hiroyky/famiphoto/utils/gql"
+	"path"
 	"time"
 )
 
@@ -20,5 +21,6 @@ func NewPhotoFile(e *entities.PhotoFile) *PhotoFile {
 		FileType:   e.FileType().ToString(),
 		ImportedAt: e.ImportedAt.Format(time.RFC3339),
 		FileHash:   e.FileHash,
+		FileName:   path.Base(e.FilePath),
 	}
 }

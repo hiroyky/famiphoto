@@ -5,4 +5,5 @@ type PhotoFile implements Node {
     fileType: String!
     importedAt: Timestamp!
     fileHash: String!
+    fileName: String!
 }
