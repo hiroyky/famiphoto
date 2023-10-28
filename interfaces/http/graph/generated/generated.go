@@ -82,6 +82,8 @@ type ComplexityRoot struct {
 		Count            func(childComplexity int) int
 		HasNextPage      func(childComplexity int) int
 		HasPreviousPage  func(childComplexity int) int
+		Limit            func(childComplexity int) int
+		Offset           func(childComplexity int) int
 		Page             func(childComplexity int) int
 		PaginationLength func(childComplexity int) int
 		TotalCount       func(childComplexity int) int
@@ -361,6 +363,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PaginationInfo.HasPreviousPage(childComplexity), true
+
+	case "PaginationInfo.limit":
+		if e.complexity.PaginationInfo.Limit == nil {
+			break
+		}
+
+		return e.complexity.PaginationInfo.Limit(childComplexity), true
+
+	case "PaginationInfo.offset":
+		if e.complexity.PaginationInfo.Offset == nil {
+			break
+		}
+
+		return e.complexity.PaginationInfo.Offset(childComplexity), true
 
 	case "PaginationInfo.page":
 		if e.complexity.PaginationInfo.Page == nil {
@@ -867,6 +883,8 @@ interface Edge {
 }
 
 type PaginationInfo {
+    offset: Int!
+    limit: Int!
     page: Int!
     paginationLength: Int!
     hasNextPage: Boolean!
@@ -2015,6 +2033,94 @@ func (ec *executionContext) fieldContext_PageInfo_endCursor(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginationInfo_offset(ctx context.Context, field graphql.CollectedField, obj *model.PaginationInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginationInfo_offset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginationInfo_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginationInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginationInfo_limit(ctx context.Context, field graphql.CollectedField, obj *model.PaginationInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginationInfo_limit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Limit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginationInfo_limit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginationInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3249,6 +3355,10 @@ func (ec *executionContext) fieldContext_PhotoPagination_pageInfo(ctx context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "offset":
+				return ec.fieldContext_PaginationInfo_offset(ctx, field)
+			case "limit":
+				return ec.fieldContext_PaginationInfo_limit(ctx, field)
 			case "page":
 				return ec.fieldContext_PaginationInfo_page(ctx, field)
 			case "paginationLength":
@@ -4466,6 +4576,10 @@ func (ec *executionContext) fieldContext_UserPagination_pageInfo(ctx context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "offset":
+				return ec.fieldContext_PaginationInfo_offset(ctx, field)
+			case "limit":
+				return ec.fieldContext_PaginationInfo_limit(ctx, field)
 			case "page":
 				return ec.fieldContext_PaginationInfo_page(ctx, field)
 			case "paginationLength":
@@ -6959,6 +7073,16 @@ func (ec *executionContext) _PaginationInfo(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("PaginationInfo")
+		case "offset":
+			out.Values[i] = ec._PaginationInfo_offset(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "limit":
+			out.Values[i] = ec._PaginationInfo_limit(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "page":
 			out.Values[i] = ec._PaginationInfo_page(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

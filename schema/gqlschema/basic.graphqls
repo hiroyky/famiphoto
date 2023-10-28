@@ -24,6 +24,8 @@ interface Edge {
 }
 
 type PaginationInfo {
+    offset: Int!
+    limit: Int!
     page: Int!
     paginationLength: Int!
     hasNextPage: Boolean!

@@ -38,6 +38,12 @@ func (r *PhotoSearchQuery) Body() *es.SearchRequestBody {
 		},
 	}
 
+	q.Sort = map[string]any{
+		"date_time_original": map[string]any{
+			"order": "desc",
+		},
+	}
+
 	return q
 }
 
