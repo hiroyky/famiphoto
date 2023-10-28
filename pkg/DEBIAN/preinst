@@ -1,3 +1,6 @@
 #!/bin/sh
 
 # インストール前の処理
+
+getent group famiphoto || groupadd famiphoto
+id -u famiphoto &>/dev/null || useradd famiphoto -g famiphoto

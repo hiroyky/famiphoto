@@ -2,3 +2,5 @@
 
 # アンインストール後の処理
 
+deluser famiphoto
+groupdel famiphoto
