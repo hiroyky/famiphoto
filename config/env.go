@@ -11,7 +11,7 @@ type FamiPhotoEnv struct {
 	WebClientSecret            string   `envconfig:"WEB_CLIENT_SECRET"`
 	MySQLUser                  string   `envconfig:"MYSQL_USER"`
 	MySQLPassword              string   `envconfig:"MYSQL_PASSWORD"`
-	MySQLHostName              string   `envconfig:"MYSQL_HOST_NAME"`
+	MySQLHostName              string   `envconfig:"MYSQL_HOST_NAME" required:"1"`
 	MySQLPort                  string   `envconfig:"MYSQL_PORT"`
 	MySQLDatabase              string   `envconfig:"MYSQL_DATABASE"`
 	OauthRedisHostName         string   `envconfig:"OAUTH_REDIS_HOST_NAME"`
@@ -43,7 +43,7 @@ func (e FamiPhotoEnv) IsDebug() bool {
 	return e.AppEnv == Local
 }
 
-func init() {
+func InitEnv() {
 	err := envconfig.Process("", &Env)
 	if err != nil {
 		panic(err)

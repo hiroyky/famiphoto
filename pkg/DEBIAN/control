@@ -7,4 +7,4 @@ Standards-Version: 4.6.2.0
 Package: famiphoto-api
 Architecture: amd64
 Description: Famiphoto API
-Version: 1698483076
+Version: 1698483078

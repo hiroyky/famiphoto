@@ -32,6 +32,10 @@ func NewDatabaseDriver() SQLExecutor {
 	if err != nil {
 		panic(err)
 	}
+	if err := newDB.Ping(); err != nil {
+		panic(fmt.Sprintf("%s %+v", config.Env.MySQLHostName, err))
+	}
+
 	db = newDB
 	return db
 }
