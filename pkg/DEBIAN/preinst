@@ -10,3 +10,6 @@ fi
 
 mkdir -p /var/log/famiphoto
 chown -R famiphoto:famiphoto /var/log/famiphoto
+
+mkdir -p /var/www/famiphoto
+chown -R famiphoto:famiphoto /var/www/famiphoto

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hiroyky/famiphoto/di"
 	"github.com/hiroyky/famiphoto/utils/array"
+	"github.com/joho/godotenv"
 	"github.com/labstack/gommon/log"
 	"github.com/urfave/cli/v2"
 	"os"
@@ -15,6 +16,11 @@ func main() {
 	app := cli.NewApp()
 
 	app.Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:        "env",
+			Usage:       "Path to env file",
+			DefaultText: "/etc/famiphoto/env",
+		},
 		&cli.StringFlag{
 			Name:        "extensions",
 			Usage:       "You can specify file extensions",
@@ -32,6 +38,11 @@ func main() {
 	log.SetOutput(f)
 
 	app.Action = func(ctx *cli.Context) error {
+		if err := godotenv.Load(ctx.String("env")); err != nil {
+			log.Error("Failed to load env file, ", ctx.String("env"))
+			return err
+		}
+
 		// インデックス中フラグを立ててプロセスを二重実行しないようにする
 		pFilePath := "indexing"
 		storage := di.NewTempStorageDriver()
@@ -48,6 +59,7 @@ func main() {
 
 		extensions := array.Map(strings.Split(ctx.String("extensions"), ","), strings.TrimSpace)
 		log.Infof("extensions: %v, fast: %v \n", extensions, ctx.Bool("fast"))
+
 		uc := di.NewPhotoImportUseCase()
 		return uc.IndexingPhotos(ctx.Context, "", extensions, ctx.Bool("fast"))
 	}

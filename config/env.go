@@ -1,6 +1,8 @@
 package config
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"github.com/kelseyhightower/envconfig"
+)
 
 type FamiPhotoEnv struct {
 	AppEnv                     string   `envconfig:"APP_ENV"`
@@ -30,6 +32,9 @@ type FamiPhotoEnv struct {
 	PhotoUploadBaseURL         string   `envconfig:"PHOTO_UPLOAD_BASE_URL"`
 	ErrorLogFilePath           string   `envconfig:"ERROR_LOG_FILE_PATH" default:"/var/log/famiphoto/error.log"`
 	InfoLogFilePath            string   `envconfig:"INFO_LOG_FILE_PATH" default:"/var/log/famiphoto/info.log"`
+	StorageRootPath            string   `envconfig:"STORAGE_ROOT_PATH" default:"/mnt/famiphoto"`
+	TempLocalRootPath          string   `envconfig:"TEMP_LOCAL_ROOT_PATH" default:"/tmp"`
+	AssetRootPath              string   `envconfig:"ASSET_ROOT_PATH" default:"/var/www/famiphoto"`
 }
 
 var Env FamiPhotoEnv

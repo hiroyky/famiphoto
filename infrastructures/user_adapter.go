@@ -80,9 +80,10 @@ func (a *userAdapter) CreateUser(ctx context.Context, user *entities.User, passw
 		return nil, err
 	}
 
-	if err := a.photoStorageRepo.CreateUserDir(dbUser.UserID); err != nil {
-		return nil, err
-	}
+	// ユーザディレクトリを作らない(あとできちんと消す）
+	//if err := a.photoStorageRepo.CreateUserDir(dbUser.UserID); err != nil {
+	//	return nil, err
+	//}
 
 	return a.toUserEntity(dstDBUser), nil
 }

@@ -55,9 +55,9 @@ func NewPhotoThumbnailStorageDriver() storage.Driver {
 }
 
 func NewMediaLocalStorageDriver() storage.Driver {
-	return storage.NewLocalStorageDriver("/mnt/famiphoto")
+	return storage.NewLocalStorageDriver(config.Env.StorageRootPath)
 }
 
 func NewTempStorageDriver() storage.Driver {
-	return storage.NewLocalStorageDriver("/var/famiphoto")
+	return storage.NewLocalStorageDriver(config.Env.TempLocalRootPath)
 }
