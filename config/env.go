@@ -28,6 +28,8 @@ type FamiPhotoEnv struct {
 	ExifTimezone               string   `envconfig:"EXIF_TIMEZONE"`
 	AssetBaseURL               string   `envconfig:"ASSET_BASE_URL"`
 	PhotoUploadBaseURL         string   `envconfig:"PHOTO_UPLOAD_BASE_URL"`
+	ErrorLogFilePath           string   `envconfig:"ERROR_LOG_FILE_PATH" default:"/var/log/famiphoto/error.log"`
+	InfoLogFilePath            string   `envconfig:"INFO_LOG_FILE_PATH" default:"/var/log/famiphoto/info.log"`
 }
 
 var Env FamiPhotoEnv

@@ -6,6 +6,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/responses"
+	"github.com/hiroyky/famiphoto/utils/log"
 	"github.com/labstack/echo/v4"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"net/http"
@@ -14,7 +15,7 @@ import (
 func HandlerError(err error, ctx echo.Context) {
 	if responses.IsFatalError(err) {
 		ctx.Logger().Error(err.Error())
-		fmt.Println(err.Error())
+		log.Error(err.Error())
 		ctx.JSON(
 			http.StatusInternalServerError,
 			map[string]string{

@@ -21,5 +21,10 @@ $ sudo dpkg -i ./famiphoto_api_xxxxxx.deb
 // Edit env file
 $ sudo nano /etc/famiphoto/env
 
+$ sudo systemctl restart famiphoto_api
+$ sudo ssytemctl status famiphoto_api -l 
 
+// if error
+$ journalctl _PID=xxxxxx
+$ tail -f /var/log/famiphoto/error.log
 ```

@@ -7,8 +7,8 @@ import (
 	"github.com/hiroyky/famiphoto/di"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/middlewares"
-	"github.com/hiroyky/famiphoto/interfaces/http/responses"
 	"github.com/hiroyky/famiphoto/interfaces/http/validators"
+	"github.com/hiroyky/famiphoto/utils/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echotrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/labstack/echo.v4"
@@ -22,8 +22,27 @@ func New() *echo.Echo {
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(echotrace.Middleware())
 	e.Use(middleware.Logger())
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		Skipper:        nil,
+		BeforeNextFunc: nil,
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			if v.Error != nil {
+				log.Error(v.Method, v.URIPath, v.Error)
+			}
+			return nil
+		},
+		LogLatency:   true,
+		LogProtocol:  true,
+		LogRemoteIP:  false,
+		LogHost:      false,
+		LogMethod:    true,
+		LogURI:       true,
+		LogURIPath:   true,
+		LogRoutePath: true,
+		LogStatus:    true,
+		LogError:     true,
+	}))
 	e.Use(middleware.Recover())
-	e.Renderer = responses.NewHtmlTemplateRenderer()
 	authMiddleware := di.NewAuthMiddleware()
 	authController := di.NewAuthController()
 	uploadController := di.NewUploadController()

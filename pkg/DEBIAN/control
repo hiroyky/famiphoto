@@ -2,9 +2,9 @@ Source: famiphoto-api
 Section: net
 Maintainer: Hirokazu Yokoyama <hiroyky.voyager@gmail.com>
 Priority: optional
-Build-Depends: golang-go (>= 1.18)
+Build-Depends: golang-go (>= 1.21)
 Standards-Version: 4.6.2.0
 Package: famiphoto-api
 Architecture: amd64
 Description: Famiphoto API
-Version: 1694539824
+Version: 1698483076

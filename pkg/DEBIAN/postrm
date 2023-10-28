@@ -2,5 +2,7 @@
 
 # アンインストール後の処理
 
-deluser famiphoto
-groupdel famiphoto
+if [ "$1" = purge ]; then
+    id famiphoto && deluser famiphoto
+    getent group famiphoto && groupdel famiphoto
+fi
