@@ -84,7 +84,7 @@ func New() *echo.Echo {
 
 	e.POST("/oauth/v2/token", oauthController.PostToken, authMiddleware.MustAuthClientSecret)
 	e.POST("/upload_photo/:sign_token", uploadController.UploadPhoto)
-	e.Group("assets").Use(middleware.StaticWithConfig(middleware.StaticConfig{Root: "assets"}))
+	e.Group("assets").Use(middleware.StaticWithConfig(middleware.StaticConfig{Root: config.Env.AssetRootPath}))
 	download := e.Group("/download",
 		echo.WrapMiddleware(authMiddleware.AuthClientSecret()),
 		echo.WrapMiddleware(authMiddleware.AuthAccessToken()),

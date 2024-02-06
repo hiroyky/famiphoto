@@ -44,7 +44,7 @@ test:
 dc_exec:
 	docker compose exec $(DOCKER) bash
 dc_exec_indexing_photos:
-	docker compose exec $(DOCKER) ./dst/indexing_photos
+	docker compose exec $(DOCKER) ./dst/indexing_photos --env=/go/src/github.com/hiroyky/famiphoto/.env.local --fast=false
 dc_exec_indexing:
 	docker compose exec $(DOCKER) ./dst/indexing
 dc_fmt:
@@ -72,7 +72,3 @@ $(MOCK_TARGETS):
 clean:
 	rm -rf ./testing/mocks/
 	rm -rf ./dst
-
-prodinit:
-	docker-compose --file docker-compose-prod.yaml build --no-cache
-	docker-compose --file docker-compose-prod.yaml up -d

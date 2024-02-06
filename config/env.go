@@ -26,15 +26,17 @@ type FamiPhotoEnv struct {
 	ElasticsearchAddresses     []string `envconfig:"ELASTICSEARCH_ADDRESSES"`
 	ElasticsearchUserName      string   `envconfig:"ELASTICSEARCH_USERNAME" default:"elastic"`
 	ElasticsearchPassword      string   `envconfig:"ELASTICSEARCH_PASSWORD"`
-	ElasticsearchFingerPrint   string   `envconfig:"ELASTICSEARCH_FINGER_PRINT"`
-	ExifTimezone               string   `envconfig:"EXIF_TIMEZONE"`
-	AssetBaseURL               string   `envconfig:"ASSET_BASE_URL"`
-	PhotoUploadBaseURL         string   `envconfig:"PHOTO_UPLOAD_BASE_URL"`
-	ErrorLogFilePath           string   `envconfig:"ERROR_LOG_FILE_PATH" default:"/var/log/famiphoto/error.log"`
-	InfoLogFilePath            string   `envconfig:"INFO_LOG_FILE_PATH" default:"/var/log/famiphoto/info.log"`
-	StorageRootPath            string   `envconfig:"STORAGE_ROOT_PATH" default:"/mnt/famiphoto"`
-	TempLocalRootPath          string   `envconfig:"TEMP_LOCAL_ROOT_PATH" default:"/tmp"`
-	AssetRootPath              string   `envconfig:"ASSET_ROOT_PATH" default:"/var/www/famiphoto"`
+	// ElasticsearchFingerPrint Fingerprint for certification. You can get following command on elasticsearch server.
+	// `# cat /etc/elasticsearch/certs/http_ca.crt | openssl x509 -sha256 -fingerprint -noout | cut -d "=" -f 2 | sed "s/://g"`
+	ElasticsearchFingerPrint string `envconfig:"ELASTICSEARCH_FINGER_PRINT"`
+	ExifTimezone             string `envconfig:"EXIF_TIMEZONE"`
+	AssetBaseURL             string `envconfig:"ASSET_BASE_URL"`
+	PhotoUploadBaseURL       string `envconfig:"PHOTO_UPLOAD_BASE_URL"`
+	ErrorLogFilePath         string `envconfig:"ERROR_LOG_FILE_PATH" default:"/var/log/famiphoto/error.log"`
+	InfoLogFilePath          string `envconfig:"INFO_LOG_FILE_PATH" default:"/var/log/famiphoto/info.log"`
+	StorageRootPath          string `envconfig:"STORAGE_ROOT_PATH" default:"/mnt/famiphoto"`
+	TempLocalRootPath        string `envconfig:"TEMP_LOCAL_ROOT_PATH" default:"/tmp"`
+	AssetRootPath            string `envconfig:"ASSET_ROOT_PATH" default:"/var/www/famiphoto"`
 }
 
 var Env FamiPhotoEnv
