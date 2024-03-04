@@ -41,7 +41,7 @@ func (s *imageProcessService) createPreview(ctx context.Context, photoFile *enti
 		return err
 	}
 
-	return s.thumbRepo.SavePreview(ctx, photoFile.PhotoID, dstData, photoFile.GroupID, photoFile.OwnerID)
+	return s.thumbRepo.SavePreview(ctx, photoFile.PhotoID, dstData)
 }
 
 func (s *imageProcessService) createThumbnail(ctx context.Context, photoFile *entities.PhotoFile, data []byte, orientation int) error {
@@ -55,7 +55,7 @@ func (s *imageProcessService) createThumbnail(ctx context.Context, photoFile *en
 		return err
 	}
 
-	return s.thumbRepo.SaveThumbnail(ctx, photoFile.PhotoID, dstData, photoFile.GroupID, photoFile.OwnerID)
+	return s.thumbRepo.SaveThumbnail(ctx, photoFile.PhotoID, dstData)
 }
 
 func (s *imageProcessService) resizeWidth(data []byte, dstWidth int64) ([]byte, error) {

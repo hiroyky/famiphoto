@@ -30,6 +30,8 @@ build_register_client: build_prepare
 pkg: build
 	mkdir -p $(PKG_DIR)/usr/bin
 	cp $(DST_DIR)/app $(PKG_DIR)/usr/bin/famiphoto_api
+	cp $(DST_DIR)/indexing_photos $(PKG_DIR)/usr/bin/famiphoto_indexing_photos
+	cp $(DST_DIR)/register_client $(PKG_DIR)/usr/bin/famiphoto_register_client
 	cp -r pkg/. $(PKG_DIR)
 	dpkg-deb --build $(PKG_DIR) $(DST_DIR)
 
@@ -42,7 +44,7 @@ test:
 dc_exec:
 	docker compose exec $(DOCKER) bash
 dc_exec_indexing_photos:
-	docker compose exec $(DOCKER) ./dst/indexing_photos
+	docker compose exec $(DOCKER) ./dst/indexing_photos --env=/go/src/github.com/hiroyky/famiphoto/.env.local --fast=false
 dc_exec_indexing:
 	docker compose exec $(DOCKER) ./dst/indexing
 dc_fmt:
@@ -70,7 +72,3 @@ $(MOCK_TARGETS):
 clean:
 	rm -rf ./testing/mocks/
 	rm -rf ./dst
-
-prodinit:
-	docker-compose --file docker-compose-prod.yaml build --no-cache
-	docker-compose --file docker-compose-prod.yaml up -d

@@ -1,6 +1,8 @@
 package config
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"github.com/kelseyhightower/envconfig"
+)
 
 type FamiPhotoEnv struct {
 	AppEnv                     string   `envconfig:"APP_ENV"`
@@ -9,7 +11,7 @@ type FamiPhotoEnv struct {
 	WebClientSecret            string   `envconfig:"WEB_CLIENT_SECRET"`
 	MySQLUser                  string   `envconfig:"MYSQL_USER"`
 	MySQLPassword              string   `envconfig:"MYSQL_PASSWORD"`
-	MySQLHostName              string   `envconfig:"MYSQL_HOST_NAME"`
+	MySQLHostName              string   `envconfig:"MYSQL_HOST_NAME" required:"1"`
 	MySQLPort                  string   `envconfig:"MYSQL_PORT"`
 	MySQLDatabase              string   `envconfig:"MYSQL_DATABASE"`
 	OauthRedisHostName         string   `envconfig:"OAUTH_REDIS_HOST_NAME"`
@@ -24,10 +26,17 @@ type FamiPhotoEnv struct {
 	ElasticsearchAddresses     []string `envconfig:"ELASTICSEARCH_ADDRESSES"`
 	ElasticsearchUserName      string   `envconfig:"ELASTICSEARCH_USERNAME" default:"elastic"`
 	ElasticsearchPassword      string   `envconfig:"ELASTICSEARCH_PASSWORD"`
-	ElasticsearchFingerPrint   string   `envconfig:"ELASTICSEARCH_FINGER_PRINT"`
-	ExifTimezone               string   `envconfig:"EXIF_TIMEZONE"`
-	AssetBaseURL               string   `envconfig:"ASSET_BASE_URL"`
-	PhotoUploadBaseURL         string   `envconfig:"PHOTO_UPLOAD_BASE_URL"`
+	// ElasticsearchFingerPrint Fingerprint for certification. You can get following command on elasticsearch server.
+	// `# cat /etc/elasticsearch/certs/http_ca.crt | openssl x509 -sha256 -fingerprint -noout | cut -d "=" -f 2 | sed "s/://g"`
+	ElasticsearchFingerPrint string `envconfig:"ELASTICSEARCH_FINGER_PRINT"`
+	ExifTimezone             string `envconfig:"EXIF_TIMEZONE"`
+	AssetBaseURL             string `envconfig:"ASSET_BASE_URL"`
+	PhotoUploadBaseURL       string `envconfig:"PHOTO_UPLOAD_BASE_URL"`
+	ErrorLogFilePath         string `envconfig:"ERROR_LOG_FILE_PATH" default:"/var/log/famiphoto/error.log"`
+	InfoLogFilePath          string `envconfig:"INFO_LOG_FILE_PATH" default:"/var/log/famiphoto/info.log"`
+	StorageRootPath          string `envconfig:"STORAGE_ROOT_PATH" default:"/mnt/famiphoto"`
+	TempLocalRootPath        string `envconfig:"TEMP_LOCAL_ROOT_PATH" default:"/tmp"`
+	AssetRootPath            string `envconfig:"ASSET_ROOT_PATH" default:"/var/www/famiphoto"`
 }
 
 var Env FamiPhotoEnv
@@ -36,7 +45,7 @@ func (e FamiPhotoEnv) IsDebug() bool {
 	return e.AppEnv == Local
 }
 
-func init() {
+func InitEnv() {
 	err := envconfig.Process("", &Env)
 	if err != nil {
 		panic(err)

@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
@@ -18,20 +17,17 @@ type UserUseCase interface {
 	GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error)
 	ExistUser(ctx context.Context, userID string) (bool, error)
 	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
-	GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, int, error)
 	Login(ctx context.Context, client *entities.OauthClient, userID, password string, now time.Time) (*entities.Oauth2AuthorizationCode, error)
 }
 
 func NewUserUseCase(
 	userAdapter infrastructures.UserAdapter,
-	groupAdapter infrastructures.GroupAdapter,
 	userService services.UserService,
 	authService services.OAuthService,
 	passwordService services.PasswordService,
 ) UserUseCase {
 	return &userUseCase{
 		userAdapter:     userAdapter,
-		groupAdapter:    groupAdapter,
 		userService:     userService,
 		authService:     authService,
 		passwordService: passwordService,
@@ -40,7 +36,6 @@ func NewUserUseCase(
 
 type userUseCase struct {
 	userAdapter     infrastructures.UserAdapter
-	groupAdapter    infrastructures.GroupAdapter
 	userService     services.UserService
 	authService     services.OAuthService
 	passwordService services.PasswordService
@@ -66,24 +61,18 @@ func (u *userUseCase) CreateUser(ctx context.Context, userID, name string, passw
 	} else if exist {
 		return nil, errors.New(errors.UserAlreadyExists, nil)
 	}
-	if exist, err := u.groupAdapter.ExistGroup(ctx, userID); err != nil {
-		return nil, err
-	} else if exist {
-		return nil, errors.New(errors.GroupAlreadyExistError, nil)
-	}
 
 	user := &entities.User{
 		UserID: userID,
 		Name:   name,
 		Status: entities.UserStatusActive,
 	}
-	groupName := fmt.Sprintf("%s (%s)", name, userID)
 
 	encPassword, err := u.passwordService.HashPassword(password)
 	if err != nil {
 		return nil, err
 	}
-	createdUser, err := u.userAdapter.CreateUser(ctx, user, groupName, encPassword, true, now)
+	createdUser, err := u.userAdapter.CreateUser(ctx, user, encPassword, true, now)
 	if err != nil {
 		return nil, err
 	}
@@ -125,18 +114,6 @@ func (u *userUseCase) GetUserPassword(ctx context.Context, userID string) (*enti
 	}
 	p.Password = ""
 	return p, nil
-}
-
-func (u *userUseCase) GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, int, error) {
-	users, err := u.userAdapter.GetUsersBelongingGroup(ctx, groupID, limit, offset)
-	if err != nil {
-		return nil, 0, err
-	}
-	total, err := u.userAdapter.CountUsersBelongingGroup(ctx, groupID)
-	if err != nil {
-		return nil, 0, err
-	}
-	return users, total, nil
 }
 
 func (u *userUseCase) Login(ctx context.Context, client *entities.OauthClient, userID, password string, now time.Time) (*entities.Oauth2AuthorizationCode, error) {

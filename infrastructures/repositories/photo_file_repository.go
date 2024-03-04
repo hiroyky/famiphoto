@@ -54,8 +54,6 @@ func (r *photoFileRepository) InsertPhotoFile(ctx context.Context, photoFile *db
 func (r *photoFileRepository) UpdatePhotoFile(ctx context.Context, photoFile *dbmodels.PhotoFile) (*dbmodels.PhotoFile, error) {
 	if _, err := photoFile.Update(ctx, r.db, boil.Blacklist(
 		dbmodels.PhotoColumns.ImportedAt,
-		dbmodels.PhotoColumns.GroupID,
-		dbmodels.PhotoColumns.OwnerID,
 	)); err != nil {
 		return nil, err
 	}

@@ -4,7 +4,6 @@ type User implements Node {
     name: String!
     status: UserStatus!
     password: UserPassword
-    belongGroups: [Group!]!
 }
 
 enum UserStatus {

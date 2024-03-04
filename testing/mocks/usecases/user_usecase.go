@@ -112,22 +112,6 @@ func (mr *MockUserUseCaseMockRecorder) GetUsers(ctx, userID, limit, offset inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockUserUseCase)(nil).GetUsers), ctx, userID, limit, offset)
 }
 
-// GetUsersBelongingGroup mocks base method.
-func (m *MockUserUseCase) GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUsersBelongingGroup", ctx, groupID, limit, offset)
-	ret0, _ := ret[0].(entities.UserList)
-	ret1, _ := ret[1].(int)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
-}
-
-// GetUsersBelongingGroup indicates an expected call of GetUsersBelongingGroup.
-func (mr *MockUserUseCaseMockRecorder) GetUsersBelongingGroup(ctx, groupID, limit, offset interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersBelongingGroup", reflect.TypeOf((*MockUserUseCase)(nil).GetUsersBelongingGroup), ctx, groupID, limit, offset)
-}
-
 // Login mocks base method.
 func (m *MockUserUseCase) Login(ctx context.Context, client *entities.OauthClient, userID, password string, now time.Time) (*entities.Oauth2AuthorizationCode, error) {
 	m.ctrl.T.Helper()

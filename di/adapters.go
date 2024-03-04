@@ -77,7 +77,7 @@ func newElasticSearchRepo() repositories.ElasticSearchRepository {
 }
 
 func NewUserAdapter() infrastructures.UserAdapter {
-	return infrastructures.NewUserAdapter(newUserRepository(), newGroupRepository(), newUserPasswordRepository(), newPhotoStorageRepository())
+	return infrastructures.NewUserAdapter(newUserRepository(), newUserPasswordRepository(), newPhotoStorageRepository())
 }
 
 func newUserRepository() repositories.UserRepository {
@@ -86,16 +86,4 @@ func newUserRepository() repositories.UserRepository {
 
 func newUserPasswordRepository() repositories.UserPasswordRepository {
 	return repositories.NewUserPasswordRepository(NewMySQLDriver())
-}
-
-func newGroupRepository() repositories.GroupRepository {
-	return repositories.NewGroupRepository(NewMySQLDriver())
-}
-
-func newGroupUserRepository() repositories.GroupUserRepository {
-	return repositories.NewGroupUserRepository(NewMySQLDriver())
-}
-
-func NewGroupAdapter() infrastructures.GroupAdapter {
-	return infrastructures.NewGroupAdapter(newGroupRepository(), newGroupUserRepository(), newPhotoStorageRepository())
 }

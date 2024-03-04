@@ -14,8 +14,6 @@ import (
 func NewPhotoIndex(p *entities.Photo, dateTimeOriginalEpoc int64) *PhotoIndex {
 	return &PhotoIndex{
 		PhotoID: p.PhotoID,
-		OwnerID: p.OwnerID,
-		GroupID: p.GroupID,
 		FileTypes: array.Map(p.Files.FindFileTypesByPhotoID(p.PhotoID), func(t entities.PhotoFileType) string {
 			return t.ToString()
 		}),
@@ -29,8 +27,6 @@ func NewPhotoIndex(p *entities.Photo, dateTimeOriginalEpoc int64) *PhotoIndex {
 
 type PhotoIndex struct {
 	PhotoID          int      `json:"photo_id"`
-	OwnerID          string   `json:"owner_id"`
-	GroupID          string   `json:"group_id"`
 	FileTypes        []string `json:"file_types"`
 	Name             string   `json:"name"`
 	ImportedAt       int64    `json:"imported_at"`
@@ -55,8 +51,6 @@ func (m *PhotoIndex) PhotoIndexID() string {
 func (m *PhotoIndex) ToEntityItem() *entities.PhotoSearchResultItem {
 	return &entities.PhotoSearchResultItem{
 		PhotoID:          m.PhotoID,
-		OwnerID:          m.OwnerID,
-		GroupID:          m.GroupID,
 		FileTypes:        m.FileTypes,
 		Name:             m.Name,
 		ImportedAt:       time.Unix(m.ImportedAt, 0),

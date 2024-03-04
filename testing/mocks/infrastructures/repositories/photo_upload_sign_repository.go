@@ -51,15 +51,15 @@ func (mr *MockPhotoUploadSignRepositoryMockRecorder) GetSign(ctx, token interfac
 }
 
 // SetSignToken mocks base method.
-func (m *MockPhotoUploadSignRepository) SetSignToken(ctx context.Context, token, userID, groupID string, expireIn int64) error {
+func (m *MockPhotoUploadSignRepository) SetSignToken(ctx context.Context, token, userID string, expireIn int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetSignToken", ctx, token, userID, groupID, expireIn)
+	ret := m.ctrl.Call(m, "SetSignToken", ctx, token, userID, expireIn)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetSignToken indicates an expected call of SetSignToken.
-func (mr *MockPhotoUploadSignRepositoryMockRecorder) SetSignToken(ctx, token, userID, groupID, expireIn interface{}) *gomock.Call {
+func (mr *MockPhotoUploadSignRepositoryMockRecorder) SetSignToken(ctx, token, userID, expireIn interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSignToken", reflect.TypeOf((*MockPhotoUploadSignRepository)(nil).SetSignToken), ctx, token, userID, groupID, expireIn)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSignToken", reflect.TypeOf((*MockPhotoUploadSignRepository)(nil).SetSignToken), ctx, token, userID, expireIn)
 }

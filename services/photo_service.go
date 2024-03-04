@@ -10,7 +10,7 @@ import (
 
 type PhotoService interface {
 	ShouldSkipToRegisterPhoto(ctx context.Context, filePath, fileHash string) (bool, error)
-	RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) (*entities.Photo, error)
+	RegisterPhoto(ctx context.Context, filePath, fileHash string) (*entities.Photo, error)
 }
 
 func NewPhotoService(photoRepo infrastructures.PhotoAdapter, photoStorage infrastructures.PhotoStorageAdapter) PhotoService {
@@ -41,21 +41,17 @@ func (s *photoService) ShouldSkipToRegisterPhoto(ctx context.Context, filePath, 
 
 	return fileHash == photoFile.FileHash, nil
 }
-func (s *photoService) RegisterPhoto(ctx context.Context, filePath, fileHash, ownerID, groupID string) (*entities.Photo, error) {
+func (s *photoService) RegisterPhoto(ctx context.Context, filePath, fileHash string) (*entities.Photo, error) {
 	now := s.nowFunc()
 
 	dstPhoto, err := s.photoAdapter.UpsertPhotoByFilePath(ctx, &entities.Photo{
 		Name:         utils.FileNameExceptExt(filePath),
 		ImportedAt:   now,
-		GroupID:      groupID,
-		OwnerID:      ownerID,
 		FileNameHash: utils.MD5(utils.FileNameExceptExt(filePath)),
 		Files: []*entities.PhotoFile{
 			{
 				FilePath:   filePath,
 				ImportedAt: now,
-				GroupID:    groupID,
-				OwnerID:    ownerID,
 				FileHash:   fileHash,
 			},
 		},

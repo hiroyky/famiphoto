@@ -2,6 +2,7 @@ package storage
 
 import (
 	native "errors"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/errors"
 	"os"
 	"path"
@@ -10,7 +11,7 @@ import (
 
 func NewPhotoThumbnailDriver() Driver {
 	return &photoThumbnailDriver{
-		baseDir: "assets/thumbnails",
+		baseDir: path.Join(config.Env.AssetRootPath, "thumbnails"),
 	}
 }
 

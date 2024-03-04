@@ -4,9 +4,6 @@ type PhotoFile implements Node {
     photo: Photo!
     fileType: String!
     importedAt: Timestamp!
-    groupId: ID!
-    group: Group!
-    ownerId: ID!
-    owner: User!
     fileHash: String!
+    fileName: String!
 }

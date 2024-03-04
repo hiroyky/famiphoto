@@ -18,10 +18,10 @@ type PhotoStorageAdapter interface {
 	FindDirContents(dirPath string) ([]*entities.StorageFileInfo, error)
 	LoadContent(path string) (entities.StorageFileData, error)
 	ParsePhotoMeta(path string) (entities.PhotoMeta, error)
-	SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
-	SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
-	SavePhotoFile(ctx context.Context, userID, groupID, fileName string, dateTimeOriginal time.Time, data []byte) (*entities.StorageFileInfo, error)
-	GenerateSignToSavePhoto(ctx context.Context, userID, groupID string, expireIn int64) (string, error)
+	SavePreview(ctx context.Context, photoID int, data []byte) error
+	SaveThumbnail(ctx context.Context, photoID int, data []byte) error
+	SavePhotoFile(ctx context.Context, userID, fileName string, dateTimeOriginal time.Time, data []byte) (*entities.StorageFileInfo, error)
+	GenerateSignToSavePhoto(ctx context.Context, userID string, expireIn int64) (string, error)
 	VerifySignToken(ctx context.Context, token string) (*entities.PhotoUploadInfo, error)
 }
 
@@ -85,19 +85,19 @@ func (a *photoStorageAdapter) ParsePhotoMeta(path string) (entities.PhotoMeta, e
 	return photoMeta, err
 }
 
-func (a *photoStorageAdapter) SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
-	return a.thumbnailRepo.SavePreview(ctx, photoID, data, groupID, ownerID)
+func (a *photoStorageAdapter) SavePreview(ctx context.Context, photoID int, data []byte) error {
+	return a.thumbnailRepo.SavePreview(ctx, photoID, data)
 }
 
-func (a *photoStorageAdapter) SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
-	return a.thumbnailRepo.SaveThumbnail(ctx, photoID, data, groupID, ownerID)
+func (a *photoStorageAdapter) SaveThumbnail(ctx context.Context, photoID int, data []byte) error {
+	return a.thumbnailRepo.SaveThumbnail(ctx, photoID, data)
 }
 
-func (a *photoStorageAdapter) SavePhotoFile(ctx context.Context, userID, groupID, fileName string, dateTimeOriginal time.Time, data []byte) (*entities.StorageFileInfo, error) {
-	fileInfo, p, err := a.photoStorageRepo.SaveContent(groupID, userID, fileName, dateTimeOriginal, data)
+func (a *photoStorageAdapter) SavePhotoFile(ctx context.Context, userID, fileName string, dateTimeOriginal time.Time, data []byte) (*entities.StorageFileInfo, error) {
+	fileInfo, p, err := a.photoStorageRepo.SaveContent(userID, fileName, dateTimeOriginal, data)
 	if err != nil {
 		if errors.IsErrCode(err, errors.FileAlreadyExistError) {
-			return a.SavePhotoFile(ctx, userID, groupID, utils.IncrementFileNameSuffix(fileName), dateTimeOriginal, data)
+			return a.SavePhotoFile(ctx, userID, utils.IncrementFileNameSuffix(fileName), dateTimeOriginal, data)
 		}
 		return nil, err
 	}
@@ -109,9 +109,9 @@ func (a *photoStorageAdapter) SavePhotoFile(ctx context.Context, userID, groupID
 	}, nil
 }
 
-func (a *photoStorageAdapter) GenerateSignToSavePhoto(ctx context.Context, userID, groupID string, expireIn int64) (string, error) {
+func (a *photoStorageAdapter) GenerateSignToSavePhoto(ctx context.Context, userID string, expireIn int64) (string, error) {
 	sign := a.generateRandomStringFunc(16)
-	if err := a.photoUploadSignRepo.SetSignToken(ctx, sign, userID, groupID, expireIn); err != nil {
+	if err := a.photoUploadSignRepo.SetSignToken(ctx, sign, userID, expireIn); err != nil {
 		return "", err
 	}
 	return sign, nil
@@ -127,7 +127,6 @@ func (a *photoStorageAdapter) VerifySignToken(ctx context.Context, token string)
 	}
 
 	return &entities.PhotoUploadInfo{
-		UserID:  sign.UserID,
-		GroupID: sign.GroupID,
+		UserID: sign.UserID,
 	}, nil
 }

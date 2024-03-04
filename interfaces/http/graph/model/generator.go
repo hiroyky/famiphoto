@@ -9,6 +9,8 @@ func newPaginationInfo(total, count, limit, offset int) *PaginationInfo {
 	}
 
 	return &PaginationInfo{
+		Offset:           offset,
+		Limit:            limit,
 		Page:             page,
 		PaginationLength: pageLength,
 		HasNextPage:      offset+limit < total,

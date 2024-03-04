@@ -1,17 +1,12 @@
 type Query {
+    gqlStatus: GqlStatus!
     user(id: ID!): User
     users(id: ID, limit: Int, offset: Int): UserPagination!
     existUserId(id: String!): Boolean!
-    group(id: ID!): Group!
-    belongingGroups: [Group!]!
-    isBelongingGroup(id: ID!): Boolean!
-    existGroupId(id: String!): Boolean!
     me: User
     photo(id: ID!): Photo
     photos(
-        groupId: ID!,
         id: ID,
-        ownerId: ID,
         limit: Int,
         offset: Int
     ): PhotoPagination!

@@ -13,11 +13,11 @@ import (
 )
 
 type PhotoStorageRepository interface {
-	SaveContent(groupID, userID, fileName string, dateTimeOriginal time.Time, data []byte) (os.FileInfo, string, error)
+	SaveContent(userID, fileName string, dateTimeOriginal time.Time, data []byte) (os.FileInfo, string, error)
 	ReadDir(dirPath string) ([]os.FileInfo, error)
 	LoadContent(path string) ([]byte, error)
 	ParsePhotoMetaFromFile(path string) ([]models.IfdEntry, error)
-	CreateGroupUserDir(groupID, userID string) error
+	CreateUserDir(userID string) error
 }
 
 func NewPhotoStorageRepository(driver storage.Driver) PhotoStorageRepository {
@@ -28,12 +28,12 @@ type photoStorageRepository struct {
 	driver storage.Driver
 }
 
-func (r *photoStorageRepository) SaveContent(groupID, userID, fileName string, dateTimeOriginal time.Time, data []byte) (os.FileInfo, string, error) {
+func (r *photoStorageRepository) SaveContent(userID, fileName string, dateTimeOriginal time.Time, data []byte) (os.FileInfo, string, error) {
 	dateTimeOriginalName := fmt.Sprintf("%04d-%02d-%02d", dateTimeOriginal.Year(), dateTimeOriginal.Month(), dateTimeOriginal.Day())
-	if err := r.createDirIfNotExist(path.Join(groupID, userID, dateTimeOriginalName)); err != nil {
+	if err := r.createDirIfNotExist(path.Join(userID, dateTimeOriginalName)); err != nil {
 		return nil, "", err
 	}
-	p := path.Join(groupID, userID, dateTimeOriginalName, fileName)
+	p := path.Join(userID, dateTimeOriginalName, fileName)
 	if exist := r.driver.Exist(p); exist {
 		return nil, "", errors.New(errors.FileAlreadyExistError, nil)
 	}
@@ -49,11 +49,8 @@ func (r *photoStorageRepository) SaveContent(groupID, userID, fileName string, d
 	return info, p, nil
 }
 
-func (r *photoStorageRepository) CreateGroupUserDir(groupID, userID string) error {
-	if err := r.createDirIfNotExist(groupID); err != nil {
-		return err
-	}
-	if err := r.createDirIfNotExist(path.Join(groupID, userID)); err != nil {
+func (r *photoStorageRepository) CreateUserDir(userID string) error {
+	if err := r.createDirIfNotExist(userID); err != nil {
 		return err
 	}
 	return nil

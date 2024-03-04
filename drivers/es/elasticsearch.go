@@ -77,10 +77,11 @@ func (d *driver) handleError(res *esapi.Response, err error) error {
 func NewBulkClient() esutil.BulkIndexer {
 	retryBackoff := backoff.NewExponentialBackOff()
 	es, err := elasticsearch.NewClient(elasticsearch.Config{
-		Addresses:     config.Env.ElasticsearchAddresses,
-		Username:      "",
-		Password:      "",
-		RetryOnStatus: []int{502, 503, 504, 429},
+		Addresses:              config.Env.ElasticsearchAddresses,
+		Username:               config.Env.ElasticsearchUserName,
+		Password:               config.Env.ElasticsearchPassword,
+		CertificateFingerprint: config.Env.ElasticsearchFingerPrint,
+		RetryOnStatus:          []int{502, 503, 504, 429},
 		RetryBackoff: func(i int) time.Duration {
 			if i == 1 {
 				retryBackoff.Reset()

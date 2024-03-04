@@ -52,34 +52,19 @@ func (mr *MockUserAdapterMockRecorder) CountUsers(ctx, filter interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountUsers", reflect.TypeOf((*MockUserAdapter)(nil).CountUsers), ctx, filter)
 }
 
-// CountUsersBelongingGroup mocks base method.
-func (m *MockUserAdapter) CountUsersBelongingGroup(ctx context.Context, groupID string) (int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CountUsersBelongingGroup", ctx, groupID)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CountUsersBelongingGroup indicates an expected call of CountUsersBelongingGroup.
-func (mr *MockUserAdapterMockRecorder) CountUsersBelongingGroup(ctx, groupID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountUsersBelongingGroup", reflect.TypeOf((*MockUserAdapter)(nil).CountUsersBelongingGroup), ctx, groupID)
-}
-
 // CreateUser mocks base method.
-func (m *MockUserAdapter) CreateUser(ctx context.Context, user *entities.User, groupName, password string, isInitializedPassword bool, now time.Time) (*entities.User, error) {
+func (m *MockUserAdapter) CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", ctx, user, groupName, password, isInitializedPassword, now)
+	ret := m.ctrl.Call(m, "CreateUser", ctx, user, password, isInitializedPassword, now)
 	ret0, _ := ret[0].(*entities.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateUser indicates an expected call of CreateUser.
-func (mr *MockUserAdapterMockRecorder) CreateUser(ctx, user, groupName, password, isInitializedPassword, now interface{}) *gomock.Call {
+func (mr *MockUserAdapterMockRecorder) CreateUser(ctx, user, password, isInitializedPassword, now interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUserAdapter)(nil).CreateUser), ctx, user, groupName, password, isInitializedPassword, now)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUserAdapter)(nil).CreateUser), ctx, user, password, isInitializedPassword, now)
 }
 
 // ExistUser mocks base method.
@@ -140,19 +125,4 @@ func (m *MockUserAdapter) GetUsers(ctx context.Context, filter *filters.UserFilt
 func (mr *MockUserAdapterMockRecorder) GetUsers(ctx, filter, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockUserAdapter)(nil).GetUsers), ctx, filter, limit, offset)
-}
-
-// GetUsersBelongingGroup mocks base method.
-func (m *MockUserAdapter) GetUsersBelongingGroup(ctx context.Context, groupID string, limit, offset int) (entities.UserList, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUsersBelongingGroup", ctx, groupID, limit, offset)
-	ret0, _ := ret[0].(entities.UserList)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUsersBelongingGroup indicates an expected call of GetUsersBelongingGroup.
-func (mr *MockUserAdapterMockRecorder) GetUsersBelongingGroup(ctx, groupID, limit, offset interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersBelongingGroup", reflect.TypeOf((*MockUserAdapter)(nil).GetUsersBelongingGroup), ctx, groupID, limit, offset)
 }

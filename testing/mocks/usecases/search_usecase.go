@@ -50,31 +50,31 @@ func (mr *MockSearchUseCaseMockRecorder) AppendAllPhotoDocuments(ctx interface{}
 }
 
 // SearchPhotoByPhotoID mocks base method.
-func (m *MockSearchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int, userID string) (*entities.PhotoSearchResultItem, error) {
+func (m *MockSearchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int) (*entities.PhotoSearchResultItem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchPhotoByPhotoID", ctx, id, userID)
+	ret := m.ctrl.Call(m, "SearchPhotoByPhotoID", ctx, id)
 	ret0, _ := ret[0].(*entities.PhotoSearchResultItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SearchPhotoByPhotoID indicates an expected call of SearchPhotoByPhotoID.
-func (mr *MockSearchUseCaseMockRecorder) SearchPhotoByPhotoID(ctx, id, userID interface{}) *gomock.Call {
+func (mr *MockSearchUseCaseMockRecorder) SearchPhotoByPhotoID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPhotoByPhotoID", reflect.TypeOf((*MockSearchUseCase)(nil).SearchPhotoByPhotoID), ctx, id, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPhotoByPhotoID", reflect.TypeOf((*MockSearchUseCase)(nil).SearchPhotoByPhotoID), ctx, id)
 }
 
 // SearchPhotos mocks base method.
-func (m *MockSearchUseCase) SearchPhotos(ctx context.Context, groupID, userID string, id *int, ownerID *string, limit, offset int) (*entities.PhotoSearchResult, error) {
+func (m *MockSearchUseCase) SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchPhotos", ctx, groupID, userID, id, ownerID, limit, offset)
+	ret := m.ctrl.Call(m, "SearchPhotos", ctx, id, limit, offset)
 	ret0, _ := ret[0].(*entities.PhotoSearchResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SearchPhotos indicates an expected call of SearchPhotos.
-func (mr *MockSearchUseCaseMockRecorder) SearchPhotos(ctx, groupID, userID, id, ownerID, limit, offset interface{}) *gomock.Call {
+func (mr *MockSearchUseCaseMockRecorder) SearchPhotos(ctx, id, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPhotos", reflect.TypeOf((*MockSearchUseCase)(nil).SearchPhotos), ctx, groupID, userID, id, ownerID, limit, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPhotos", reflect.TypeOf((*MockSearchUseCase)(nil).SearchPhotos), ctx, id, limit, offset)
 }

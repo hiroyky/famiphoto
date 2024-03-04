@@ -22,8 +22,6 @@ func NewPhotoPagination(result *entities.PhotoSearchResult, limit, offset int) *
 func NewPhoto(p *entities.PhotoSearchResultItem) *Photo {
 	return &Photo{
 		ID:               gql.EncodeIntID(PhotoName, p.PhotoID),
-		OwnerID:          gql.EncodeStrID(UserName, p.OwnerID),
-		GroupID:          gql.EncodeStrID(GroupName, p.GroupID),
 		Name:             p.Name,
 		ImportedAt:       p.ImportedAt.Format(time.RFC3339),
 		DateTimeOriginal: p.DateTimeOriginal.Format(time.RFC3339),

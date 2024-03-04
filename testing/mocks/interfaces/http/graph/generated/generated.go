@@ -36,20 +36,6 @@ func (m *MockResolverRoot) EXPECT() *MockResolverRootMockRecorder {
 	return m.recorder
 }
 
-// Group mocks base method.
-func (m *MockResolverRoot) Group() generated.GroupResolver {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Group")
-	ret0, _ := ret[0].(generated.GroupResolver)
-	return ret0
-}
-
-// Group indicates an expected call of Group.
-func (mr *MockResolverRootMockRecorder) Group() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Group", reflect.TypeOf((*MockResolverRoot)(nil).Group))
-}
-
 // Mutation mocks base method.
 func (m *MockResolverRoot) Mutation() generated.MutationResolver {
 	m.ctrl.T.Helper()
@@ -134,44 +120,6 @@ func (mr *MockResolverRootMockRecorder) User() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "User", reflect.TypeOf((*MockResolverRoot)(nil).User))
 }
 
-// MockGroupResolver is a mock of GroupResolver interface.
-type MockGroupResolver struct {
-	ctrl     *gomock.Controller
-	recorder *MockGroupResolverMockRecorder
-}
-
-// MockGroupResolverMockRecorder is the mock recorder for MockGroupResolver.
-type MockGroupResolverMockRecorder struct {
-	mock *MockGroupResolver
-}
-
-// NewMockGroupResolver creates a new mock instance.
-func NewMockGroupResolver(ctrl *gomock.Controller) *MockGroupResolver {
-	mock := &MockGroupResolver{ctrl: ctrl}
-	mock.recorder = &MockGroupResolverMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockGroupResolver) EXPECT() *MockGroupResolverMockRecorder {
-	return m.recorder
-}
-
-// UserPagination mocks base method.
-func (m *MockGroupResolver) UserPagination(ctx context.Context, obj *model.Group, limit, offset *int) (*model.UserPagination, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UserPagination", ctx, obj, limit, offset)
-	ret0, _ := ret[0].(*model.UserPagination)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UserPagination indicates an expected call of UserPagination.
-func (mr *MockGroupResolverMockRecorder) UserPagination(ctx, obj, limit, offset interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserPagination", reflect.TypeOf((*MockGroupResolver)(nil).UserPagination), ctx, obj, limit, offset)
-}
-
 // MockMutationResolver is a mock of MutationResolver interface.
 type MockMutationResolver struct {
 	ctrl     *gomock.Controller
@@ -193,36 +141,6 @@ func NewMockMutationResolver(ctrl *gomock.Controller) *MockMutationResolver {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockMutationResolver) EXPECT() *MockMutationResolverMockRecorder {
 	return m.recorder
-}
-
-// AlterGroupMembers mocks base method.
-func (m *MockMutationResolver) AlterGroupMembers(ctx context.Context, input model.AlterGroupMembersInput) (*model.Group, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AlterGroupMembers", ctx, input)
-	ret0, _ := ret[0].(*model.Group)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AlterGroupMembers indicates an expected call of AlterGroupMembers.
-func (mr *MockMutationResolverMockRecorder) AlterGroupMembers(ctx, input interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlterGroupMembers", reflect.TypeOf((*MockMutationResolver)(nil).AlterGroupMembers), ctx, input)
-}
-
-// CreateGroup mocks base method.
-func (m *MockMutationResolver) CreateGroup(ctx context.Context, input model.CreateGroupInput) (*model.Group, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateGroup", ctx, input)
-	ret0, _ := ret[0].(*model.Group)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateGroup indicates an expected call of CreateGroup.
-func (mr *MockMutationResolverMockRecorder) CreateGroup(ctx, input interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGroup", reflect.TypeOf((*MockMutationResolver)(nil).CreateGroup), ctx, input)
 }
 
 // CreateOauthClient mocks base method.
@@ -271,18 +189,18 @@ func (mr *MockMutationResolverMockRecorder) IndexingPhotos(ctx, input interface{
 }
 
 // UploadPhoto mocks base method.
-func (m *MockMutationResolver) UploadPhoto(ctx context.Context, input *model.UploadPhotoInput) (*model.PhotoUploadInfo, error) {
+func (m *MockMutationResolver) UploadPhoto(ctx context.Context) (*model.PhotoUploadInfo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadPhoto", ctx, input)
+	ret := m.ctrl.Call(m, "UploadPhoto", ctx)
 	ret0, _ := ret[0].(*model.PhotoUploadInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UploadPhoto indicates an expected call of UploadPhoto.
-func (mr *MockMutationResolverMockRecorder) UploadPhoto(ctx, input interface{}) *gomock.Call {
+func (mr *MockMutationResolverMockRecorder) UploadPhoto(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockMutationResolver)(nil).UploadPhoto), ctx, input)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockMutationResolver)(nil).UploadPhoto), ctx)
 }
 
 // MockOauthClientResolver is a mock of OauthClientResolver interface.
@@ -376,36 +294,6 @@ func (mr *MockPhotoResolverMockRecorder) Files(ctx, obj interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Files", reflect.TypeOf((*MockPhotoResolver)(nil).Files), ctx, obj)
 }
 
-// Group mocks base method.
-func (m *MockPhotoResolver) Group(ctx context.Context, obj *model.Photo) (*model.Group, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Group", ctx, obj)
-	ret0, _ := ret[0].(*model.Group)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Group indicates an expected call of Group.
-func (mr *MockPhotoResolverMockRecorder) Group(ctx, obj interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Group", reflect.TypeOf((*MockPhotoResolver)(nil).Group), ctx, obj)
-}
-
-// Owner mocks base method.
-func (m *MockPhotoResolver) Owner(ctx context.Context, obj *model.Photo) (*model.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Owner", ctx, obj)
-	ret0, _ := ret[0].(*model.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Owner indicates an expected call of Owner.
-func (mr *MockPhotoResolverMockRecorder) Owner(ctx, obj interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Owner", reflect.TypeOf((*MockPhotoResolver)(nil).Owner), ctx, obj)
-}
-
 // MockPhotoFileResolver is a mock of PhotoFileResolver interface.
 type MockPhotoFileResolver struct {
 	ctrl     *gomock.Controller
@@ -427,36 +315,6 @@ func NewMockPhotoFileResolver(ctrl *gomock.Controller) *MockPhotoFileResolver {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockPhotoFileResolver) EXPECT() *MockPhotoFileResolverMockRecorder {
 	return m.recorder
-}
-
-// Group mocks base method.
-func (m *MockPhotoFileResolver) Group(ctx context.Context, obj *model.PhotoFile) (*model.Group, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Group", ctx, obj)
-	ret0, _ := ret[0].(*model.Group)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Group indicates an expected call of Group.
-func (mr *MockPhotoFileResolverMockRecorder) Group(ctx, obj interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Group", reflect.TypeOf((*MockPhotoFileResolver)(nil).Group), ctx, obj)
-}
-
-// Owner mocks base method.
-func (m *MockPhotoFileResolver) Owner(ctx context.Context, obj *model.PhotoFile) (*model.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Owner", ctx, obj)
-	ret0, _ := ret[0].(*model.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Owner indicates an expected call of Owner.
-func (mr *MockPhotoFileResolverMockRecorder) Owner(ctx, obj interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Owner", reflect.TypeOf((*MockPhotoFileResolver)(nil).Owner), ctx, obj)
 }
 
 // Photo mocks base method.
@@ -497,36 +355,6 @@ func (m *MockQueryResolver) EXPECT() *MockQueryResolverMockRecorder {
 	return m.recorder
 }
 
-// BelongingGroups mocks base method.
-func (m *MockQueryResolver) BelongingGroups(ctx context.Context) ([]*model.Group, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BelongingGroups", ctx)
-	ret0, _ := ret[0].([]*model.Group)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// BelongingGroups indicates an expected call of BelongingGroups.
-func (mr *MockQueryResolverMockRecorder) BelongingGroups(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BelongingGroups", reflect.TypeOf((*MockQueryResolver)(nil).BelongingGroups), ctx)
-}
-
-// ExistGroupID mocks base method.
-func (m *MockQueryResolver) ExistGroupID(ctx context.Context, id string) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExistGroupID", ctx, id)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ExistGroupID indicates an expected call of ExistGroupID.
-func (mr *MockQueryResolverMockRecorder) ExistGroupID(ctx, id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistGroupID", reflect.TypeOf((*MockQueryResolver)(nil).ExistGroupID), ctx, id)
-}
-
 // ExistUserID mocks base method.
 func (m *MockQueryResolver) ExistUserID(ctx context.Context, id string) (bool, error) {
 	m.ctrl.T.Helper()
@@ -540,36 +368,6 @@ func (m *MockQueryResolver) ExistUserID(ctx context.Context, id string) (bool, e
 func (mr *MockQueryResolverMockRecorder) ExistUserID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistUserID", reflect.TypeOf((*MockQueryResolver)(nil).ExistUserID), ctx, id)
-}
-
-// Group mocks base method.
-func (m *MockQueryResolver) Group(ctx context.Context, id string) (*model.Group, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Group", ctx, id)
-	ret0, _ := ret[0].(*model.Group)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Group indicates an expected call of Group.
-func (mr *MockQueryResolverMockRecorder) Group(ctx, id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Group", reflect.TypeOf((*MockQueryResolver)(nil).Group), ctx, id)
-}
-
-// IsBelongingGroup mocks base method.
-func (m *MockQueryResolver) IsBelongingGroup(ctx context.Context, id string) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsBelongingGroup", ctx, id)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// IsBelongingGroup indicates an expected call of IsBelongingGroup.
-func (mr *MockQueryResolverMockRecorder) IsBelongingGroup(ctx, id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsBelongingGroup", reflect.TypeOf((*MockQueryResolver)(nil).IsBelongingGroup), ctx, id)
 }
 
 // Me mocks base method.
@@ -633,18 +431,18 @@ func (mr *MockQueryResolverMockRecorder) PhotoFiles(ctx, photoID interface{}) *g
 }
 
 // Photos mocks base method.
-func (m *MockQueryResolver) Photos(ctx context.Context, groupID string, id, ownerID *string, limit, offset *int) (*model.PhotoPagination, error) {
+func (m *MockQueryResolver) Photos(ctx context.Context, id *string, limit, offset *int) (*model.PhotoPagination, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Photos", ctx, groupID, id, ownerID, limit, offset)
+	ret := m.ctrl.Call(m, "Photos", ctx, id, limit, offset)
 	ret0, _ := ret[0].(*model.PhotoPagination)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Photos indicates an expected call of Photos.
-func (mr *MockQueryResolverMockRecorder) Photos(ctx, groupID, id, ownerID, limit, offset interface{}) *gomock.Call {
+func (mr *MockQueryResolverMockRecorder) Photos(ctx, id, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Photos", reflect.TypeOf((*MockQueryResolver)(nil).Photos), ctx, groupID, id, ownerID, limit, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Photos", reflect.TypeOf((*MockQueryResolver)(nil).Photos), ctx, id, limit, offset)
 }
 
 // User mocks base method.
@@ -698,21 +496,6 @@ func NewMockUserResolver(ctrl *gomock.Controller) *MockUserResolver {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUserResolver) EXPECT() *MockUserResolverMockRecorder {
 	return m.recorder
-}
-
-// BelongGroups mocks base method.
-func (m *MockUserResolver) BelongGroups(ctx context.Context, obj *model.User) ([]*model.Group, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BelongGroups", ctx, obj)
-	ret0, _ := ret[0].([]*model.Group)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// BelongGroups indicates an expected call of BelongGroups.
-func (mr *MockUserResolverMockRecorder) BelongGroups(ctx, obj interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BelongGroups", reflect.TypeOf((*MockUserResolver)(nil).BelongGroups), ctx, obj)
 }
 
 // Password mocks base method.

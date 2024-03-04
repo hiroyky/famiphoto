@@ -46,6 +46,7 @@ type SearchRequestBody struct {
 	RuntimeMappings  any                `json:"runtime_mappings,omitempty"`
 	SeqNoPrimaryTerm *bool              `json:"seq_no_primary_term,omitempty"`
 	Size             *int64             `json:"size,omitempty"`
+	Sort             map[string]any     `json:"sort,omitempty"`
 	Source           any                `json:"_source,omitempty"`
 	TerminateAfter   *int64             `json:"terminate_after,omitempty"`
 	Timeout          *int64             `json:"timeout,omitempty"`

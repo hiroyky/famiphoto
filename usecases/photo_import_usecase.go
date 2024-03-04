@@ -5,20 +5,18 @@ import (
 	"fmt"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
-	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
 	"github.com/hiroyky/famiphoto/services"
 	"github.com/hiroyky/famiphoto/utils"
 	"os/exec"
-	"path"
 	"time"
 )
 
 type PhotoImportUseCase interface {
-	GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadSign, error)
+	GenerateUploadURL(ctx context.Context, userID string, now time.Time) (*entities.PhotoUploadSign, error)
 	UploadPhoto(ctx context.Context, signToken, fileName string, body []byte) error
-	IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error
-	ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error
+	IndexingPhotos(ctx context.Context, rootPath string, extensions []string, fast bool) error
+	ExecuteBatch(ctx context.Context, fast bool) error
 }
 
 func NewPhotoImportUseCase(
@@ -28,7 +26,6 @@ func NewPhotoImportUseCase(
 	storage infrastructures.PhotoStorageAdapter,
 	searchAdapter infrastructures.SearchAdapter,
 	userAdapter infrastructures.UserAdapter,
-	groupAdapter infrastructures.GroupAdapter,
 ) PhotoImportUseCase {
 	return &photoImportUseCase{
 		photoService:        photoService,
@@ -36,7 +33,6 @@ func NewPhotoImportUseCase(
 		photoAdapter:        photoAdapter,
 		storageAdapter:      storage,
 		searchAdapter:       searchAdapter,
-		groupAdapter:        groupAdapter,
 		userAdapter:         userAdapter,
 		appendBulkUnit:      20,
 		parseExifItemFunc:   utils.ParseExifItem,
@@ -51,20 +47,13 @@ type photoImportUseCase struct {
 	storageAdapter      infrastructures.PhotoStorageAdapter
 	searchAdapter       infrastructures.SearchAdapter
 	userAdapter         infrastructures.UserAdapter
-	groupAdapter        infrastructures.GroupAdapter
 	appendBulkUnit      int
 	parseExifItemFunc   func(data []byte, tagID int) (*utils.ExifItem, error)
 	nowFunc             func() time.Time
 }
 
-func (u *photoImportUseCase) GenerateUploadURL(ctx context.Context, userID, groupID string, now time.Time) (*entities.PhotoUploadSign, error) {
-	if belonging, err := u.groupAdapter.IsBelongGroupUser(ctx, groupID, userID); err != nil {
-		return nil, err
-	} else if !belonging {
-		return nil, errors.New(errors.ForbiddenError, nil)
-	}
-
-	token, err := u.storageAdapter.GenerateSignToSavePhoto(ctx, userID, groupID, config.PhotoUploadSignExpireInSec)
+func (u *photoImportUseCase) GenerateUploadURL(ctx context.Context, userID string, now time.Time) (*entities.PhotoUploadSign, error) {
+	token, err := u.storageAdapter.GenerateSignToSavePhoto(ctx, userID, config.PhotoUploadSignExpireInSec)
 	if err != nil {
 		return nil, err
 	}
@@ -80,12 +69,6 @@ func (u *photoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileNam
 		return err
 	}
 
-	if belonging, err := u.groupAdapter.IsBelongGroupUser(ctx, info.GroupID, info.UserID); err != nil {
-		return err
-	} else if !belonging {
-		return errors.New(errors.ForbiddenError, nil)
-	}
-
 	dateTimeOriginal := utils.MustLocalTime(time.Now(), config.Env.ExifTimezone)
 	exifDateTimeOriginal, err := u.parseExifItemFunc(body, config.ExifTagIDDateTimeOriginal)
 	if err == nil {
@@ -95,11 +78,11 @@ func (u *photoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileNam
 		}
 	}
 
-	dstFile, err := u.storageAdapter.SavePhotoFile(ctx, info.UserID, info.GroupID, fileName, dateTimeOriginal, body)
+	dstFile, err := u.storageAdapter.SavePhotoFile(ctx, info.UserID, fileName, dateTimeOriginal, body)
 	if err != nil {
 		return err
 	}
-	photo, err := u.registerPhoto(ctx, dstFile, info.UserID, info.GroupID, false)
+	photo, err := u.registerPhoto(ctx, dstFile, false)
 	if err != nil {
 		return err
 	}
@@ -107,12 +90,11 @@ func (u *photoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileNam
 	return u.searchAdapter.InsertPhoto(ctx, photo)
 }
 
-func (u *photoImportUseCase) IndexingPhotos(ctx context.Context, rootPath, groupID, userID string, extensions []string, fast bool) error {
-	targetDirPath := path.Join(rootPath, groupID, userID)
-	return u.importDirRecursive(ctx, targetDirPath, groupID, userID, extensions, fast)
+func (u *photoImportUseCase) IndexingPhotos(ctx context.Context, rootPath string, extensions []string, fast bool) error {
+	return u.importDirRecursive(ctx, rootPath, extensions, fast)
 }
 
-func (u *photoImportUseCase) importDirRecursive(ctx context.Context, targetDirPath, groupID, userID string, extensions []string, fast bool) error {
+func (u *photoImportUseCase) importDirRecursive(ctx context.Context, targetDirPath string, extensions []string, fast bool) error {
 	contents, err := u.storageAdapter.FindDirContents(targetDirPath)
 	if err != nil {
 		return err
@@ -121,7 +103,7 @@ func (u *photoImportUseCase) importDirRecursive(ctx context.Context, targetDirPa
 	files := make([]*entities.StorageFileInfo, 0)
 	for _, c := range contents {
 		if c.IsDir {
-			if err := u.importDirRecursive(ctx, c.Path, groupID, userID, extensions, fast); err != nil {
+			if err := u.importDirRecursive(ctx, c.Path, extensions, fast); err != nil {
 				return err
 			}
 		} else if c.IsMatchExt(extensions) {
@@ -131,7 +113,7 @@ func (u *photoImportUseCase) importDirRecursive(ctx context.Context, targetDirPa
 
 	photoList := make(entities.PhotoList, 0)
 	for _, file := range files {
-		photo, err := u.registerPhoto(ctx, file, userID, groupID, fast)
+		photo, err := u.registerPhoto(ctx, file, fast)
 		if err != nil {
 			return err
 		}
@@ -172,7 +154,7 @@ func (u *photoImportUseCase) buildInsertSearchEngine(ctx context.Context, photoL
 	return nil
 }
 
-func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.StorageFileInfo, ownerID, groupID string, fast bool) (*entities.Photo, error) {
+func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.StorageFileInfo, fast bool) (*entities.Photo, error) {
 	data, err := u.storageAdapter.LoadContent(file.Path)
 	if err != nil {
 		return nil, err
@@ -186,7 +168,7 @@ func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.S
 		}
 	}
 
-	photo, err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash(), ownerID, groupID)
+	photo, err := u.photoService.RegisterPhoto(ctx, file.Path, data.FileHash())
 	if err != nil {
 		return nil, err
 	}
@@ -206,18 +188,12 @@ func (u *photoImportUseCase) registerPhoto(ctx context.Context, file *entities.S
 	return photo, nil
 }
 
-func (u *photoImportUseCase) ExecuteBatch(ctx context.Context, groupID, userID string, fast bool) error {
-	if belong, err := u.groupAdapter.IsBelongGroupUser(ctx, groupID, userID); err != nil {
-		return err
-	} else if !belong {
-		return errors.New(errors.ForbiddenError, nil)
-	}
-
+func (u *photoImportUseCase) ExecuteBatch(ctx context.Context, fast bool) error {
 	fastArg := "false"
 	if fast {
 		fastArg = "true"
 	}
 
-	cmd := exec.Command("dst/indexing_photos", "--user-id", userID, "--group-id", groupID, "--fast", fastArg)
+	cmd := exec.Command("dst/indexing_photos", "--fast", fastArg)
 	return cmd.Start()
 }

@@ -8,12 +8,11 @@ import (
 	"github.com/hiroyky/famiphoto/drivers/storage"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
 	"github.com/volatiletech/sqlboiler/v4/boil"
-	"path"
 )
 
 type PhotoThumbnailRepository interface {
-	SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
-	SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error
+	SavePreview(ctx context.Context, photoID int, data []byte) error
+	SaveThumbnail(ctx context.Context, photoID int, data []byte) error
 }
 
 func NewPhotoThumbnailRepository(fileDriver storage.Driver, db mysql.SQLExecutor) PhotoThumbnailRepository {
@@ -28,21 +27,19 @@ type photoThumbnailRepository struct {
 	db         mysql.SQLExecutor
 }
 
-func (r *photoThumbnailRepository) SavePreview(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
-	return r.saveImage(ctx, photoID, data, groupID, ownerID, config.AssetPreviewImageName)
+func (r *photoThumbnailRepository) SavePreview(ctx context.Context, photoID int, data []byte) error {
+	return r.saveImage(ctx, photoID, data, config.AssetPreviewImageName)
 }
 
-func (r *photoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int, data []byte, groupID, ownerID string) error {
-	return r.saveImage(ctx, photoID, data, groupID, ownerID, config.AssetThumbnailImageName)
+func (r *photoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int, data []byte) error {
+	return r.saveImage(ctx, photoID, data, config.AssetThumbnailImageName)
 }
 
-func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int, data []byte, groupID, ownerID, name string) error {
+func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int, data []byte, name string) error {
 	m := &dbmodels.PhotoThumbnail{
 		PhotoID:       photoID,
 		ThumbnailName: name,
-		FilePath:      r.genFilePath(groupID, ownerID, name, photoID),
-		GroupID:       groupID,
-		OwnerID:       ownerID,
+		FilePath:      r.genFilePath(name, photoID),
 	}
 
 	if err := r.fileDriver.CreateFile(m.FilePath, data); err != nil {
@@ -65,6 +62,6 @@ func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int, d
 	return nil
 }
 
-func (r *photoThumbnailRepository) genFilePath(groupID, ownerID, thumbnailName string, photoID int) string {
-	return path.Join(groupID, ownerID, fmt.Sprintf("%d-%s.jpg", photoID, thumbnailName))
+func (r *photoThumbnailRepository) genFilePath(thumbnailName string, photoID int) string {
+	return fmt.Sprintf("%d-%s.jpg", photoID, thumbnailName)
 }

@@ -6,6 +6,5 @@ type PhotoUploadSign struct {
 }
 
 type PhotoUploadInfo struct {
-	UserID  string
-	GroupID string
+	UserID string
 }
