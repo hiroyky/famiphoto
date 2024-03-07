@@ -3,6 +3,7 @@ type Mutation {
     createOauthClient(input: CreateOauthClientInput!): OauthClient!
     indexingPhotos(input: IndexingPhotosInput): Boolean!
     uploadPhoto: PhotoUploadInfo!
+    updateMe(input: UpdateMeInput!): User!
 }
 
 input CreateUserInput {
@@ -27,4 +28,8 @@ input IndexingPhotosInput {
 type PhotoUploadInfo {
     uploadUrl: String!
     expireAt: Int!
+}
+
+input UpdateMeInput {
+    name: String!
 }

@@ -58,6 +58,7 @@ type ComplexityRoot struct {
 		CreateOauthClient func(childComplexity int, input model.CreateOauthClientInput) int
 		CreateUser        func(childComplexity int, input model.CreateUserInput) int
 		IndexingPhotos    func(childComplexity int, input *model.IndexingPhotosInput) int
+		UpdateMe          func(childComplexity int, input model.UpdateMeInput) int
 		UploadPhoto       func(childComplexity int) int
 	}
 
@@ -170,6 +171,7 @@ type MutationResolver interface {
 	CreateOauthClient(ctx context.Context, input model.CreateOauthClientInput) (*model.OauthClient, error)
 	IndexingPhotos(ctx context.Context, input *model.IndexingPhotosInput) (bool, error)
 	UploadPhoto(ctx context.Context) (*model.PhotoUploadInfo, error)
+	UpdateMe(ctx context.Context, input model.UpdateMeInput) (*model.User, error)
 }
 type OauthClientResolver interface {
 	RedirectUrls(ctx context.Context, obj *model.OauthClient) ([]string, error)
@@ -258,6 +260,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.IndexingPhotos(childComplexity, args["input"].(*model.IndexingPhotosInput)), true
+
+	case "Mutation.updateMe":
+		if e.complexity.Mutation.UpdateMe == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateMe_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateMe(childComplexity, args["input"].(model.UpdateMeInput)), true
 
 	case "Mutation.uploadPhoto":
 		if e.complexity.Mutation.UploadPhoto == nil {
@@ -760,6 +774,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateOauthClientInput,
 		ec.unmarshalInputCreateUserInput,
 		ec.unmarshalInputIndexingPhotosInput,
+		ec.unmarshalInputUpdateMeInput,
 	)
 	first := true
 
@@ -909,6 +924,7 @@ type PageInfo {
     createOauthClient(input: CreateOauthClientInput!): OauthClient!
     indexingPhotos(input: IndexingPhotosInput): Boolean!
     uploadPhoto: PhotoUploadInfo!
+    updateMe(input: UpdateMeInput!): User!
 }
 
 input CreateUserInput {
@@ -933,6 +949,10 @@ input IndexingPhotosInput {
 type PhotoUploadInfo {
     uploadUrl: String!
     expireAt: Int!
+}
+
+input UpdateMeInput {
+    name: String!
 }`, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/oauth_clients.graphqls", Input: `type OauthClient implements Node{
     id: ID!
@@ -1074,6 +1094,21 @@ func (ec *executionContext) field_Mutation_indexingPhotos_args(ctx context.Conte
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOIndexingPhotosInput2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐIndexingPhotosInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateMe_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateMeInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateMeInput2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUpdateMeInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1559,6 +1594,73 @@ func (ec *executionContext) fieldContext_Mutation_uploadPhoto(ctx context.Contex
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PhotoUploadInfo", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateMe(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateMe(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateMe(rctx, fc.Args["input"].(model.UpdateMeInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateMe(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_User_userId(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateMe_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -6575,8 +6677,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 		}
 		switch k {
 		case "clientId":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientId"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6584,8 +6684,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.ClientID = data
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6593,8 +6691,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.Name = data
 		case "scope":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scope"))
 			data, err := ec.unmarshalNOauthClientScope2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐOauthClientScope(ctx, v)
 			if err != nil {
@@ -6602,8 +6698,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.Scope = data
 		case "clientType":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientType"))
 			data, err := ec.unmarshalNOauthClientType2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐOauthClientType(ctx, v)
 			if err != nil {
@@ -6611,8 +6705,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.ClientType = data
 		case "redirectUrls":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("redirectUrls"))
 			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
@@ -6640,8 +6732,6 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		}
 		switch k {
 		case "userId":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6649,8 +6739,6 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			}
 			it.UserID = data
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6658,8 +6746,6 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			}
 			it.Name = data
 		case "password":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6687,14 +6773,39 @@ func (ec *executionContext) unmarshalInputIndexingPhotosInput(ctx context.Contex
 		}
 		switch k {
 		case "fast":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fast"))
 			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Fast = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateMeInput(ctx context.Context, obj interface{}) (model.UpdateMeInput, error) {
+	var it model.UpdateMeInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		}
 	}
 
@@ -6890,6 +7001,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "uploadPhoto":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_uploadPhoto(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateMe":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateMe(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -8687,6 +8805,11 @@ func (ec *executionContext) marshalNTimestamp2string(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUpdateMeInput2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUpdateMeInput(ctx context.Context, v interface{}) (model.UpdateMeInput, error) {
+	res, err := ec.unmarshalInputUpdateMeInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

@@ -18,6 +18,7 @@ type UserRepository interface {
 	CountUsers(ctx context.Context, filter *filters.UserFilter) (int, error)
 	ExistUser(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, user *dbmodels.User, password *dbmodels.UserPassword) (*dbmodels.User, error)
+	UpdateUserProfile(ctx context.Context, user *dbmodels.User) (*dbmodels.User, error)
 }
 
 func NewUserRepository(db mysql.SQLExecutor) UserRepository {
@@ -82,6 +83,13 @@ func (r *userRepository) CreateUser(ctx context.Context, user *dbmodels.User, pa
 			return nil, errors.New(errors.TxnRollbackFatal, err)
 		}
 		return nil, errors.New(errors.UserCreateFatal, err)
+	}
+	return user, nil
+}
+
+func (r *userRepository) UpdateUserProfile(ctx context.Context, user *dbmodels.User) (*dbmodels.User, error) {
+	if _, err := user.Update(ctx, r.db, boil.Blacklist(dbmodels.UserColumns.Status)); err != nil {
+		return nil, err
 	}
 	return user, nil
 }

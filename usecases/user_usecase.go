@@ -13,6 +13,7 @@ import (
 type UserUseCase interface {
 	ValidateToCreateUser(ctx context.Context, userID, name string, password string) error
 	CreateUser(ctx context.Context, userID, name string, password string, now time.Time) (*entities.User, error)
+	UpdateUserProfile(ctx context.Context, userID, name string) (*entities.User, error)
 	GetUser(ctx context.Context, userID string) (*entities.User, error)
 	GetUsers(ctx context.Context, userID *string, limit, offset int) (entities.UserList, int, error)
 	ExistUser(ctx context.Context, userID string) (bool, error)
@@ -78,6 +79,10 @@ func (u *userUseCase) CreateUser(ctx context.Context, userID, name string, passw
 	}
 
 	return createdUser, nil
+}
+
+func (u *userUseCase) UpdateUserProfile(ctx context.Context, userID, name string) (*entities.User, error) {
+	return u.userAdapter.UpdateUserProfile(ctx, &entities.User{UserID: userID, Name: name})
 }
 
 func (u *userUseCase) GetUser(ctx context.Context, userID string) (*entities.User, error) {

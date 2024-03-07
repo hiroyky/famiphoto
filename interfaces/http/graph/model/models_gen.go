@@ -54,6 +54,9 @@ type IndexingPhotosInput struct {
 	Fast bool `json:"fast"`
 }
 
+type Mutation struct {
+}
+
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`
 	HasPreviousPage bool    `json:"hasPreviousPage"`
@@ -103,6 +106,13 @@ func (this PhotoPagination) GetNodes() []Node {
 type PhotoUploadInfo struct {
 	UploadURL string `json:"uploadUrl"`
 	ExpireAt  int    `json:"expireAt"`
+}
+
+type Query struct {
+}
+
+type UpdateMeInput struct {
+	Name string `json:"name"`
 }
 
 type UserEdge struct {
