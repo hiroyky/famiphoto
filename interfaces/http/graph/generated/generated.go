@@ -136,7 +136,7 @@ type ComplexityRoot struct {
 		Photo       func(childComplexity int, id string) int
 		PhotoFile   func(childComplexity int, id string) int
 		PhotoFiles  func(childComplexity int, photoID string) int
-		Photos      func(childComplexity int, id *string, limit *int, offset *int) int
+		Photos      func(childComplexity int, id *string, limit *int, offset *int, year *int, month *int, date *int) int
 		User        func(childComplexity int, id string) int
 		Users       func(childComplexity int, id *string, limit *int, offset *int) int
 	}
@@ -191,7 +191,7 @@ type QueryResolver interface {
 	ExistUserID(ctx context.Context, id string) (bool, error)
 	Me(ctx context.Context) (*model.User, error)
 	Photo(ctx context.Context, id string) (*model.Photo, error)
-	Photos(ctx context.Context, id *string, limit *int, offset *int) (*model.PhotoPagination, error)
+	Photos(ctx context.Context, id *string, limit *int, offset *int, year *int, month *int, date *int) (*model.PhotoPagination, error)
 	PhotoFile(ctx context.Context, id string) (*model.PhotoFile, error)
 	PhotoFiles(ctx context.Context, photoID string) ([]*model.PhotoFile, error)
 }
@@ -653,7 +653,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Photos(childComplexity, args["id"].(*string), args["limit"].(*int), args["offset"].(*int)), true
+		return e.complexity.Query.Photos(childComplexity, args["id"].(*string), args["limit"].(*int), args["offset"].(*int), args["year"].(*int), args["month"].(*int), args["date"].(*int)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -1015,7 +1015,10 @@ type PhotoPagination implements Pagination {
     photos(
         id: ID,
         limit: Int,
-        offset: Int
+        offset: Int,
+        year: Int,
+        month: Int,
+        date: Int,
     ): PhotoPagination!
     photoFile(id: ID!): PhotoFile
     photoFiles(photoId: ID!): [PhotoFile!]!
@@ -1222,6 +1225,33 @@ func (ec *executionContext) field_Query_photos_args(ctx context.Context, rawArgs
 		}
 	}
 	args["offset"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["year"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["year"] = arg3
+	var arg4 *int
+	if tmp, ok := rawArgs["month"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("month"))
+		arg4, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["month"] = arg4
+	var arg5 *int
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg5, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["date"] = arg5
 	return args, nil
 }
 
@@ -3999,7 +4029,7 @@ func (ec *executionContext) _Query_photos(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Photos(rctx, fc.Args["id"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Query().Photos(rctx, fc.Args["id"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int), fc.Args["year"].(*int), fc.Args["month"].(*int), fc.Args["date"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
