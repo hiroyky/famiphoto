@@ -2,7 +2,9 @@ package filters
 
 import (
 	"github.com/hiroyky/famiphoto/drivers/es"
+	"github.com/hiroyky/famiphoto/utils"
 	"github.com/hiroyky/famiphoto/utils/cast"
+	"time"
 )
 
 type PhotoSearchQuery struct {
@@ -66,4 +68,89 @@ func NewSinglePhotoSearchQuery(id int) *PhotoSearchQuery {
 		Name:    nil,
 	}
 	return q
+}
+
+func NewAggregateByDateTimeOriginalYear(key string) *es.SearchRequestBody {
+	return &es.SearchRequestBody{
+		Size: cast.Ptr(int64(0)),
+		Aggs: map[string]any{
+			key: map[string]any{
+				"date_histogram": map[string]any{
+					"field":             "date_time_original",
+					"calendar_interval": "year",
+					"format":            "yyyy",
+					"min_doc_count":     1,
+					"order": map[string]any{
+						"_key": "desc",
+					},
+				},
+			},
+		},
+	}
+}
+
+func NewAggregateByDateTimeOriginalYearMonth(key string, year int, tz string) *es.SearchRequestBody {
+	locale := utils.MustLoadLocation(tz)
+	gte := time.Date(year, 1, 1, 0, 0, 0, 0, locale)
+	lte := gte.AddDate(0, 1, 0).Add(time.Nanosecond * -1)
+
+	aggregationYearQuery := &es.SearchRequestBody{
+		Query: map[string]any{
+			"range": map[string]any{
+				"date_time_original": map[string]any{
+					"gte": gte.String(),
+					"lte": lte.String(),
+				},
+			},
+		},
+		Size: cast.Ptr(int64(0)),
+		Aggs: map[string]any{
+			key: map[string]any{
+				"date_histogram": map[string]any{
+					"field":             "date_time_original",
+					"calendar_interval": "month",
+					"format":            "MM",
+					"min_doc_count":     1,
+					"order": map[string]any{
+						"_key": "desc",
+					},
+				},
+			},
+		},
+	}
+
+	return aggregationYearQuery
+}
+
+func NewAggregateByDateTimeOriginalYearMonthDate(key string, year, month int, tz string) *es.SearchRequestBody {
+	locale := utils.MustLoadLocation(tz)
+	gte := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, locale)
+	lte := gte.AddDate(0, 1, 0).Add(time.Nanosecond * -1)
+
+	aggregationYearQuery := &es.SearchRequestBody{
+		Query: map[string]any{
+			"range": map[string]any{
+				"date_time_original": map[string]any{
+					"gte": gte.String(),
+					"lte": lte.String(),
+				},
+			},
+		},
+		Size: cast.Ptr(int64(0)),
+		Aggs: map[string]any{
+			key: map[string]any{
+				"date_histogram": map[string]any{
+					"field":             "date_time_original",
+					"calendar_interval": "day",
+					"format":            "dd",
+					"min_doc_count":     1,
+					"order": map[string]any{
+						"_key": "desc",
+					},
+				},
+			},
+		},
+	}
+
+	return aggregationYearQuery
 }

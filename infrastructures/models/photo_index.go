@@ -77,3 +77,10 @@ func NewPhotoIndexFromMap(v map[string]any) (*PhotoIndex, error) {
 	}
 	return &p, nil
 }
+
+type PhotoDateHistogram struct {
+	Year     int
+	Month    time.Month
+	Date     int
+	DocCount int
+}

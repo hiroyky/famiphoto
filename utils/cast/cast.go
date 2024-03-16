@@ -35,3 +35,7 @@ func IntPtrToInt64Ptr(intVal *int) *int64 {
 	dst := int64(val)
 	return &dst
 }
+
+func Ptr[T any](val T) *T {
+	return &val
+}
