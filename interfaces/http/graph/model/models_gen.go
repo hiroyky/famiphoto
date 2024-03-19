@@ -46,6 +46,13 @@ type CreateUserInput struct {
 	Password string `json:"password"`
 }
 
+type DateAggregationItem struct {
+	Year  int `json:"year"`
+	Month int `json:"month"`
+	Date  int `json:"date"`
+	Num   int `json:"num"`
+}
+
 type GqlStatus struct {
 	Status string `json:"status"`
 }

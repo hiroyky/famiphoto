@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hiroyky/famiphoto/entities"
+	"github.com/hiroyky/famiphoto/utils"
 	"github.com/hiroyky/famiphoto/utils/array"
 	"io"
 	"strings"
@@ -79,8 +80,24 @@ func NewPhotoIndexFromMap(v map[string]any) (*PhotoIndex, error) {
 }
 
 type PhotoDateHistogram struct {
-	Year     int
-	Month    time.Month
-	Date     int
+	EpochSec int64
 	DocCount int
+}
+
+func (m *PhotoDateHistogram) ToEntity(tz string) *entities.PhotoDateTimeAggregationItem {
+	if m.EpochSec == 0 {
+		return &entities.PhotoDateTimeAggregationItem{
+			Year:  0,
+			Month: 0,
+			Date:  0,
+			Num:   m.DocCount,
+		}
+	}
+	tm := utils.MustLocalTime(time.Unix(m.EpochSec, 0), tz)
+	return &entities.PhotoDateTimeAggregationItem{
+		Year:  tm.Year(),
+		Month: int(tm.Month()),
+		Date:  tm.Day(),
+		Num:   m.DocCount,
+	}
 }

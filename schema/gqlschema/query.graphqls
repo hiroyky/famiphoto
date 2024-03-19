@@ -15,4 +15,5 @@ type Query {
     ): PhotoPagination!
     photoFile(id: ID!): PhotoFile
     photoFiles(photoId: ID!): [PhotoFile!]!
+    aggregateDateTimeOriginal(year: Int, month: Int): [DateAggregationItem!]!
 }

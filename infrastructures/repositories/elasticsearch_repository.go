@@ -11,8 +11,6 @@ import (
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/filters"
 	"github.com/hiroyky/famiphoto/infrastructures/models"
-	"github.com/hiroyky/famiphoto/utils"
-	"time"
 )
 
 func NewElasticSearchRepository(searchClient es.Search, newBulkIndexerFunc func() esutil.BulkIndexer) ElasticSearchRepository {
@@ -123,16 +121,7 @@ func (r *elasticSearchRepository) AggregateByDateTimeOriginalYear(ctx context.Co
 		return nil, err
 	}
 
-	result := make([]*models.PhotoDateHistogram, len(res.Aggregations[key].Buckets))
-	for i, b := range res.Aggregations[key].Buckets {
-		tm := utils.MustLocalTime(time.Unix(b.Key, 0), config.Env.ExifTimezone)
-		result[i] = &models.PhotoDateHistogram{
-			Year:     tm.Year(),
-			Month:    0,
-			Date:     0,
-			DocCount: int(b.DocCount),
-		}
-	}
+	result := r.parseAggregationByDateResult(res)
 	return result, nil
 }
 
@@ -145,16 +134,7 @@ func (r *elasticSearchRepository) AggregateByDateTimeOriginalYearMonth(ctx conte
 		return nil, err
 	}
 
-	result := make([]*models.PhotoDateHistogram, len(res.Aggregations[key].Buckets))
-	for i, b := range res.Aggregations[key].Buckets {
-		tm := utils.MustLocalTime(time.Unix(b.Key, 0), config.Env.ExifTimezone)
-		result[i] = &models.PhotoDateHistogram{
-			Year:     tm.Year(),
-			Month:    tm.Month(),
-			Date:     0,
-			DocCount: int(b.DocCount),
-		}
-	}
+	result := r.parseAggregationByDateResult(res)
 	return result, nil
 }
 
@@ -167,15 +147,18 @@ func (r *elasticSearchRepository) AggregateByDateTimeOriginalYearMonthDate(ctx c
 		return nil, err
 	}
 
+	result := r.parseAggregationByDateResult(res)
+	return result, nil
+}
+
+func (r *elasticSearchRepository) parseAggregationByDateResult(res *es.SearchResponse) []*models.PhotoDateHistogram {
+	key := "date_time_original"
 	result := make([]*models.PhotoDateHistogram, len(res.Aggregations[key].Buckets))
 	for i, b := range res.Aggregations[key].Buckets {
-		tm := utils.MustLocalTime(time.Unix(b.Key, 0), config.Env.ExifTimezone)
 		result[i] = &models.PhotoDateHistogram{
-			Year:     tm.Year(),
-			Month:    tm.Month(),
-			Date:     tm.Day(),
+			EpochSec: b.Key / 1000,
 			DocCount: int(b.DocCount),
 		}
 	}
-	return result, nil
+	return result
 }

@@ -127,6 +127,21 @@ func (mr *MockUserUseCaseMockRecorder) Login(ctx, client, userID, password, now 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUserUseCase)(nil).Login), ctx, client, userID, password, now)
 }
 
+// UpdateUserProfile mocks base method.
+func (m *MockUserUseCase) UpdateUserProfile(ctx context.Context, userID, name string) (*entities.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserProfile", ctx, userID, name)
+	ret0, _ := ret[0].(*entities.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUserProfile indicates an expected call of UpdateUserProfile.
+func (mr *MockUserUseCaseMockRecorder) UpdateUserProfile(ctx, userID, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserProfile", reflect.TypeOf((*MockUserUseCase)(nil).UpdateUserProfile), ctx, userID, name)
+}
+
 // ValidateToCreateUser mocks base method.
 func (m *MockUserUseCase) ValidateToCreateUser(ctx context.Context, userID, name, password string) error {
 	m.ctrl.T.Helper()

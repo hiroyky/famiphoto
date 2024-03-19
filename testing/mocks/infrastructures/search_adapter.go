@@ -37,6 +37,51 @@ func (m *MockSearchAdapter) EXPECT() *MockSearchAdapterMockRecorder {
 	return m.recorder
 }
 
+// AggregateByDateTimeOriginalYear mocks base method.
+func (m *MockSearchAdapter) AggregateByDateTimeOriginalYear(ctx context.Context) (entities.PhotoDateTimeAggregation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AggregateByDateTimeOriginalYear", ctx)
+	ret0, _ := ret[0].(entities.PhotoDateTimeAggregation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AggregateByDateTimeOriginalYear indicates an expected call of AggregateByDateTimeOriginalYear.
+func (mr *MockSearchAdapterMockRecorder) AggregateByDateTimeOriginalYear(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateByDateTimeOriginalYear", reflect.TypeOf((*MockSearchAdapter)(nil).AggregateByDateTimeOriginalYear), ctx)
+}
+
+// AggregateByDateTimeOriginalYearMonth mocks base method.
+func (m *MockSearchAdapter) AggregateByDateTimeOriginalYearMonth(ctx context.Context, year int) (entities.PhotoDateTimeAggregation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AggregateByDateTimeOriginalYearMonth", ctx, year)
+	ret0, _ := ret[0].(entities.PhotoDateTimeAggregation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AggregateByDateTimeOriginalYearMonth indicates an expected call of AggregateByDateTimeOriginalYearMonth.
+func (mr *MockSearchAdapterMockRecorder) AggregateByDateTimeOriginalYearMonth(ctx, year interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateByDateTimeOriginalYearMonth", reflect.TypeOf((*MockSearchAdapter)(nil).AggregateByDateTimeOriginalYearMonth), ctx, year)
+}
+
+// AggregateByDateTimeOriginalYearMonthDate mocks base method.
+func (m *MockSearchAdapter) AggregateByDateTimeOriginalYearMonthDate(ctx context.Context, year, month int) (entities.PhotoDateTimeAggregation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AggregateByDateTimeOriginalYearMonthDate", ctx, year, month)
+	ret0, _ := ret[0].(entities.PhotoDateTimeAggregation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AggregateByDateTimeOriginalYearMonthDate indicates an expected call of AggregateByDateTimeOriginalYearMonthDate.
+func (mr *MockSearchAdapterMockRecorder) AggregateByDateTimeOriginalYearMonthDate(ctx, year, month interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateByDateTimeOriginalYearMonthDate", reflect.TypeOf((*MockSearchAdapter)(nil).AggregateByDateTimeOriginalYearMonthDate), ctx, year, month)
+}
+
 // BulkInsertPhotos mocks base method.
 func (m *MockSearchAdapter) BulkInsertPhotos(ctx context.Context, photos entities.PhotoList) (*esutil.BulkIndexerStats, error) {
 	m.ctrl.T.Helper()

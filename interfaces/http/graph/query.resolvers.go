@@ -7,12 +7,12 @@ package graph
 import (
 	"context"
 	"errors"
-
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	fperrors "github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/generated"
 	"github.com/hiroyky/famiphoto/interfaces/http/graph/model"
+	"github.com/hiroyky/famiphoto/utils/cast"
 	"github.com/hiroyky/famiphoto/utils/gql"
 	"github.com/hiroyky/famiphoto/utils/pagination"
 )
@@ -131,6 +131,19 @@ func (r *queryResolver) PhotoFiles(ctx context.Context, photoID string) ([]*mode
 		return nil, err
 	}
 	return model.NewPhotoFiles(photoFiles), nil
+}
+
+// AggregateDateTimeOriginal is the resolver for the aggregateDateTimeOriginal field.
+func (r *queryResolver) AggregateDateTimeOriginal(ctx context.Context, year *int, month *int) ([]*model.DateAggregationItem, error) {
+	if _, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession); !ok {
+		return nil, fperrors.New(fperrors.UserUnauthorizedError, nil)
+	}
+
+	aggregation, err := r.searchUseCase.AggregateDateTimeOriginal(ctx, cast.PtrToVal(year, 0), cast.PtrToVal(month, 0))
+	if err != nil {
+		return nil, err
+	}
+	return model.NewDateTimeAggregation(aggregation), nil
 }
 
 // Query returns generated.QueryResolver implementation.

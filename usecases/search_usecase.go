@@ -13,6 +13,7 @@ type SearchUseCase interface {
 	AppendAllPhotoDocuments(ctx context.Context) error
 	SearchPhotoByPhotoID(ctx context.Context, id int) (*entities.PhotoSearchResultItem, error)
 	SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error)
+	AggregateDateTimeOriginal(ctx context.Context, year, month int) (entities.PhotoDateTimeAggregation, error)
 }
 
 func NewSearchUseCase(
@@ -87,4 +88,14 @@ func (u *searchUseCase) SearchPhotos(ctx context.Context, id *int, limit, offset
 		return nil, err
 	}
 	return res, nil
+}
+
+func (u *searchUseCase) AggregateDateTimeOriginal(ctx context.Context, year, month int) (entities.PhotoDateTimeAggregation, error) {
+	if month > 0 {
+		return u.searchAdapter.AggregateByDateTimeOriginalYearMonthDate(ctx, year, month)
+	}
+	if year > 0 {
+		return u.searchAdapter.AggregateByDateTimeOriginalYearMonth(ctx, year)
+	}
+	return u.searchAdapter.AggregateByDateTimeOriginalYear(ctx)
 }

@@ -1,0 +1,6 @@
+type DateAggregationItem {
+    year: Int!
+    month: Int!
+    date: Int!
+    num: Int!
+}

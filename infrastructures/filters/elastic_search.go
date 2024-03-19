@@ -92,14 +92,14 @@ func NewAggregateByDateTimeOriginalYear(key string) *es.SearchRequestBody {
 func NewAggregateByDateTimeOriginalYearMonth(key string, year int, tz string) *es.SearchRequestBody {
 	locale := utils.MustLoadLocation(tz)
 	gte := time.Date(year, 1, 1, 0, 0, 0, 0, locale)
-	lte := gte.AddDate(0, 1, 0).Add(time.Nanosecond * -1)
+	lt := gte.AddDate(1, 0, 0)
 
 	aggregationYearQuery := &es.SearchRequestBody{
 		Query: map[string]any{
 			"range": map[string]any{
 				"date_time_original": map[string]any{
-					"gte": gte.String(),
-					"lte": lte.String(),
+					"gte": gte.Unix() * 1000,
+					"lt":  lt.Unix() * 1000,
 				},
 			},
 		},
@@ -112,7 +112,7 @@ func NewAggregateByDateTimeOriginalYearMonth(key string, year int, tz string) *e
 					"format":            "MM",
 					"min_doc_count":     1,
 					"order": map[string]any{
-						"_key": "desc",
+						"_key": "asc",
 					},
 				},
 			},
@@ -125,14 +125,14 @@ func NewAggregateByDateTimeOriginalYearMonth(key string, year int, tz string) *e
 func NewAggregateByDateTimeOriginalYearMonthDate(key string, year, month int, tz string) *es.SearchRequestBody {
 	locale := utils.MustLoadLocation(tz)
 	gte := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, locale)
-	lte := gte.AddDate(0, 1, 0).Add(time.Nanosecond * -1)
+	lt := gte.AddDate(0, 1, 0)
 
 	aggregationYearQuery := &es.SearchRequestBody{
 		Query: map[string]any{
 			"range": map[string]any{
 				"date_time_original": map[string]any{
-					"gte": gte.String(),
-					"lte": lte.String(),
+					"gte": gte.Unix() * 1000,
+					"lt":  lt.Unix() * 1000,
 				},
 			},
 		},
@@ -145,7 +145,7 @@ func NewAggregateByDateTimeOriginalYearMonthDate(key string, year, month int, tz
 					"format":            "dd",
 					"min_doc_count":     1,
 					"order": map[string]any{
-						"_key": "desc",
+						"_key": "asc",
 					},
 				},
 			},
