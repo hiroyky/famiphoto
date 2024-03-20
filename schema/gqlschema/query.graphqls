@@ -9,9 +9,9 @@ type Query {
         id: ID,
         limit: Int,
         offset: Int,
-        year: Int,
-        month: Int,
-        date: Int,
+        dateTimeOriginalYear: Int,
+        dateTimeOriginalMonth: Int,
+        dateTimeOriginalDate: Int,
     ): PhotoPagination!
     photoFile(id: ID!): PhotoFile
     photoFiles(photoId: ID!): [PhotoFile!]!

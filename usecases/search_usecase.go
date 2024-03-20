@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"fmt"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures"
@@ -12,7 +13,7 @@ import (
 type SearchUseCase interface {
 	AppendAllPhotoDocuments(ctx context.Context) error
 	SearchPhotoByPhotoID(ctx context.Context, id int) (*entities.PhotoSearchResultItem, error)
-	SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error)
+	SearchPhotos(ctx context.Context, id, year, month, date *int, limit, offset int) (*entities.PhotoSearchResult, error)
 	AggregateDateTimeOriginal(ctx context.Context, year, month int) (entities.PhotoDateTimeAggregation, error)
 }
 
@@ -81,8 +82,8 @@ func (u *searchUseCase) SearchPhotoByPhotoID(ctx context.Context, id int) (*enti
 	return item, nil
 }
 
-func (u *searchUseCase) SearchPhotos(ctx context.Context, id *int, limit, offset int) (*entities.PhotoSearchResult, error) {
-	query := filters.NewPhotoSearchQuery(id, limit, offset)
+func (u *searchUseCase) SearchPhotos(ctx context.Context, id, year, month, date *int, limit, offset int) (*entities.PhotoSearchResult, error) {
+	query := filters.NewPhotoSearchQuery(id, year, month, date, limit, offset, config.Env.ExifTimezone)
 	res, err := u.searchAdapter.SearchPhotos(ctx, query)
 	if err != nil {
 		return nil, err

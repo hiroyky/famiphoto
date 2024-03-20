@@ -99,7 +99,7 @@ func (r *queryResolver) Photos(ctx context.Context, id *string, limit *int, offs
 		return nil, err
 	}
 
-	result, err := r.searchUseCase.SearchPhotos(ctx, decodedID, dstLimit, dstOffset)
+	result, err := r.searchUseCase.SearchPhotos(ctx, decodedID, year, month, date, dstLimit, dstOffset)
 	if err != nil {
 		return nil, err
 	}

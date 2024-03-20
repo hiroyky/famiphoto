@@ -12,8 +12,6 @@ func TestPhotoFile_FileType_JPG(t *testing.T) {
 		PhotoID:     0,
 		FilePath:    "/gid/uid/test1.JPG",
 		ImportedAt:  time.Time{},
-		GroupID:     "",
-		OwnerID:     "",
 		FileHash:    "",
 	}
 	actual := photoFile.FileType()

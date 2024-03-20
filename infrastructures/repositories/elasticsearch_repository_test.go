@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/hiroyky/famiphoto/drivers/es"
 	"github.com/hiroyky/famiphoto/infrastructures/filters"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -31,12 +31,10 @@ func TestElasticSearchRepository_searchPhotos_リクエスト(t *testing.T) {
 			}, nil
 		},
 	}
-	esClient, err := elasticsearch.NewClient(elasticsearch.Config{
+	esClient := es.NewSearchWithConfig(elasticsearch.Config{
 		Addresses: []string{"http://test_es"},
 		Transport: tp,
 	})
-
-	assert.NoError(t, err)
 
 	esRepo := &elasticSearchRepository{
 		searchClient: esClient,

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestOauthAccessTokenRepository_SetClientCredentialAccessToken(t *testing.T) {
+func TestOauthAccessTokenRepository_SetAccessToken(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -32,6 +32,6 @@ func TestOauthAccessTokenRepository_SetClientCredentialAccessToken(t *testing.T)
 		prefix: "prefix_",
 	}
 
-	err := repo.SetClientCredentialAccessToken(context.Background(), token, accessToken, expireIn)
+	err := repo.SetAccessToken(context.Background(), token, accessToken, expireIn)
 	assert.NoError(t, err)
 }
