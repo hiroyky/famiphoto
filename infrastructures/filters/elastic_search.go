@@ -69,20 +69,7 @@ func (r *PhotoSearchQuery) Body() *es.SearchRequestBody {
 }
 
 func NewPhotoSearchQuery(id, year, month, date *int, limit, offset int, exifTimeZone string) *PhotoSearchQuery {
-	var dateTimeOriginalGTE *time.Time = nil
-	var dateTimeOriginalLT *time.Time = nil
-	if year != nil {
-		gte := time.Date(*year, time.Month(cast.PtrToVal(month, 1)), cast.PtrToVal(date, 1), 0, 0, 0, 0, utils.MustLoadLocation(exifTimeZone))
-		lt := gte.AddDate(1, 0, 0)
-		if month != nil {
-			lt = gte.AddDate(0, 1, 0)
-		}
-		if date != nil {
-			lt = gte.AddDate(0, 0, 1)
-		}
-		dateTimeOriginalGTE = cast.Ptr(gte)
-		dateTimeOriginalLT = cast.Ptr(lt)
-	}
+	dateTimeOriginalGTE, dateTimeOriginalLT := searchQueryDateTimeOriginal(year, month, date, exifTimeZone)
 
 	q := &PhotoSearchQuery{
 		Limit:               &limit,
@@ -95,6 +82,29 @@ func NewPhotoSearchQuery(id, year, month, date *int, limit, offset int, exifTime
 	return q
 }
 
+func searchQueryDateTimeOriginal(year, month, date *int, exifTimeZone string) (gte, lt *time.Time) {
+	if year == nil {
+		return
+	}
+	if *year == 0 {
+		gte = nil
+		lt = cast.Ptr(time.Date(1970, 1, 1, 0, 0, 1, 0, time.UTC))
+		return
+	}
+
+	gteVal := time.Date(*year, time.Month(cast.PtrToVal(month, 1)), cast.PtrToVal(date, 1), 0, 0, 0, 0, utils.MustLoadLocation(exifTimeZone))
+	ltVal := gteVal.AddDate(1, 0, 0)
+	if month != nil {
+		ltVal = gteVal.AddDate(0, 1, 0)
+	}
+	if date != nil {
+		ltVal = gteVal.AddDate(0, 0, 1)
+	}
+	gte = &gteVal
+	lt = &ltVal
+	return
+}
+
 func NewSinglePhotoSearchQuery(id int) *PhotoSearchQuery {
 	q := &PhotoSearchQuery{
 		Limit:   cast.Ptr(1),
@@ -105,7 +115,7 @@ func NewSinglePhotoSearchQuery(id int) *PhotoSearchQuery {
 	return q
 }
 
-func NewAggregateByDateTimeOriginalYear(key string) *es.SearchRequestBody {
+func NewAggregateByDateTimeOriginalYear(key, tz string) *es.SearchRequestBody {
 	return &es.SearchRequestBody{
 		Size: cast.Ptr(int64(0)),
 		Aggs: map[string]any{
@@ -115,6 +125,7 @@ func NewAggregateByDateTimeOriginalYear(key string) *es.SearchRequestBody {
 					"calendar_interval": "year",
 					"format":            "yyyy",
 					"min_doc_count":     1,
+					"time_zone":         tz,
 					"order": map[string]any{
 						"_key": "desc",
 					},
@@ -146,6 +157,7 @@ func NewAggregateByDateTimeOriginalYearMonth(key string, year int, tz string) *e
 					"calendar_interval": "month",
 					"format":            "MM",
 					"min_doc_count":     1,
+					"time_zone":         tz,
 					"order": map[string]any{
 						"_key": "asc",
 					},
@@ -179,6 +191,7 @@ func NewAggregateByDateTimeOriginalYearMonthDate(key string, year, month int, tz
 					"calendar_interval": "day",
 					"format":            "dd",
 					"min_doc_count":     1,
+					"time_zone":         tz,
 					"order": map[string]any{
 						"_key": "asc",
 					},

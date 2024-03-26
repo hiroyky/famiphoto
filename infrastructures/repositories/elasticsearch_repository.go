@@ -114,7 +114,7 @@ func (r *elasticSearchRepository) onBulkInsertFail(ctx context.Context, item esu
 
 func (r *elasticSearchRepository) AggregateByDateTimeOriginalYear(ctx context.Context) ([]*models.PhotoDateHistogram, error) {
 	key := "date_time_original"
-	query := filters.NewAggregateByDateTimeOriginalYear(key)
+	query := filters.NewAggregateByDateTimeOriginalYear(key, config.Env.ExifTimezone)
 
 	res, err := r.searchClient.Search("photo", query)
 	if err != nil {
@@ -155,8 +155,13 @@ func (r *elasticSearchRepository) parseAggregationByDateResult(res *es.SearchRes
 	key := "date_time_original"
 	result := make([]*models.PhotoDateHistogram, len(res.Aggregations[key].Buckets))
 	for i, b := range res.Aggregations[key].Buckets {
+		epocSec := b.Key / 1000
+		if epocSec < 0 {
+			epocSec = 0
+		}
+
 		result[i] = &models.PhotoDateHistogram{
-			EpochSec: b.Key / 1000,
+			EpochSec: epocSec,
 			DocCount: int(b.DocCount),
 		}
 	}
