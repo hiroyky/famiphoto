@@ -51,6 +51,7 @@ type SearchRequestBody struct {
 	TerminateAfter   *int64             `json:"terminate_after,omitempty"`
 	Timeout          *int64             `json:"timeout,omitempty"`
 	Version          *bool              `json:"version,omitempty"`
+	Aggs             map[string]any     `json:"aggs,omitempty"`
 }
 
 func (r *SearchRequestBody) BodyReader() (io.Reader, error) {
@@ -70,7 +71,14 @@ type SearchResponse struct {
 		Skipped    int64 `json:"skipped"`
 		Failed     int64 `json:"failed"`
 	} `json:"_shards"`
-	Hits Hit `json:"hits"`
+	Hits         Hit `json:"hits"`
+	Aggregations map[string]struct {
+		Buckets []struct {
+			KeyAsString string `json:"key_as_string"`
+			Key         int64  `json:"key"`
+			DocCount    int64  `json:"doc_count"`
+		} `json:"buckets"`
+	} `json:"aggregations"`
 }
 
 type Hit struct {

@@ -8,8 +8,12 @@ type Query {
     photos(
         id: ID,
         limit: Int,
-        offset: Int
+        offset: Int,
+        dateTimeOriginalYear: Int,
+        dateTimeOriginalMonth: Int,
+        dateTimeOriginalDate: Int,
     ): PhotoPagination!
     photoFile(id: ID!): PhotoFile
     photoFiles(photoId: ID!): [PhotoFile!]!
+    aggregateDateTimeOriginal(year: Int, month: Int): [DateAggregationItem!]!
 }

@@ -17,6 +17,7 @@ type UserAdapter interface {
 	CountUsers(ctx context.Context, filter *filters.UserFilter) (int, error)
 	ExistUser(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, user *entities.User, password string, isInitializedPassword bool, now time.Time) (*entities.User, error)
+	UpdateUserProfile(ctx context.Context, user *entities.User) (*entities.User, error)
 	GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error)
 }
 
@@ -86,6 +87,20 @@ func (a *userAdapter) CreateUser(ctx context.Context, user *entities.User, passw
 	//}
 
 	return a.toUserEntity(dstDBUser), nil
+}
+
+func (a *userAdapter) UpdateUserProfile(ctx context.Context, user *entities.User) (*entities.User, error) {
+	dbUser := &dbmodels.User{
+		UserID: user.UserID,
+		Name:   user.Name,
+	}
+
+	dst, err := a.userRepo.UpdateUserProfile(ctx, dbUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.toUserEntity(dst), nil
 }
 
 func (a *userAdapter) GetUserPassword(ctx context.Context, userID string) (*entities.UserPassword, error) {

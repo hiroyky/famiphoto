@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/drivers/es"
 	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/filters"
@@ -23,6 +24,9 @@ type ElasticSearchRepository interface {
 	InsertPhoto(ctx context.Context, photo *models.PhotoIndex) error
 	BulkInsertPhotos(ctx context.Context, photos []*models.PhotoIndex) (*esutil.BulkIndexerStats, error)
 	SearchPhotos(ctx context.Context, query *filters.PhotoSearchQuery) (*models.PhotoResult, error)
+	AggregateByDateTimeOriginalYear(ctx context.Context) ([]*models.PhotoDateHistogram, error)
+	AggregateByDateTimeOriginalYearMonth(ctx context.Context, year int) ([]*models.PhotoDateHistogram, error)
+	AggregateByDateTimeOriginalYearMonthDate(ctx context.Context, year, month int) ([]*models.PhotoDateHistogram, error)
 }
 
 type elasticSearchRepository struct {
@@ -106,4 +110,60 @@ func (r *elasticSearchRepository) onBulkInsertFail(ctx context.Context, item esu
 		return
 	}
 	fmt.Println("error item", item, res.Error.Type, res.Error.Reason)
+}
+
+func (r *elasticSearchRepository) AggregateByDateTimeOriginalYear(ctx context.Context) ([]*models.PhotoDateHistogram, error) {
+	key := "date_time_original"
+	query := filters.NewAggregateByDateTimeOriginalYear(key, config.Env.ExifTimezone)
+
+	res, err := r.searchClient.Search("photo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	result := r.parseAggregationByDateResult(res)
+	return result, nil
+}
+
+func (r *elasticSearchRepository) AggregateByDateTimeOriginalYearMonth(ctx context.Context, year int) ([]*models.PhotoDateHistogram, error) {
+	key := "date_time_original"
+	query := filters.NewAggregateByDateTimeOriginalYearMonth(key, year, config.Env.ExifTimezone)
+
+	res, err := r.searchClient.Search("photo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	result := r.parseAggregationByDateResult(res)
+	return result, nil
+}
+
+func (r *elasticSearchRepository) AggregateByDateTimeOriginalYearMonthDate(ctx context.Context, year, month int) ([]*models.PhotoDateHistogram, error) {
+	key := "date_time_original"
+	query := filters.NewAggregateByDateTimeOriginalYearMonthDate(key, year, month, config.Env.ExifTimezone)
+
+	res, err := r.searchClient.Search("photo", query)
+	if err != nil {
+		return nil, err
+	}
+
+	result := r.parseAggregationByDateResult(res)
+	return result, nil
+}
+
+func (r *elasticSearchRepository) parseAggregationByDateResult(res *es.SearchResponse) []*models.PhotoDateHistogram {
+	key := "date_time_original"
+	result := make([]*models.PhotoDateHistogram, len(res.Aggregations[key].Buckets))
+	for i, b := range res.Aggregations[key].Buckets {
+		epocSec := b.Key / 1000
+		if epocSec < 0 {
+			epocSec = 0
+		}
+
+		result[i] = &models.PhotoDateHistogram{
+			EpochSec: epocSec,
+			DocCount: int(b.DocCount),
+		}
+	}
+	return result
 }

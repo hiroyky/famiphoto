@@ -188,6 +188,21 @@ func (mr *MockMutationResolverMockRecorder) IndexingPhotos(ctx, input interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IndexingPhotos", reflect.TypeOf((*MockMutationResolver)(nil).IndexingPhotos), ctx, input)
 }
 
+// UpdateMe mocks base method.
+func (m *MockMutationResolver) UpdateMe(ctx context.Context, input model.UpdateMeInput) (*model.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateMe", ctx, input)
+	ret0, _ := ret[0].(*model.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateMe indicates an expected call of UpdateMe.
+func (mr *MockMutationResolverMockRecorder) UpdateMe(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMe", reflect.TypeOf((*MockMutationResolver)(nil).UpdateMe), ctx, input)
+}
+
 // UploadPhoto mocks base method.
 func (m *MockMutationResolver) UploadPhoto(ctx context.Context) (*model.PhotoUploadInfo, error) {
 	m.ctrl.T.Helper()
@@ -355,6 +370,21 @@ func (m *MockQueryResolver) EXPECT() *MockQueryResolverMockRecorder {
 	return m.recorder
 }
 
+// AggregateDateTimeOriginal mocks base method.
+func (m *MockQueryResolver) AggregateDateTimeOriginal(ctx context.Context, year, month *int) ([]*model.DateAggregationItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AggregateDateTimeOriginal", ctx, year, month)
+	ret0, _ := ret[0].([]*model.DateAggregationItem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AggregateDateTimeOriginal indicates an expected call of AggregateDateTimeOriginal.
+func (mr *MockQueryResolverMockRecorder) AggregateDateTimeOriginal(ctx, year, month interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateDateTimeOriginal", reflect.TypeOf((*MockQueryResolver)(nil).AggregateDateTimeOriginal), ctx, year, month)
+}
+
 // ExistUserID mocks base method.
 func (m *MockQueryResolver) ExistUserID(ctx context.Context, id string) (bool, error) {
 	m.ctrl.T.Helper()
@@ -368,6 +398,21 @@ func (m *MockQueryResolver) ExistUserID(ctx context.Context, id string) (bool, e
 func (mr *MockQueryResolverMockRecorder) ExistUserID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistUserID", reflect.TypeOf((*MockQueryResolver)(nil).ExistUserID), ctx, id)
+}
+
+// GqlStatus mocks base method.
+func (m *MockQueryResolver) GqlStatus(ctx context.Context) (*model.GqlStatus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GqlStatus", ctx)
+	ret0, _ := ret[0].(*model.GqlStatus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GqlStatus indicates an expected call of GqlStatus.
+func (mr *MockQueryResolverMockRecorder) GqlStatus(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GqlStatus", reflect.TypeOf((*MockQueryResolver)(nil).GqlStatus), ctx)
 }
 
 // Me mocks base method.
@@ -431,18 +476,18 @@ func (mr *MockQueryResolverMockRecorder) PhotoFiles(ctx, photoID interface{}) *g
 }
 
 // Photos mocks base method.
-func (m *MockQueryResolver) Photos(ctx context.Context, id *string, limit, offset *int) (*model.PhotoPagination, error) {
+func (m *MockQueryResolver) Photos(ctx context.Context, id *string, limit, offset, year, month, date *int) (*model.PhotoPagination, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Photos", ctx, id, limit, offset)
+	ret := m.ctrl.Call(m, "Photos", ctx, id, limit, offset, year, month, date)
 	ret0, _ := ret[0].(*model.PhotoPagination)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Photos indicates an expected call of Photos.
-func (mr *MockQueryResolverMockRecorder) Photos(ctx, id, limit, offset interface{}) *gomock.Call {
+func (mr *MockQueryResolverMockRecorder) Photos(ctx, id, limit, offset, year, month, date interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Photos", reflect.TypeOf((*MockQueryResolver)(nil).Photos), ctx, id, limit, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Photos", reflect.TypeOf((*MockQueryResolver)(nil).Photos), ctx, id, limit, offset, year, month, date)
 }
 
 // User mocks base method.

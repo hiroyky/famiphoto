@@ -110,3 +110,18 @@ func (mr *MockUserRepositoryMockRecorder) GetUsers(ctx, filter, limit, offset in
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockUserRepository)(nil).GetUsers), ctx, filter, limit, offset)
 }
+
+// UpdateUserProfile mocks base method.
+func (m *MockUserRepository) UpdateUserProfile(ctx context.Context, user *dbmodels.User) (*dbmodels.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserProfile", ctx, user)
+	ret0, _ := ret[0].(*dbmodels.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUserProfile indicates an expected call of UpdateUserProfile.
+func (mr *MockUserRepositoryMockRecorder) UpdateUserProfile(ctx, user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserProfile", reflect.TypeOf((*MockUserRepository)(nil).UpdateUserProfile), ctx, user)
+}

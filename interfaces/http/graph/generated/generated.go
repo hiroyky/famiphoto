@@ -50,6 +50,13 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	DateAggregationItem struct {
+		Date  func(childComplexity int) int
+		Month func(childComplexity int) int
+		Num   func(childComplexity int) int
+		Year  func(childComplexity int) int
+	}
+
 	GqlStatus struct {
 		Status func(childComplexity int) int
 	}
@@ -58,6 +65,7 @@ type ComplexityRoot struct {
 		CreateOauthClient func(childComplexity int, input model.CreateOauthClientInput) int
 		CreateUser        func(childComplexity int, input model.CreateUserInput) int
 		IndexingPhotos    func(childComplexity int, input *model.IndexingPhotosInput) int
+		UpdateMe          func(childComplexity int, input model.UpdateMeInput) int
 		UploadPhoto       func(childComplexity int) int
 	}
 
@@ -129,15 +137,16 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ExistUserID func(childComplexity int, id string) int
-		GqlStatus   func(childComplexity int) int
-		Me          func(childComplexity int) int
-		Photo       func(childComplexity int, id string) int
-		PhotoFile   func(childComplexity int, id string) int
-		PhotoFiles  func(childComplexity int, photoID string) int
-		Photos      func(childComplexity int, id *string, limit *int, offset *int) int
-		User        func(childComplexity int, id string) int
-		Users       func(childComplexity int, id *string, limit *int, offset *int) int
+		AggregateDateTimeOriginal func(childComplexity int, year *int, month *int) int
+		ExistUserID               func(childComplexity int, id string) int
+		GqlStatus                 func(childComplexity int) int
+		Me                        func(childComplexity int) int
+		Photo                     func(childComplexity int, id string) int
+		PhotoFile                 func(childComplexity int, id string) int
+		PhotoFiles                func(childComplexity int, photoID string) int
+		Photos                    func(childComplexity int, id *string, limit *int, offset *int, year *int, month *int, date *int) int
+		User                      func(childComplexity int, id string) int
+		Users                     func(childComplexity int, id *string, limit *int, offset *int) int
 	}
 
 	User struct {
@@ -170,6 +179,7 @@ type MutationResolver interface {
 	CreateOauthClient(ctx context.Context, input model.CreateOauthClientInput) (*model.OauthClient, error)
 	IndexingPhotos(ctx context.Context, input *model.IndexingPhotosInput) (bool, error)
 	UploadPhoto(ctx context.Context) (*model.PhotoUploadInfo, error)
+	UpdateMe(ctx context.Context, input model.UpdateMeInput) (*model.User, error)
 }
 type OauthClientResolver interface {
 	RedirectUrls(ctx context.Context, obj *model.OauthClient) ([]string, error)
@@ -189,9 +199,10 @@ type QueryResolver interface {
 	ExistUserID(ctx context.Context, id string) (bool, error)
 	Me(ctx context.Context) (*model.User, error)
 	Photo(ctx context.Context, id string) (*model.Photo, error)
-	Photos(ctx context.Context, id *string, limit *int, offset *int) (*model.PhotoPagination, error)
+	Photos(ctx context.Context, id *string, limit *int, offset *int, year *int, month *int, date *int) (*model.PhotoPagination, error)
 	PhotoFile(ctx context.Context, id string) (*model.PhotoFile, error)
 	PhotoFiles(ctx context.Context, photoID string) ([]*model.PhotoFile, error)
+	AggregateDateTimeOriginal(ctx context.Context, year *int, month *int) ([]*model.DateAggregationItem, error)
 }
 type UserResolver interface {
 	Password(ctx context.Context, obj *model.User) (*model.UserPassword, error)
@@ -215,6 +226,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "DateAggregationItem.date":
+		if e.complexity.DateAggregationItem.Date == nil {
+			break
+		}
+
+		return e.complexity.DateAggregationItem.Date(childComplexity), true
+
+	case "DateAggregationItem.month":
+		if e.complexity.DateAggregationItem.Month == nil {
+			break
+		}
+
+		return e.complexity.DateAggregationItem.Month(childComplexity), true
+
+	case "DateAggregationItem.num":
+		if e.complexity.DateAggregationItem.Num == nil {
+			break
+		}
+
+		return e.complexity.DateAggregationItem.Num(childComplexity), true
+
+	case "DateAggregationItem.year":
+		if e.complexity.DateAggregationItem.Year == nil {
+			break
+		}
+
+		return e.complexity.DateAggregationItem.Year(childComplexity), true
 
 	case "GqlStatus.status":
 		if e.complexity.GqlStatus.Status == nil {
@@ -258,6 +297,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.IndexingPhotos(childComplexity, args["input"].(*model.IndexingPhotosInput)), true
+
+	case "Mutation.updateMe":
+		if e.complexity.Mutation.UpdateMe == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateMe_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateMe(childComplexity, args["input"].(model.UpdateMeInput)), true
 
 	case "Mutation.uploadPhoto":
 		if e.complexity.Mutation.UploadPhoto == nil {
@@ -567,6 +618,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PhotoUploadInfo.UploadURL(childComplexity), true
 
+	case "Query.aggregateDateTimeOriginal":
+		if e.complexity.Query.AggregateDateTimeOriginal == nil {
+			break
+		}
+
+		args, err := ec.field_Query_aggregateDateTimeOriginal_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AggregateDateTimeOriginal(childComplexity, args["year"].(*int), args["month"].(*int)), true
+
 	case "Query.existUserId":
 		if e.complexity.Query.ExistUserID == nil {
 			break
@@ -639,7 +702,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Photos(childComplexity, args["id"].(*string), args["limit"].(*int), args["offset"].(*int)), true
+		return e.complexity.Query.Photos(childComplexity, args["id"].(*string), args["limit"].(*int), args["offset"].(*int), args["year"].(*int), args["month"].(*int), args["date"].(*int)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -760,6 +823,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateOauthClientInput,
 		ec.unmarshalInputCreateUserInput,
 		ec.unmarshalInputIndexingPhotosInput,
+		ec.unmarshalInputUpdateMeInput,
 	)
 	first := true
 
@@ -857,6 +921,13 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	{Name: "../../../../schema/gqlschema/aggregationItem.graphqls", Input: `type DateAggregationItem {
+    year: Int!
+    month: Int!
+    date: Int!
+    num: Int!
+}
+`, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/basic.graphqls", Input: `# basic.graphqls
 
 scalar Cursor
@@ -909,6 +980,7 @@ type PageInfo {
     createOauthClient(input: CreateOauthClientInput!): OauthClient!
     indexingPhotos(input: IndexingPhotosInput): Boolean!
     uploadPhoto: PhotoUploadInfo!
+    updateMe(input: UpdateMeInput!): User!
 }
 
 input CreateUserInput {
@@ -933,6 +1005,10 @@ input IndexingPhotosInput {
 type PhotoUploadInfo {
     uploadUrl: String!
     expireAt: Int!
+}
+
+input UpdateMeInput {
+    name: String!
 }`, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/oauth_clients.graphqls", Input: `type OauthClient implements Node{
     id: ID!
@@ -995,10 +1071,14 @@ type PhotoPagination implements Pagination {
     photos(
         id: ID,
         limit: Int,
-        offset: Int
+        offset: Int,
+        year: Int,
+        month: Int,
+        date: Int,
     ): PhotoPagination!
     photoFile(id: ID!): PhotoFile
     photoFiles(photoId: ID!): [PhotoFile!]!
+    aggregateDateTimeOriginal(year: Int, month: Int): [DateAggregationItem!]!
 }
 `, BuiltIn: false},
 	{Name: "../../../../schema/gqlschema/user.graphqls", Input: `type User implements Node {
@@ -1082,6 +1162,21 @@ func (ec *executionContext) field_Mutation_indexingPhotos_args(ctx context.Conte
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_updateMe_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateMeInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateMeInput2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUpdateMeInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1094,6 +1189,30 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_aggregateDateTimeOriginal_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["year"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["year"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["month"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("month"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["month"] = arg1
 	return args, nil
 }
 
@@ -1187,6 +1306,33 @@ func (ec *executionContext) field_Query_photos_args(ctx context.Context, rawArgs
 		}
 	}
 	args["offset"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["year"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["year"] = arg3
+	var arg4 *int
+	if tmp, ok := rawArgs["month"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("month"))
+		arg4, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["month"] = arg4
+	var arg5 *int
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg5, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["date"] = arg5
 	return args, nil
 }
 
@@ -1275,6 +1421,182 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _DateAggregationItem_year(ctx context.Context, field graphql.CollectedField, obj *model.DateAggregationItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DateAggregationItem_year(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Year, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DateAggregationItem_year(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DateAggregationItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DateAggregationItem_month(ctx context.Context, field graphql.CollectedField, obj *model.DateAggregationItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DateAggregationItem_month(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Month, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DateAggregationItem_month(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DateAggregationItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DateAggregationItem_date(ctx context.Context, field graphql.CollectedField, obj *model.DateAggregationItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DateAggregationItem_date(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Date, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DateAggregationItem_date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DateAggregationItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DateAggregationItem_num(ctx context.Context, field graphql.CollectedField, obj *model.DateAggregationItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DateAggregationItem_num(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Num, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DateAggregationItem_num(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DateAggregationItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _GqlStatus_status(ctx context.Context, field graphql.CollectedField, obj *model.GqlStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GqlStatus_status(ctx, field)
@@ -1559,6 +1881,73 @@ func (ec *executionContext) fieldContext_Mutation_uploadPhoto(ctx context.Contex
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PhotoUploadInfo", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateMe(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateMe(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateMe(rctx, fc.Args["input"].(model.UpdateMeInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateMe(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_User_userId(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateMe_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -3897,7 +4286,7 @@ func (ec *executionContext) _Query_photos(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Photos(rctx, fc.Args["id"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Query().Photos(rctx, fc.Args["id"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int), fc.Args["year"].(*int), fc.Args["month"].(*int), fc.Args["date"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4077,6 +4466,71 @@ func (ec *executionContext) fieldContext_Query_photoFiles(ctx context.Context, f
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_photoFiles_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_aggregateDateTimeOriginal(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_aggregateDateTimeOriginal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AggregateDateTimeOriginal(rctx, fc.Args["year"].(*int), fc.Args["month"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.DateAggregationItem)
+	fc.Result = res
+	return ec.marshalNDateAggregationItem2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐDateAggregationItemᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_aggregateDateTimeOriginal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "year":
+				return ec.fieldContext_DateAggregationItem_year(ctx, field)
+			case "month":
+				return ec.fieldContext_DateAggregationItem_month(ctx, field)
+			case "date":
+				return ec.fieldContext_DateAggregationItem_date(ctx, field)
+			case "num":
+				return ec.fieldContext_DateAggregationItem_num(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DateAggregationItem", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_aggregateDateTimeOriginal_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6575,8 +7029,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 		}
 		switch k {
 		case "clientId":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientId"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6584,8 +7036,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.ClientID = data
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6593,8 +7043,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.Name = data
 		case "scope":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scope"))
 			data, err := ec.unmarshalNOauthClientScope2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐOauthClientScope(ctx, v)
 			if err != nil {
@@ -6602,8 +7050,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.Scope = data
 		case "clientType":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientType"))
 			data, err := ec.unmarshalNOauthClientType2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐOauthClientType(ctx, v)
 			if err != nil {
@@ -6611,8 +7057,6 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.ClientType = data
 		case "redirectUrls":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("redirectUrls"))
 			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
@@ -6640,8 +7084,6 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		}
 		switch k {
 		case "userId":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6649,8 +7091,6 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			}
 			it.UserID = data
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6658,8 +7098,6 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			}
 			it.Name = data
 		case "password":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -6687,14 +7125,39 @@ func (ec *executionContext) unmarshalInputIndexingPhotosInput(ctx context.Contex
 		}
 		switch k {
 		case "fast":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fast"))
 			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Fast = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateMeInput(ctx context.Context, obj interface{}) (model.UpdateMeInput, error) {
+	var it model.UpdateMeInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		}
 	}
 
@@ -6808,6 +7271,60 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 
 // region    **************************** object.gotpl ****************************
 
+var dateAggregationItemImplementors = []string{"DateAggregationItem"}
+
+func (ec *executionContext) _DateAggregationItem(ctx context.Context, sel ast.SelectionSet, obj *model.DateAggregationItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, dateAggregationItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DateAggregationItem")
+		case "year":
+			out.Values[i] = ec._DateAggregationItem_year(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "month":
+			out.Values[i] = ec._DateAggregationItem_month(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "date":
+			out.Values[i] = ec._DateAggregationItem_date(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "num":
+			out.Values[i] = ec._DateAggregationItem_num(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var gqlStatusImplementors = []string{"GqlStatus"}
 
 func (ec *executionContext) _GqlStatus(ctx context.Context, sel ast.SelectionSet, obj *model.GqlStatus) graphql.Marshaler {
@@ -6890,6 +7407,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "uploadPhoto":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_uploadPhoto(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateMe":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateMe(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -7724,6 +8248,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "aggregateDateTimeOriginal":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_aggregateDateTimeOriginal(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -8345,6 +8891,60 @@ func (ec *executionContext) marshalNCursor2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) marshalNDateAggregationItem2ᚕᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐDateAggregationItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DateAggregationItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDateAggregationItem2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐDateAggregationItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNDateAggregationItem2ᚖgithubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐDateAggregationItem(ctx context.Context, sel ast.SelectionSet, v *model.DateAggregationItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DateAggregationItem(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNGqlStatus2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐGqlStatus(ctx context.Context, sel ast.SelectionSet, v model.GqlStatus) graphql.Marshaler {
 	return ec._GqlStatus(ctx, sel, &v)
 }
@@ -8687,6 +9287,11 @@ func (ec *executionContext) marshalNTimestamp2string(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUpdateMeInput2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUpdateMeInput(ctx context.Context, v interface{}) (model.UpdateMeInput, error) {
+	res, err := ec.unmarshalInputUpdateMeInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

@@ -18,6 +18,9 @@ type SearchAdapter interface {
 	InsertPhoto(ctx context.Context, photo *entities.Photo) error
 	BulkInsertPhotos(ctx context.Context, photos entities.PhotoList) (*esutil.BulkIndexerStats, error)
 	SearchPhotos(ctx context.Context, q *filters.PhotoSearchQuery) (*entities.PhotoSearchResult, error)
+	AggregateByDateTimeOriginalYear(ctx context.Context) (entities.PhotoDateTimeAggregation, error)
+	AggregateByDateTimeOriginalYearMonth(ctx context.Context, year int) (entities.PhotoDateTimeAggregation, error)
+	AggregateByDateTimeOriginalYearMonthDate(ctx context.Context, year, month int) (entities.PhotoDateTimeAggregation, error)
 }
 
 func NewSearchAdapter(esRepo repositories.ElasticSearchRepository, exifRepo repositories.ExifRepository) SearchAdapter {
@@ -90,4 +93,46 @@ func (a *searchAdapter) SearchPhotos(ctx context.Context, q *filters.PhotoSearch
 		Items: dstItems,
 		Total: res.Total,
 	}, nil
+}
+
+func (a *searchAdapter) AggregateByDateTimeOriginalYear(ctx context.Context) (entities.PhotoDateTimeAggregation, error) {
+	aggregation, err := a.esRepo.AggregateByDateTimeOriginalYear(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dst := make(entities.PhotoDateTimeAggregation, len(aggregation))
+	for i, v := range aggregation {
+		dst[i] = v.ToEntity(config.Env.ExifTimezone)
+	}
+
+	return dst, nil
+}
+
+func (a *searchAdapter) AggregateByDateTimeOriginalYearMonth(ctx context.Context, year int) (entities.PhotoDateTimeAggregation, error) {
+	aggregation, err := a.esRepo.AggregateByDateTimeOriginalYearMonth(ctx, year)
+	if err != nil {
+		return nil, err
+	}
+
+	dst := make(entities.PhotoDateTimeAggregation, len(aggregation))
+	for i, v := range aggregation {
+		dst[i] = v.ToEntity(config.Env.ExifTimezone)
+	}
+
+	return dst, nil
+}
+
+func (a *searchAdapter) AggregateByDateTimeOriginalYearMonthDate(ctx context.Context, year, month int) (entities.PhotoDateTimeAggregation, error) {
+	aggregation, err := a.esRepo.AggregateByDateTimeOriginalYearMonthDate(ctx, year, month)
+	if err != nil {
+		return nil, err
+	}
+
+	dst := make(entities.PhotoDateTimeAggregation, len(aggregation))
+	for i, v := range aggregation {
+		dst[i] = v.ToEntity(config.Env.ExifTimezone)
+	}
+
+	return dst, nil
 }

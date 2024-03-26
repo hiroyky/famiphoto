@@ -48,6 +48,18 @@ func NewSearch(addresses []string, userName, password, fingerPrint string) Searc
 		Selector:                nil,
 		ConnectionPoolFunc:      nil,
 	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	return &driver{
+		client: client,
+	}
+}
+
+func NewSearchWithConfig(config elasticsearch.Config) Search {
+	client, err := elasticsearch.NewClient(config)
 	if err != nil {
 		panic(err)
 	}

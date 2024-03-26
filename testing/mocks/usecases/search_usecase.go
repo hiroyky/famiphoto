@@ -35,6 +35,21 @@ func (m *MockSearchUseCase) EXPECT() *MockSearchUseCaseMockRecorder {
 	return m.recorder
 }
 
+// AggregateDateTimeOriginal mocks base method.
+func (m *MockSearchUseCase) AggregateDateTimeOriginal(ctx context.Context, year, month int) (entities.PhotoDateTimeAggregation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AggregateDateTimeOriginal", ctx, year, month)
+	ret0, _ := ret[0].(entities.PhotoDateTimeAggregation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AggregateDateTimeOriginal indicates an expected call of AggregateDateTimeOriginal.
+func (mr *MockSearchUseCaseMockRecorder) AggregateDateTimeOriginal(ctx, year, month interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateDateTimeOriginal", reflect.TypeOf((*MockSearchUseCase)(nil).AggregateDateTimeOriginal), ctx, year, month)
+}
+
 // AppendAllPhotoDocuments mocks base method.
 func (m *MockSearchUseCase) AppendAllPhotoDocuments(ctx context.Context) error {
 	m.ctrl.T.Helper()

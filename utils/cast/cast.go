@@ -35,3 +35,14 @@ func IntPtrToInt64Ptr(intVal *int) *int64 {
 	dst := int64(val)
 	return &dst
 }
+
+func Ptr[T any](val T) *T {
+	return &val
+}
+
+func PtrToVal[T any](ptr *T, defaultValue T) T {
+	if ptr == nil {
+		return defaultValue
+	}
+	return *ptr
+}
