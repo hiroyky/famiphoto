@@ -144,7 +144,7 @@ type ComplexityRoot struct {
 		Photo                     func(childComplexity int, id string) int
 		PhotoFile                 func(childComplexity int, id string) int
 		PhotoFiles                func(childComplexity int, photoID string) int
-		Photos                    func(childComplexity int, id *string, limit *int, offset *int, year *int, month *int, date *int) int
+		Photos                    func(childComplexity int, id *string, limit *int, offset *int, dateTimeOriginalYear *int, dateTimeOriginalMonth *int, dateTimeOriginalDate *int) int
 		User                      func(childComplexity int, id string) int
 		Users                     func(childComplexity int, id *string, limit *int, offset *int) int
 	}
@@ -199,7 +199,7 @@ type QueryResolver interface {
 	ExistUserID(ctx context.Context, id string) (bool, error)
 	Me(ctx context.Context) (*model.User, error)
 	Photo(ctx context.Context, id string) (*model.Photo, error)
-	Photos(ctx context.Context, id *string, limit *int, offset *int, year *int, month *int, date *int) (*model.PhotoPagination, error)
+	Photos(ctx context.Context, id *string, limit *int, offset *int, dateTimeOriginalYear *int, dateTimeOriginalMonth *int, dateTimeOriginalDate *int) (*model.PhotoPagination, error)
 	PhotoFile(ctx context.Context, id string) (*model.PhotoFile, error)
 	PhotoFiles(ctx context.Context, photoID string) ([]*model.PhotoFile, error)
 	AggregateDateTimeOriginal(ctx context.Context, year *int, month *int) ([]*model.DateAggregationItem, error)
@@ -702,7 +702,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Photos(childComplexity, args["id"].(*string), args["limit"].(*int), args["offset"].(*int), args["year"].(*int), args["month"].(*int), args["date"].(*int)), true
+		return e.complexity.Query.Photos(childComplexity, args["id"].(*string), args["limit"].(*int), args["offset"].(*int), args["dateTimeOriginalYear"].(*int), args["dateTimeOriginalMonth"].(*int), args["dateTimeOriginalDate"].(*int)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -1072,9 +1072,9 @@ type PhotoPagination implements Pagination {
         id: ID,
         limit: Int,
         offset: Int,
-        year: Int,
-        month: Int,
-        date: Int,
+        dateTimeOriginalYear: Int,
+        dateTimeOriginalMonth: Int,
+        dateTimeOriginalDate: Int,
     ): PhotoPagination!
     photoFile(id: ID!): PhotoFile
     photoFiles(photoId: ID!): [PhotoFile!]!
@@ -1307,32 +1307,32 @@ func (ec *executionContext) field_Query_photos_args(ctx context.Context, rawArgs
 	}
 	args["offset"] = arg2
 	var arg3 *int
-	if tmp, ok := rawArgs["year"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+	if tmp, ok := rawArgs["dateTimeOriginalYear"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateTimeOriginalYear"))
 		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["year"] = arg3
+	args["dateTimeOriginalYear"] = arg3
 	var arg4 *int
-	if tmp, ok := rawArgs["month"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("month"))
+	if tmp, ok := rawArgs["dateTimeOriginalMonth"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateTimeOriginalMonth"))
 		arg4, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["month"] = arg4
+	args["dateTimeOriginalMonth"] = arg4
 	var arg5 *int
-	if tmp, ok := rawArgs["date"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+	if tmp, ok := rawArgs["dateTimeOriginalDate"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateTimeOriginalDate"))
 		arg5, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["date"] = arg5
+	args["dateTimeOriginalDate"] = arg5
 	return args, nil
 }
 
@@ -4286,7 +4286,7 @@ func (ec *executionContext) _Query_photos(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Photos(rctx, fc.Args["id"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int), fc.Args["year"].(*int), fc.Args["month"].(*int), fc.Args["date"].(*int))
+		return ec.resolvers.Query().Photos(rctx, fc.Args["id"].(*string), fc.Args["limit"].(*int), fc.Args["offset"].(*int), fc.Args["dateTimeOriginalYear"].(*int), fc.Args["dateTimeOriginalMonth"].(*int), fc.Args["dateTimeOriginalDate"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

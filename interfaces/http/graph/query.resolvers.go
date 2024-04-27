@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"errors"
+
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/entities"
 	fperrors "github.com/hiroyky/famiphoto/errors"
@@ -87,7 +88,7 @@ func (r *queryResolver) Photo(ctx context.Context, id string) (*model.Photo, err
 }
 
 // Photos is the resolver for the photos field.
-func (r *queryResolver) Photos(ctx context.Context, id *string, limit *int, offset *int, year *int, month *int, date *int) (*model.PhotoPagination, error) {
+func (r *queryResolver) Photos(ctx context.Context, id *string, limit *int, offset *int, dateTimeOriginalYear *int, dateTimeOriginalMonth *int, dateTimeOriginalDate *int) (*model.PhotoPagination, error) {
 	if _, ok := ctx.Value(config.ClientSessionKey).(*entities.OauthSession); !ok {
 		return nil, fperrors.New(fperrors.UserUnauthorizedError, nil)
 	}
@@ -99,7 +100,7 @@ func (r *queryResolver) Photos(ctx context.Context, id *string, limit *int, offs
 		return nil, err
 	}
 
-	result, err := r.searchUseCase.SearchPhotos(ctx, decodedID, year, month, date, dstLimit, dstOffset)
+	result, err := r.searchUseCase.SearchPhotos(ctx, decodedID, dateTimeOriginalYear, dateTimeOriginalMonth, dateTimeOriginalDate, dstLimit, dstOffset)
 	if err != nil {
 		return nil, err
 	}

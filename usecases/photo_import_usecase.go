@@ -14,7 +14,7 @@ import (
 
 type PhotoImportUseCase interface {
 	GenerateUploadURL(ctx context.Context, userID string, now time.Time) (*entities.PhotoUploadSign, error)
-	UploadPhoto(ctx context.Context, signToken, fileName string, body []byte) error
+	UploadPhoto(ctx context.Context, signToken, fileName string, body []byte, now time.Time) error
 	IndexingPhotos(ctx context.Context, rootPath string, extensions []string, fast bool) error
 	ExecuteBatch(ctx context.Context, fast bool) error
 }
@@ -63,13 +63,13 @@ func (u *photoImportUseCase) GenerateUploadURL(ctx context.Context, userID strin
 	}, nil
 }
 
-func (u *photoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileName string, body []byte) error {
+func (u *photoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileName string, body []byte, now time.Time) error {
 	info, err := u.storageAdapter.VerifySignToken(ctx, signToken)
 	if err != nil {
 		return err
 	}
 
-	dateTimeOriginal := utils.MustLocalTime(time.Now(), config.Env.ExifTimezone)
+	dateTimeOriginal := utils.MustLocalTime(now, config.Env.ExifTimezone)
 	exifDateTimeOriginal, err := u.parseExifItemFunc(body, config.ExifTagIDDateTimeOriginal)
 	if err == nil {
 		dt, err := utils.ParseDatetime(exifDateTimeOriginal.ValueString, utils.MustLoadLocation(config.Env.ExifTimezone))
