@@ -23,7 +23,6 @@ import (
 // NewExecutableSchema creates an ExecutableSchema from the ResolverRoot interface.
 func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 	return &executableSchema{
-		schema:     cfg.Schema,
 		resolvers:  cfg.Resolvers,
 		directives: cfg.Directives,
 		complexity: cfg.Complexity,
@@ -31,7 +30,6 @@ func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 }
 
 type Config struct {
-	Schema     *ast.Schema
 	Resolvers  ResolverRoot
 	Directives DirectiveRoot
 	Complexity ComplexityRoot
@@ -209,16 +207,12 @@ type UserResolver interface {
 }
 
 type executableSchema struct {
-	schema     *ast.Schema
 	resolvers  ResolverRoot
 	directives DirectiveRoot
 	complexity ComplexityRoot
 }
 
 func (e *executableSchema) Schema() *ast.Schema {
-	if e.schema != nil {
-		return e.schema
-	}
 	return parsedSchema
 }
 
@@ -910,14 +904,14 @@ func (ec *executionContext) introspectSchema() (*introspection.Schema, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapSchema(ec.Schema()), nil
+	return introspection.WrapSchema(parsedSchema), nil
 }
 
 func (ec *executionContext) introspectType(name string) (*introspection.Type, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
+	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
 var sources = []*ast.Source{
@@ -7029,6 +7023,8 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 		}
 		switch k {
 		case "clientId":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientId"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7036,6 +7032,8 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.ClientID = data
 		case "name":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7043,6 +7041,8 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.Name = data
 		case "scope":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scope"))
 			data, err := ec.unmarshalNOauthClientScope2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐOauthClientScope(ctx, v)
 			if err != nil {
@@ -7050,6 +7050,8 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.Scope = data
 		case "clientType":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientType"))
 			data, err := ec.unmarshalNOauthClientType2githubᚗcomᚋhiroykyᚋfamiphotoᚋinterfacesᚋhttpᚋgraphᚋmodelᚐOauthClientType(ctx, v)
 			if err != nil {
@@ -7057,6 +7059,8 @@ func (ec *executionContext) unmarshalInputCreateOauthClientInput(ctx context.Con
 			}
 			it.ClientType = data
 		case "redirectUrls":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("redirectUrls"))
 			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
@@ -7084,6 +7088,8 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		}
 		switch k {
 		case "userId":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7091,6 +7097,8 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			}
 			it.UserID = data
 		case "name":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7098,6 +7106,8 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			}
 			it.Name = data
 		case "password":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7125,6 +7135,8 @@ func (ec *executionContext) unmarshalInputIndexingPhotosInput(ctx context.Contex
 		}
 		switch k {
 		case "fast":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fast"))
 			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
@@ -7152,6 +7164,8 @@ func (ec *executionContext) unmarshalInputUpdateMeInput(ctx context.Context, obj
 		}
 		switch k {
 		case "name":
+			var err error
+
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
