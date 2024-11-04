@@ -18,31 +18,42 @@ This repository is GraphQL API component. and Frontend web system is [Famiphoto 
 
 I'm developing this app as my hobby. so Please wait a little(??).
 
-## deploy procedure (current temporary)
+## procedure to deploy as Docker container (recommended)
+### Before install
+Please set up docker & docker compose on your server machine.
+
+### Setup Famiphoto API
+1. Execute `setup_env.sh` to configure .env file. 
+Then, specify the path to your Photo directory which you want Famiphoto to mount. 
+```:sh
+./setup_env.sh
 ```
-// boot docker compose
-$ make init
-
-// build & debian packaging
-$ make dc_build dc_pkg
-
-// deploy
-$ scp dst/famiphoto_api_xxxxx.deb 192.168.11.30:/tmp
+2. docker compose begin
+```sh:
+docker compose build
+docker compose up -d
 ```
 
-at Server:
-
+3. Check API started.
 ```
-$ cd /tmp
-$ sudo dpkg -i ./famiphoto_api_xxxxxx.deb
-
-// Edit env file
-$ sudo nano /etc/famiphoto/env
-
-$ sudo systemctl restart famiphoto_api
-$ sudo ssytemctl status famiphoto_api -l 
-
-// if error
-$ journalctl _PID=xxxxxx
-$ tail -f /var/log/famiphoto/error.log
+curl http://localhost:8080/status.html
 ```
+
+### Setup Famiphoto Frontend
+1. Git clone famiphoto_frontend
+```
+git clone git@github.com:hiroyky/famiphoto_frontend.git
+cd famiphoto_frontend
+```
+2. Execute `setup_env.sh` to configure .env file.
+```
+./setup_env.sh
+```
+
+3. docker compose begin
+```sh:
+docker compose build
+docker compose up -d
+```
+
+4. Access to Famiphoto frontend

@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# インストール後の処理
-
-sudo systemctl enable famiphoto_api.service
-sudo systemctl restart famiphoto_api.service

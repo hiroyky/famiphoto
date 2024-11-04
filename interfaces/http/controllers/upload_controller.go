@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
+	"time"
 )
 
 type UploadController interface {
@@ -42,7 +43,7 @@ func (c *uploadController) UploadPhoto(ctx echo.Context) error {
 		return errors.New(errors.InvalidRequestError, err)
 	}
 
-	if err := c.photoImportUseCase.UploadPhoto(ctx.Request().Context(), req.SignToken, file.Filename, data); err != nil {
+	if err := c.photoImportUseCase.UploadPhoto(ctx.Request().Context(), req.SignToken, file.Filename, data, time.Now()); err != nil {
 		return err
 	}
 

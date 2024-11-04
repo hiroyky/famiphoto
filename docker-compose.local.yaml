@@ -7,19 +7,23 @@ services:
     build:
       context: .
       dockerfile: docker/famiphoto/Dockerfile
-      target: prod
+      target: local
     ports:
-      - 8080:8080
-    volumes:
-      - ${CONTENTS_DIR}:/mnt/famiphoto
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 7002:8080
+    networks:
+      - famiphoto_network
+    tty: true
+    command: air -c ./.air/.air.toml
     env_file:
       - .env
+    volumes:
+      - ./:/go/src/github.com/hiroyky/famiphoto/
+      - ${CONTENTS_DIR}:/mnt/famiphoto
   elasticsearch:
     build:
       context: .
       dockerfile: docker/search/Dockerfile
+    #image: docker.elastic.co/elasticsearch/elasticsearch:8.1.3
     container_name: elasticsearch
     restart: always
     networks:
@@ -31,21 +35,35 @@ services:
       - "discovery.type=single-node"
       - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
       - "xpack.security.enabled=false"
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.1.3
+    container_name: kibana
+    networks:
+      - famiphoto_network
+    #ports:
+    #  - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
   mysql:
     image: mysql:8.0
     container_name: famiphoto_mysqldb
     platform: linux/amd64
     restart: always
     env_file:
-      - .env.options.local
+      - .env
     volumes:
       - ./schema/dbschema/generator/:/docker-entrypoint-initdb.d/
     ports:
-      - 3306:3306
+      - 7001:3306
     networks:
       - famiphoto_network
   redis_oauth:
-    image: redis:7.4
+    image: redis:6.2
     container_name: redis_oauth
+    platform: linux/amd64
     networks:
       - famiphoto_network
