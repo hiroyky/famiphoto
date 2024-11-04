@@ -6,8 +6,8 @@ DOCKER=famiphoto
 MOCK_TARGETS=$(shell find . -type f -name "*.go" | grep -v "testing/" | grep -v "_test.go" | grep -v "dst/")
 
 init:
-	docker compose -f docker-compose.local.yaml build --no-cache
-	docker compose -f docker-compose.local.yaml up -d
+	docker compose -f docker-compose.local.yaml --env-file ./.env build --no-cache
+	docker compose -f docker-compose.local.yaml --env-file ./.env up  -d
 
 restart:
 	docker compose -f docker-compose.local.yaml stop

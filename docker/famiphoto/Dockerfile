@@ -1,4 +1,4 @@
-FROM golang:1.21 as local
+FROM golang:1.23 as local
 
 ENV GO111MODULE=on
 WORKDIR /go/src/github.com/hiroyky/famiphoto
@@ -14,3 +14,19 @@ RUN curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh 
 RUN mkdir -p /var/famiphoto
 RUN mkdir -p /tmp
 RUN mkdir -p /var/www/famiphoto
+
+FROM golang:1.23 as builder
+ENV GO111MODULE=on
+WORKDIR /go/src/github.com/hiroyky/famiphoto
+COPY ../.. .
+RUN make build
+
+FROM golang:1.23 as prod
+WORKDIR /go/src/github.com/hiroyky/famiphoto
+COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/app ./dst/app
+COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/indexing ./dst/indexing
+COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/indexing_photos ./dst/indexing_photos
+COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/register_client ./dst/register_client
+
+EXPOSE 8080
+CMD ["./dst/api"]
