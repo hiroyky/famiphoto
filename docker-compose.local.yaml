@@ -67,12 +67,12 @@ services:
     platform: linux/amd64
     networks:
       - famiphoto_network
-  builder:
-    build:
-      context: .
-      dockerfile: docker/builder/Dockerfile
-    container_name: builder
-    platform: linux/amd64
-    tty: true
-    volumes:
-      - ./:/go/src/github.com/hiroyky/famiphoto/
+#  builder:
+#    build:
+#      context: .
+#      dockerfile: docker/builder/Dockerfile
+#    container_name: builder
+#    platform: linux/amd64
+#    tty: true
+#    volumes:
+#      - ./:/go/src/github.com/hiroyky/famiphoto/

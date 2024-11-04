@@ -6,11 +6,12 @@ DOCKER=famiphoto
 MOCK_TARGETS=$(shell find . -type f -name "*.go" | grep -v "testing/" | grep -v "_test.go" | grep -v "dst/")
 
 init:
-	docker compose build --no-cache
-	docker compose up -d
+	docker compose -f docker-compose.local.yaml build --no-cache
+	docker compose -f docker-compose.local.yaml up -d
 
 restart:
-	docker compose stop && docker compose up -d
+	docker compose -f docker-compose.local.yaml stop
+	docker compose -f docker-compose.local.yaml up -d
 
 build: build_server build_sub_indexing build_sub_indexing_photos build_register_client
 
@@ -42,27 +43,27 @@ test:
 	go test ./...
 
 dc_exec:
-	docker compose exec $(DOCKER) bash
+	docker compose -f docker-compose.local.yaml exec $(DOCKER) bash
 dc_exec_indexing_photos:
-	docker compose exec $(DOCKER) ./dst/indexing_photos --env=/go/src/github.com/hiroyky/famiphoto/.env.local --fast=false
+	docker compose -f docker-compose.local.yaml exec $(DOCKER) ./dst/indexing_photos --env=/go/src/github.com/hiroyky/famiphoto/.env.local --fast=false
 dc_exec_indexing:
-	docker compose exec $(DOCKER) ./dst/indexing
+	docker compose -f docker-compose.local.yaml exec $(DOCKER) ./dst/indexing
 dc_fmt:
-	docker compose exec $(DOCKER) make fmt
+	docker compose -f docker-compose.local.yaml exec $(DOCKER) make fmt
 dc_build:
-	docker compose exec $(DOCKER) make build
+	docker compose -f docker-compose.local.yaml  exec $(DOCKER) make build
 dc_test:
-	docker compose exec $(DOCKER) make test
+	docker compose -f docker-compose.local.yaml exec $(DOCKER) make test
 dc_gen:
-	docker compose exec $(DOCKER) go generate ./...
+	docker compose -f docker-compose.local.yaml exec $(DOCKER) go generate ./...
 dc_sqlboil:
-	docker compose exec $(DOCKER) sqlboiler mysql
+	docker compose -f docker-compose.local.yaml exec $(DOCKER) sqlboiler mysql
 dc_gengql:
-	docker compose exec $(DOCKER) gqlgen
+	docker compose -f docker-compose.local.yaml exec $(DOCKER) gqlgen
 dc_genmock:
-	docker compose exec $(DOCKER) make mockgen -B -j3
+	docker compose -f docker-compose.local.yaml exec $(DOCKER) make mockgen -B -j3
 dc_pkg:
-	docker compose exec builder make pkg -B -j3
+	docker compose -f docker-compose.local.yaml exec builder make pkg -B -j3
 
 mockgen: $(MOCK_TARGETS)
 
