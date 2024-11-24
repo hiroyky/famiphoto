@@ -6,7 +6,7 @@ import (
 
 type FamiPhotoEnv struct {
 	AppEnv                     string   `envconfig:"APP_ENV"`
-	Port                       int64    `envconfig:"PORT"`
+	Port                       int64    `envconfig:"API_PORT"`
 	WebClientID                string   `envconfig:"WEB_CLIENT_ID"`
 	WebClientSecret            string   `envconfig:"WEB_CLIENT_SECRET"`
 	MySQLUser                  string   `envconfig:"MYSQL_USER"`

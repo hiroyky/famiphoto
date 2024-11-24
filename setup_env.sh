@@ -24,7 +24,9 @@ echo "# Environment parameters for famiphoto" > .env
 echo "APP_ENV=prod" >> .env
 echo "WEB_CLIENT_ID=famiphoto_web" >> .env
 echo "WEB_CLIENT_SECRET=$WEB_CLIENT_SECRET" >> .env
-echo "PORT=8080" >> .env
+echo "" >> .env
+echo "## Famiphoto API" >> .env
+echo "API_PORT=8080" >> .env
 echo "" >> .env
 echo "#Famihoto frontend env" >> .env
 echo "NUXT_IS_DEBUG=false" >> .env
