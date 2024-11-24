@@ -4,10 +4,10 @@
 *.dll
 *.so
 *.dylib
-.air/tmp/
-app
-main
-storage/
+api/.air/tmp/
+api/app
+api/main
+api/storage/
 dst/
 assets/thumbnails/*
 
