@@ -1,0 +1,5 @@
+query gqlStatus {
+    gqlStatus {
+        status
+    }
+}

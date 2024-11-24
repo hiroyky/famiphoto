@@ -1,0 +1,33 @@
+query photos(
+    $year: Int,
+    $month: Int,
+    $date: Int,
+    $limit: Int!,
+    $offset: Int
+) {
+    photos(
+        dateTimeOriginalYear: $year,
+        dateTimeOriginalMonth: $month,
+        dateTimeOriginalDate: $date,
+        limit: $limit,
+        offset: $offset
+    ) {
+        pageInfo {
+          limit
+          offset
+          page
+          paginationLength
+          hasNextPage
+          hasPreviousPage
+          count
+          totalCount
+        }
+        nodes {
+            id
+            name
+            dateTimeOriginal
+            thumbnailUrl
+            previewUrl
+        }
+    }
+}

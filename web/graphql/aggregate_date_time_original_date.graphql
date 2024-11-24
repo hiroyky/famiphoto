@@ -1,0 +1,8 @@
+query aggregateDateTimeOriginalDate($year: Int!, $month: Int!) {
+    aggregateDateTimeOriginal(year: $year, month: $month) {
+        year
+        month
+        date
+        num
+    }
+}
