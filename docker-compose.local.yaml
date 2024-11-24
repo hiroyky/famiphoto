@@ -73,7 +73,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./schema/dbschema/generator/:/docker-entrypoint-initdb.d/
+      - ./mysql/dbschema/generator/:/docker-entrypoint-initdb.d/
     ports:
       - 3306:3306
     networks:
