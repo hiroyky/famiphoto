@@ -28,6 +28,7 @@ echo "PORT=8080" >> .env
 echo "" >> .env
 echo "#Famihoto frontend env" >> .env
 echo "NUXT_IS_DEBUG=false" >> .env
+echo "NUXT_PORT=3000" >> .env
 echo "NUXT_API_BASE_URL=http://famiphoto_api:8080" >> .env
 echo "NUXT_CLIENT_SECRET=$WEB_CLIENT_SECRET" >> .env
 echo "NUXT_PUBLIC_BASE_URL=$BASE_URL" >> .env
