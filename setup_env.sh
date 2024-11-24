@@ -14,13 +14,24 @@ fi
 echo "Enter path to your Photo directory(like: /home/famiphoto/). The path is mounted by docker and famiphoto imports."
 read CONTENTS_DIR
 
-# output to .env file
+echo "Enter base URL of Famiphoto frontend. (like: https://famiphoto.myhome.com)"
+read BASE_URL
 
+WEB_CLIENT_SECRET=`head -c 50 </dev/urandom | base64`
+
+# output to .env file
 echo "# Environment parameters for famiphoto" > .env
 echo "APP_ENV=prod" >> .env
 echo "WEB_CLIENT_ID=famiphoto_web" >> .env
-echo "WEB_CLIENT_SECRET=`head -c 50 </dev/urandom | base64`" >> .env
+echo "WEB_CLIENT_SECRET=$WEB_CLIENT_SECRET" >> .env
 echo "PORT=8080" >> .env
+echo "" >> .env
+echo "#Famihoto frontend env" >> .env
+echo "NUXT_IS_DEBUG=false" >> .env
+echo "NUXT_API_BASE_URL=http://famiphoto_api:8080" >> .env
+echo "NUXT_CLIENT_SECRET=$WEB_CLIENT_SECRET" >> .env
+echo "NUXT_PUBLIC_BASE_URL=$BASE_URL" >> .env
+echo "NUXT_SESSION_SECRET=`head -c 50 </dev/urandom | base64`" >> .env
 echo "" >> .env
 echo "## MySQL" >> .env
 echo "MYSQL_HOST_NAME=famiphoto_mysqldb" >> .env
@@ -31,7 +42,7 @@ echo "MYSQL_PASSWORD=password" >> .env
 echo "MYSQL_ROOT_PASSWORD=password" >> .env
 echo "" >> .env
 echo "## Redis for auth" >> .env
-echo "OAUTH_REDIS_HOST_NAME=redis_oauth:6379" >> .env
+echo "OAUTH_REDIS_HOST_NAME=redis_session:6379" >> .env
 echo "OAUTH_REDIS_DATABASE=0" >> .env
 echo "" >> .env
 echo "## Elasticsearch" >> .env
