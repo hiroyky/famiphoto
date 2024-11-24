@@ -3,6 +3,8 @@ networks:
   famiphoto_network:
 services:
   api:
+    depends_on:
+      - mysql  
     image: famiphoto_api
     container_name: famiphoto_api
     build:
