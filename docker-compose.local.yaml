@@ -1,15 +1,16 @@
+# start docker containers for development
 networks:
   famiphoto_network:
 services:
-  famiphoto:
-    image: famiphoto
-    container_name: famiphoto
+  api:
+    image: famiphoto_api
+    container_name: famiphoto_api
     build:
-      context: api
-      dockerfile: docker/famiphoto/Dockerfile
+      context: .
+      dockerfile: ./docker/api/Dockerfile
       target: local
     ports:
-      - 7002:8080
+      - 8080:8080
     networks:
       - famiphoto_network
     tty: true
@@ -17,12 +18,29 @@ services:
     env_file:
       - .env
     volumes:
-      - ./:/go/src/github.com/hiroyky/famiphoto/
+      - ./api:/go/src/github.com/hiroyky/famiphoto/
       - ${CONTENTS_DIR}:/mnt/famiphoto
+  web:
+    image: famiphoto_web
+    container_name: famiphoto_web
+    build: 
+      context: .
+      dockerfile: ./docker/web/Dockerfile
+      target: local
+    ports:
+      - 3000:3000
+    networks:
+      - famiphoto_network
+    tty: true
+    command: npm run dev
+    env_file:
+      - .env
+    volumes:
+      - ./web:/var/www/famiphoto_frontend/
   elasticsearch:
     build:
-      context: api
-      dockerfile: docker/search/Dockerfile
+      context: .
+      dockerfile: docker/elasticsearch/Dockerfile
     #image: docker.elastic.co/elasticsearch/elasticsearch:8.1.3
     container_name: elasticsearch
     restart: always
@@ -49,21 +67,20 @@ services:
     links:
       - elasticsearch
   mysql:
-    image: mysql:8.0
+    image: mysql:8
     container_name: famiphoto_mysqldb
-    platform: linux/amd64
     restart: always
     env_file:
       - .env
     volumes:
       - ./schema/dbschema/generator/:/docker-entrypoint-initdb.d/
     ports:
-      - 7001:3306
+      - 3306:3306
     networks:
       - famiphoto_network
-  redis_oauth:
+  redis_session:
     image: redis:6.2
-    container_name: redis_oauth
+    container_name: redis_session
     platform: linux/amd64
     networks:
       - famiphoto_network

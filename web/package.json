@@ -4,12 +4,12 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev --dotenv .env.local",
+    "dev": "nuxt dev --port ${NUXT_PORT}",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "codegen": "graphql-codegen --config codegen.ts",
-    "start": "nuxt start --dotenv .env.local"
+    "start": "nuxt start --port ${NUXT_PORT}"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
