@@ -4,10 +4,10 @@
 *.dll
 *.so
 *.dylib
-api/.air/tmp/
-api/app
-api/main
-api/storage/
+.air/tmp/
+app
+main
+storage/
 dst/
 assets/thumbnails/*
 
@@ -17,10 +17,3 @@ assets/thumbnails/*
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 *.bak
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
-.idea/
-.DS_Store
-.note/
-.env

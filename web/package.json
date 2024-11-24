@@ -1,0 +1,43 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --port ${NUXT_PORT}",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "start": "nuxt start --port ${NUXT_PORT}"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/client-preset": "^4.1.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-graphql-request": "^6.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@nuxt/devtools": "latest",
+    "@nuxtjs/i18n": "^8.1.1",
+    "@pinia/nuxt": "^0.5.0",
+    "@sidebase/nuxt-session": "^0.2.7",
+    "@types/cookie-session": "^2.0.46",
+    "@types/express": "^4.17.20",
+    "cookie-session": "^2.0.0",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "http-proxy-middleware": "^2.0.6",
+    "js-base64": "^3.7.5",
+    "nuxt": "^3.7.4",
+    "pinia": "^2.1.7",
+    "sass": "^1.69.4",
+    "url-join": "^5.0.0",
+    "vite-plugin-vuetify": "^1.0.2",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.5",
+    "vuetify": "^3.3.21"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.3.67"
+  }
+}

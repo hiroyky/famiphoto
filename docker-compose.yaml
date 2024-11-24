@@ -5,7 +5,7 @@ services:
     image: famiphoto
     container_name: famiphoto
     build:
-      context: .
+      context: api
       dockerfile: docker/famiphoto/Dockerfile
       target: prod
     ports:
@@ -18,7 +18,7 @@ services:
       - .env
   elasticsearch:
     build:
-      context: .
+      context: api
       dockerfile: docker/search/Dockerfile
     container_name: elasticsearch
     restart: always

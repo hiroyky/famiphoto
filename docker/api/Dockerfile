@@ -2,7 +2,7 @@ FROM golang:1.23 as local
 
 ENV GO111MODULE=on
 WORKDIR /go/src/github.com/hiroyky/famiphoto
-COPY ../.. .
+COPY ../../api/ .
 RUN apt-get update
 RUN apt-get install -y libmagickwand-dev
 RUN go install github.com/golang/mock/mockgen@v1.6.0
@@ -18,7 +18,7 @@ RUN mkdir -p /var/www/famiphoto
 FROM golang:1.23 as builder
 ENV GO111MODULE=on
 WORKDIR /go/src/github.com/hiroyky/famiphoto
-COPY ../.. .
+COPY ../../api/ .
 RUN make build
 
 FROM golang:1.23 as prod

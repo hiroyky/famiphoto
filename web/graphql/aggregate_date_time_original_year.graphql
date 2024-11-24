@@ -1,0 +1,6 @@
+query aggregateDateTimeOriginalYear {
+    aggregateDateTimeOriginal {
+        year
+        num
+    }
+}
