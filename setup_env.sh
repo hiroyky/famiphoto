@@ -27,6 +27,7 @@ echo "WEB_CLIENT_SECRET=$WEB_CLIENT_SECRET" >> .env
 echo "" >> .env
 echo "## Famiphoto API" >> .env
 echo "API_PORT=8080" >> .env
+echo "ASSET_BASE_URL=${BASE_URL%/}/api/assets" >> .env
 echo "" >> .env
 echo "#Famihoto frontend env" >> .env
 echo "NUXT_IS_DEBUG=false" >> .env

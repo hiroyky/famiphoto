@@ -3,8 +3,8 @@ testdata_dir = "testdata"
 tmp_dir = ".air/tmp"
 
 [build]
-  bin = "./.air/tmp/main"
-  cmd = "go build -o ./.air/tmp/main ."
+  bin = "./dst/api"
+  cmd = "make build"
   delay = 3000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []

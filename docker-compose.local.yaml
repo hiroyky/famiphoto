@@ -2,7 +2,7 @@
 networks:
   famiphoto_network:
 services:
-  api:
+  famiphoto_api:
     depends_on:
       - mysql  
     image: famiphoto_api
@@ -22,7 +22,7 @@ services:
     volumes:
       - ./api:/go/src/github.com/hiroyky/famiphoto/
       - ${CONTENTS_DIR}:/mnt/famiphoto
-  web:
+  famiphoto_web:
     image: famiphoto_web
     container_name: famiphoto_web
     build: 
@@ -60,8 +60,8 @@ services:
     container_name: kibana
     networks:
       - famiphoto_network
-    #ports:
-    #  - 5601:5601
+    ports:
+      - 5601:5601
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:

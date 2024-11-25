@@ -16,3 +16,6 @@ local_init:
 local_restart:
 	docker compose -f docker-compose.local.yaml stop
 	docker compose -f docker-compose.local.yaml up -d
+
+dc_exec_api:
+	docker compose -f docker-compose.local.yaml exec famiphoto_api bash

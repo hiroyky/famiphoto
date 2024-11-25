@@ -13,11 +13,9 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/mock v1.6.0
-	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.7.0
-	github.com/labstack/gommon v0.3.1
 	github.com/sethvargo/go-password v0.2.0
 	github.com/stretchr/testify v1.8.2
 	github.com/urfave/cli/v2 v2.25.7
@@ -57,6 +55,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.3 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

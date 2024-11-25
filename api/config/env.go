@@ -45,7 +45,7 @@ func (e FamiPhotoEnv) IsDebug() bool {
 	return e.AppEnv == Local
 }
 
-func InitEnv() {
+func init() {
 	err := envconfig.Process("", &Env)
 	if err != nil {
 		panic(err)
