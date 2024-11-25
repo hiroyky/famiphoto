@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	config.InitEnv()
 	app := routers.New()
 	log.Info("Hello! Famiphoto API Server", config.Env.Port, config.Env.AppEnv)
 	if err := app.Start(fmt.Sprintf(":%d", config.Env.Port)); err != nil {

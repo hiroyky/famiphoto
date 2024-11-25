@@ -7,7 +7,7 @@
 api/.air/tmp/
 api/app
 api/main
-api/storage/
+storage/
 dst/
 assets/thumbnails/*
 

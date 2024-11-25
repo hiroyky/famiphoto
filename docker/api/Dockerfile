@@ -23,10 +23,8 @@ RUN make build
 
 FROM golang:1.23
 WORKDIR /go/src/github.com/hiroyky/famiphoto
-COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/app ./dst/app
+COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/api ./dst/api
 COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/indexing ./dst/indexing
-COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/indexing_photos ./dst/indexing_photos
-COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/register_client ./dst/register_client
 
 EXPOSE 8080
-CMD ["./dst/app"]
+CMD ["./dst/api"]
