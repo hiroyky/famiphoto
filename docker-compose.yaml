@@ -7,6 +7,7 @@ services:
       - mysql
     image: famiphoto_api
     container_name: famiphoto_api
+    restart: always
     build:
       context: .
       dockerfile: ./docker/api/Dockerfile
@@ -22,6 +23,7 @@ services:
   famiphoto_web:
     image: famiphoto_web
     container_name: famiphoto_web
+    restart: always
     build: 
       context: .
       dockerfile: ./docker/web/Dockerfile
