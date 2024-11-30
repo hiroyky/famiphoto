@@ -68,5 +68,6 @@ services:
     image: redis:6.2
     container_name: redis_session
     platform: linux/amd64
+    restart: always
     networks:
       - famiphoto_network
