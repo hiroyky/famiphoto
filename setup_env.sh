@@ -24,6 +24,7 @@ echo "# Environment parameters for famiphoto" > .env
 echo "APP_ENV=prod" >> .env
 echo "WEB_CLIENT_ID=famiphoto_web" >> .env
 echo "WEB_CLIENT_SECRET=$WEB_CLIENT_SECRET" >> .env
+echo "CONTENTS_DIR=$CONTENTS_DIR" >> .env
 echo "" >> .env
 echo "## Famiphoto API" >> .env
 echo "API_PORT=8080" >> .env
@@ -59,12 +60,12 @@ echo "## Expire time" >> .env
 echo "CC_ACCESS_TOKEN_EXPIRE_IN_SEC=600" >> .env
 echo "USER_ACCESS_TOKEN_EXPIRE_IN_SEC=604800" >> .env
 echo "LOGIN_TOKEN_EXPIRE_SEC=2592000" >> .env
-
-
-echo "CONTENTS_DIR=$CONTENTS_DIR" >> .env
 echo "HMAC_KEY=`head -c 16 </dev/urandom | base64`" >> .env
 echo "ACCESS_TOKEN_HASHED_PREFIX=`head -c 16 </dev/urandom | base64`" >> .env
 echo "UPLOAD_TOKEN_HASHED_PREFIX=`head -c 16 </dev/urandom | base64`" >> .env
 echo "LOGIN_TOKEN_HASHED_PREFIX=`head -c 16 </dev/urandom | base64`" >> .env
-
+echo "## Execute user" >> .env
+echo "UID=`id -u`" >> .env
+echo "GID=`id -g`" >> .env
+echo "USERNAME=`id -un`" >> .env
 echo "saved .env"

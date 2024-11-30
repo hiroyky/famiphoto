@@ -9,22 +9,26 @@ services:
     container_name: famiphoto_api
     restart: always
     build:
+      args:
+        UID: $UID
+        GID: $GID
+        USERNAME: $USERNAME
       context: .
       dockerfile: ./docker/api/Dockerfile
     ports:
       - 8080:8080
     networks:
       - famiphoto_network
-    tty: true
     env_file:
       - .env
     volumes:
       - ${CONTENTS_DIR}:/mnt/famiphoto
+    user: "${UID}:${GID}"
   famiphoto_web:
     image: famiphoto_web
     container_name: famiphoto_web
     restart: always
-    build: 
+    build:
       context: .
       dockerfile: ./docker/web/Dockerfile
     ports:
