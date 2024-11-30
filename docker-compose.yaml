@@ -23,7 +23,6 @@ services:
       - .env
     volumes:
       - ${CONTENTS_DIR}:/mnt/famiphoto
-    user: "${UID}:${GID}"
   famiphoto_web:
     image: famiphoto_web
     container_name: famiphoto_web
@@ -35,7 +34,6 @@ services:
       - 3000:3000
     networks:
       - famiphoto_network
-    tty: true
     env_file:
       - .env
   elasticsearch:

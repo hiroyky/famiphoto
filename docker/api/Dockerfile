@@ -30,6 +30,10 @@ RUN useradd -u ${UID} -g ${USERNAME} -m ${USERNAME}
 WORKDIR /go/src/github.com/hiroyky/famiphoto
 COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/api ./dst/api
 COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/indexing ./dst/indexing
-
+RUN mkdir -p /var/log/famiphoto
+RUN mkdir -p /var/www/famiphoto
+RUN chown -R ${UID}:${GID} /var/log/famiphoto
+RUN chown -R ${UID}:${GID} /var/www/famiphoto
 EXPOSE 8080
+USER ${UID}:${GID}
 CMD ["./dst/api"]
