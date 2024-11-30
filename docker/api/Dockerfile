@@ -22,6 +22,11 @@ COPY ../../api/ .
 RUN make build
 
 FROM golang:1.23
+ARG UID
+ARG GID
+ARG USERNAME
+RUN groupadd -g ${GID} ${USERNAME}
+RUN useradd -u ${UID} -g ${USERNAME} -m ${USERNAME}
 WORKDIR /go/src/github.com/hiroyky/famiphoto
 COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/api ./dst/api
 COPY --from=builder /go/src/github.com/hiroyky/famiphoto/dst/indexing ./dst/indexing
