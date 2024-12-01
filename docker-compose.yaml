@@ -36,6 +36,14 @@ services:
       - famiphoto_network
     env_file:
       - .env
+  ollama:
+    build:
+      context: .
+      dockerfile: docker/ollama/Dockerfile
+    container_name: ollama
+    restart: always
+    networks:
+      - famiphoto_network
   elasticsearch:
     build:
       context: .
