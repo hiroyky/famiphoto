@@ -56,6 +56,9 @@ echo "ELASTICSEARCH_PASSWORD=" >> .env
 echo "ELASTICSEARCH_FINGER_PRINT=" >> .env
 echo "EXIF_TIMEZONE=Asia/Tokyo" >> .env
 echo "" >> .env
+echo "# Ollama generative AI" >> .env
+echo "OLLAMA_HOST=http://ollama:11434"
+echo "" >> .env
 echo "## Expire time" >> .env
 echo "CC_ACCESS_TOKEN_EXPIRE_IN_SEC=600" >> .env
 echo "USER_ACCESS_TOKEN_EXPIRE_IN_SEC=604800" >> .env

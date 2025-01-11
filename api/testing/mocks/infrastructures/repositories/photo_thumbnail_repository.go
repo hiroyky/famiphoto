@@ -34,6 +34,21 @@ func (m *MockPhotoThumbnailRepository) EXPECT() *MockPhotoThumbnailRepositoryMoc
 	return m.recorder
 }
 
+// LoadPreview mocks base method.
+func (m *MockPhotoThumbnailRepository) LoadPreview(ctx context.Context, photoID int) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LoadPreview", ctx, photoID)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LoadPreview indicates an expected call of LoadPreview.
+func (mr *MockPhotoThumbnailRepositoryMockRecorder) LoadPreview(ctx, photoID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadPreview", reflect.TypeOf((*MockPhotoThumbnailRepository)(nil).LoadPreview), ctx, photoID)
+}
+
 // SavePreview mocks base method.
 func (m *MockPhotoThumbnailRepository) SavePreview(ctx context.Context, photoID int, data []byte) error {
 	m.ctrl.T.Helper()

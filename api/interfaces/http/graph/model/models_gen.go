@@ -61,6 +61,9 @@ type IndexingPhotosInput struct {
 	Fast bool `json:"fast"`
 }
 
+type Mutation struct {
+}
+
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`
 	HasPreviousPage bool    `json:"hasPreviousPage"`
@@ -110,6 +113,9 @@ func (this PhotoPagination) GetNodes() []Node {
 type PhotoUploadInfo struct {
 	UploadURL string `json:"uploadUrl"`
 	ExpireAt  int    `json:"expireAt"`
+}
+
+type Query struct {
 }
 
 type UpdateMeInput struct {
@@ -176,7 +182,7 @@ func (e OauthClientScope) String() string {
 	return string(e)
 }
 
-func (e *OauthClientScope) UnmarshalGQL(v interface{}) error {
+func (e *OauthClientScope) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -217,7 +223,7 @@ func (e OauthClientType) String() string {
 	return string(e)
 }
 
-func (e *OauthClientType) UnmarshalGQL(v interface{}) error {
+func (e *OauthClientType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -258,7 +264,7 @@ func (e UserStatus) String() string {
 	return string(e)
 }
 
-func (e *UserStatus) UnmarshalGQL(v interface{}) error {
+func (e *UserStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
