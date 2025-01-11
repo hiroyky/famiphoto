@@ -8,7 +8,7 @@ import (
 )
 
 func TestResizeJPEG(t *testing.T) {
-	imageFile, err := os.Open("../../testing/resources/test_image001.jpg")
+	imageFile, err := os.Open("../../integral_test/resources/test_image001.jpg")
 	if err != nil {
 		t.Fatal("Failed to os.Open", err)
 	}
@@ -24,7 +24,7 @@ func TestResizeJPEG(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	exceptFile, err := os.Open("../../testing/resources/test_image001_dst.jpg")
+	exceptFile, err := os.Open("../../integral_test/resources/test_image001_dst.jpg")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +39,7 @@ func TestResizeJPEG(t *testing.T) {
 }
 
 func TestGetSize(t *testing.T) {
-	imageFile, err := os.Open("../../testing/resources/test_image001.jpg")
+	imageFile, err := os.Open("../../integral_test/resources/test_image001.jpg")
 	if err != nil {
 		t.Fatal("Failed to os.Open", err)
 	}

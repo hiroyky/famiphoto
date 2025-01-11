@@ -13,11 +13,7 @@ func TestPhotoSearchQuery_Body(t *testing.T) {
 		q := &PhotoSearchQuery{}
 		actual := q.Body()
 		expected := &es.SearchRequestBody{
-			Query: map[string]any{
-				"bool": map[string]any{
-					"must": []map[string]any{},
-				},
-			},
+			Query: map[string]any{},
 			Sort: map[string]any{
 				"date_time_original": map[string]any{
 					"order": "desc",
@@ -33,12 +29,9 @@ func TestPhotoSearchQuery_Body(t *testing.T) {
 		actual := q.Body()
 		expected := &es.SearchRequestBody{
 			Query: map[string]any{
-				"bool": map[string]any{
-					"must": []map[string]any{},
-				},
 				"range": map[string]any{
 					"date_time_original": map[string]any{
-						"gte": 100,
+						"gte": int64(100000),
 					},
 				},
 			},
@@ -57,12 +50,9 @@ func TestPhotoSearchQuery_Body(t *testing.T) {
 		actual := q.Body()
 		expected := &es.SearchRequestBody{
 			Query: map[string]any{
-				"bool": map[string]any{
-					"must": []map[string]any{},
-				},
 				"range": map[string]any{
 					"date_time_original": map[string]any{
-						"lt": 200,
+						"lt": int64(200000),
 					},
 				},
 			},
@@ -82,13 +72,10 @@ func TestPhotoSearchQuery_Body(t *testing.T) {
 		actual := q.Body()
 		expected := &es.SearchRequestBody{
 			Query: map[string]any{
-				"bool": map[string]any{
-					"must": []map[string]any{},
-				},
 				"range": map[string]any{
 					"date_time_original": map[string]any{
-						"gte": 100,
-						"lt":  200,
+						"gte": int64(100000),
+						"lt":  int64(200000),
 					},
 				},
 			},
