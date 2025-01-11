@@ -18,6 +18,9 @@ fmt:
 	go fmt ./...
 
 test:
+	go test --short ./...
+
+test_integral:
 	go test ./...
 
 gen: sqlboiler gengql mockgen

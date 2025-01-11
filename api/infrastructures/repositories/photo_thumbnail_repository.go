@@ -2,10 +2,12 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/drivers/mysql"
 	"github.com/hiroyky/famiphoto/drivers/storage"
+	"github.com/hiroyky/famiphoto/errors"
 	"github.com/hiroyky/famiphoto/infrastructures/dbmodels"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -13,6 +15,7 @@ import (
 type PhotoThumbnailRepository interface {
 	SavePreview(ctx context.Context, photoID int, data []byte) error
 	SaveThumbnail(ctx context.Context, photoID int, data []byte) error
+	LoadPreview(ctx context.Context, photoID int) ([]byte, error)
 }
 
 func NewPhotoThumbnailRepository(fileDriver storage.Driver, db mysql.SQLExecutor) PhotoThumbnailRepository {
@@ -33,6 +36,14 @@ func (r *photoThumbnailRepository) SavePreview(ctx context.Context, photoID int,
 
 func (r *photoThumbnailRepository) SaveThumbnail(ctx context.Context, photoID int, data []byte) error {
 	return r.saveImage(ctx, photoID, data, config.AssetThumbnailImageName)
+}
+
+func (r *photoThumbnailRepository) LoadPreview(ctx context.Context, photoID int) ([]byte, error) {
+	thumbRow, err := dbmodels.FindPhotoThumbnail(ctx, r.db, photoID, config.AssetPreviewImageName)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.New(errors.DBRowNotFoundError, err)
+	}
+	return r.fileDriver.ReadFile(thumbRow.FilePath)
 }
 
 func (r *photoThumbnailRepository) saveImage(ctx context.Context, photoID int, data []byte, name string) error {
