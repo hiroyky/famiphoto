@@ -5,6 +5,7 @@ import (
 	"github.com/hiroyky/famiphoto/config"
 	"github.com/hiroyky/famiphoto/drivers/es"
 	"github.com/hiroyky/famiphoto/drivers/mysql"
+	"github.com/hiroyky/famiphoto/drivers/ollama"
 	"github.com/hiroyky/famiphoto/drivers/redis"
 	"github.com/hiroyky/famiphoto/drivers/storage"
 )
@@ -60,4 +61,8 @@ func NewMediaLocalStorageDriver() storage.Driver {
 
 func NewTempStorageDriver() storage.Driver {
 	return storage.NewLocalStorageDriver(config.Env.TempLocalRootPath)
+}
+
+func NewOllamaDriver() ollama.Client {
+	return ollama.NewClient()
 }

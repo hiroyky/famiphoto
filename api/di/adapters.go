@@ -87,3 +87,7 @@ func newUserRepository() repositories.UserRepository {
 func newUserPasswordRepository() repositories.UserPasswordRepository {
 	return repositories.NewUserPasswordRepository(NewMySQLDriver())
 }
+
+func NewPhotoDescribeRepository() repositories.PhotoDescribeRepository {
+	return repositories.NewPhotoDescribeRepository(NewOllamaDriver())
+}
