@@ -80,15 +80,15 @@ func (mr *MockPhotoImportUseCaseMockRecorder) IndexingPhotos(ctx, rootPath, exte
 }
 
 // UploadPhoto mocks base method.
-func (m *MockPhotoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileName string, body []byte) error {
+func (m *MockPhotoImportUseCase) UploadPhoto(ctx context.Context, signToken, fileName string, body []byte, now time.Time) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadPhoto", ctx, signToken, fileName, body)
+	ret := m.ctrl.Call(m, "UploadPhoto", ctx, signToken, fileName, body, now)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UploadPhoto indicates an expected call of UploadPhoto.
-func (mr *MockPhotoImportUseCaseMockRecorder) UploadPhoto(ctx, signToken, fileName, body interface{}) *gomock.Call {
+func (mr *MockPhotoImportUseCaseMockRecorder) UploadPhoto(ctx, signToken, fileName, body, now interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockPhotoImportUseCase)(nil).UploadPhoto), ctx, signToken, fileName, body)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockPhotoImportUseCase)(nil).UploadPhoto), ctx, signToken, fileName, body, now)
 }
